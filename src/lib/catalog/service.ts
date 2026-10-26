@@ -11,17 +11,18 @@ import {
 	voteTags,
 	votes,
 } from "@/db/schema";
-import { type Score, isRanked, isScore, rebuyPercent } from "@/lib/ranking/rules";
+import {
+	MIN_VOTES_TO_RANK,
+	type Score,
+	isRanked,
+	isScore,
+	rebuyPercent,
+} from "@/lib/ranking/rules";
 import { NotFound } from "@/lib/server/errors";
 
+import { bayesRebuyShare } from "./browse";
 import { productImageUrl } from "./image";
-import type {
-	Nutrition,
-	ProductCard,
-	ProductListItem,
-	ProductStatsView,
-	TagOption,
-} from "./types";
+import type { Nutrition, ProductCard, ProductStatsView, TagOption } from "./types";
 
 // Open Food Facts' keys, per 100 g.
 function readNutrition(nutriments: Record<string, number> | null): Nutrition | null {
@@ -58,6 +59,7 @@ function statsView(
 
 	return {
 		votesCount,
+		rank: null,
 		votesRegistered: row?.votesRegistered ?? 0,
 		ranked: isRanked(votesCount),
 		meanFace: meanFace !== null && isScore(meanFace) ? meanFace : null,
@@ -119,6 +121,7 @@ export async function getProductCard(
 				.where(eq(votes.productId, id))
 				.groupBy(votes.score),
 		]);
+	const rank = isRanked(stats?.votesCount ?? 0) ? await rankOf(id) : null;
 	const scoreCounts: Record<Score, number> = { 1: 0, 2: 0, 3: 0, 4: 0 };
 	for (const row of scoreRows)
 		if (isScore(row.score)) scoreCounts[row.score] = row.count;
@@ -131,7 +134,7 @@ export async function getProductCard(
 		quantity: product.product.quantity,
 		subtype: product.product.subtype,
 		categoryName: product.categoryName,
-		imageUrl: productImageUrl(product.product.imageKey),
+		imageUrl: productImageUrl(product.product.imageKey) ?? snapshot?.imageUrl ?? null,
 		producerUrl: product.product.producerUrl,
 		retailers,
 		ingredientsText:
@@ -142,7 +145,7 @@ export async function getProductCard(
 		nova: snapshot?.nova ?? null,
 		recipeChangedAt: product.product.recipeChangedAt?.toISOString() ?? null,
 		archived: product.product.status === "archived",
-		stats: statsView(scoreCounts, stats ?? null, tagOptions),
+		stats: { ...statsView(scoreCounts, stats ?? null, tagOptions), rank },
 		tagOptions,
 		myVote,
 	};
@@ -166,26 +169,19 @@ async function readMyVote(
 	return { score: vote.score, tagIds: tagRows.map(row => row.tagId) };
 }
 
-/** Until the ranking page exists: every published product, by name. */
-export async function listProducts(): Promise<ProductListItem[]> {
-	const rows = await getDb()
-		.select({
-			id: products.id,
-			ean: products.ean,
-			name: products.name,
-			brand: products.brand,
-			subtype: products.subtype,
-			quantity: products.quantity,
-			votesCount: sql<number>`coalesce(${productStats.votesCount}, 0)`,
-			rebuyCount: sql<number>`coalesce(${productStats.rebuyCount}, 0)`,
-		})
-		.from(products)
-		.leftJoin(productStats, eq(productStats.productId, products.id))
-		.where(eq(products.status, "published"))
-		.orderBy(asc(products.name));
-
-	return rows.map(({ rebuyCount, ...row }) => ({
-		...row,
-		rebuyPercent: rebuyPercent(rebuyCount, row.votesCount),
-	}));
+/** Where a ranked product stands: one plus the published, ranked products ordered above it. */
+async function rankOf(productId: string): Promise<number> {
+	const order = await bayesRebuyShare();
+	const [{ rank }] = (
+		await getDb().execute<{ rank: number }>(sql`
+			WITH ranked AS (
+				SELECT products.id, ${order} AS share
+				FROM products JOIN product_stats ps ON ps.product_id = products.id
+				WHERE products.status = 'published' AND ps.votes_count >= ${MIN_VOTES_TO_RANK}
+			)
+			SELECT 1 + count(*)::int AS rank FROM ranked
+			WHERE share > (SELECT share FROM ranked WHERE id = ${productId})
+		`)
+	).rows;
+	return rank;
 }

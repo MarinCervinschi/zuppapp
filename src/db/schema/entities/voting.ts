@@ -87,6 +87,8 @@ export const productStats = pgTable("product_stats", {
 	votesRegistered: integer().default(0).notNull(),
 	scoreSum: integer().default(0).notNull(),
 	rebuyCount: integer().default(0).notNull(),
+	/** Votes per face, "1" to "4": the spread the ranking draws. */
+	scoreCounts: jsonb().$type<Record<string, number>>().default({}).notNull(),
 	tagCounts: jsonb().$type<Record<string, number>>().default({}).notNull(),
 	updatedAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
 });

@@ -2,9 +2,11 @@ import { useId } from "react";
 
 import { Link } from "@tanstack/react-router";
 
+import type { Score } from "@/lib/ranking/rules";
 import { cn } from "@/lib/utils";
 
-import { Barcode } from "./barcode";
+import { PackPhoto } from "./pack-photo";
+import { ScoreSpread } from "./score-spread";
 import { Verdict } from "./verdict";
 
 export type ShelfLabelProduct = {
@@ -13,14 +15,20 @@ export type ShelfLabelProduct = {
 	brand: string | null;
 	subtype: string | null;
 	quantity?: string | null;
+	imageUrl?: string | null;
+	/** Position in the ranking, printed above the name when there is one. */
+	rank?: number | null;
 	votesCount: number;
 	rebuyPercent: number;
+	/** Votes per face; on the product page the label draws their spread under the name. */
+	scoreCounts?: Record<Score, number>;
 };
 
 /**
  * The cartellino on the shelf edge: what it is on the left, the verdict where the price
- * would be, the barcode underneath. In a list the whole label is the link, named by the
- * product alone; the details and the verdict are its description.
+ * would be. The barcode is not here: it identifies the pack for a scanner, not for a person
+ * choosing a soup, so it lives at the bottom of the product page. In a list the whole label
+ * is the link, named by the product alone; the details and the verdict are its description.
  */
 export function ShelfLabel({
 	product,
@@ -39,6 +47,7 @@ export function ShelfLabel({
 }) {
 	const nameId = useId();
 	const describeId = useId();
+	const detailsId = useId();
 	const details = [product.brand, product.subtype, product.quantity]
 		.filter(Boolean)
 		.join(" · ");
@@ -52,26 +61,38 @@ export function ShelfLabel({
 			{/* The yellow strip of the shelf edge the label clips onto. */}
 			<span aria-hidden className="bg-field block h-2" />
 			<span
-				// On its own page the name takes the full width; the verdict drops beside the barcode.
+				// On its own page the name takes the full width; the verdict drops beside the spread.
 				className={cn(
 					"grid grid-cols-[1fr_auto] gap-x-4 gap-y-3 p-4 sm:p-5",
 					stamp && "pb-8 sm:pb-8"
 				)}
 			>
-				<span className={cn("flex min-w-0 flex-col gap-1", page && "col-span-2")}>
-					{heading ? (
-						<h1 id={nameId} className={nameClass}>
-							{product.name}
-						</h1>
-					) : (
-						<span id={nameId} className={nameClass}>
-							{product.name}
-						</span>
-					)}
-					{details && <span className="text-small text-text-soft">{details}</span>}
+				<span className={cn("flex min-w-0 gap-3", page && "col-span-2")}>
+					{/* In a list the pack sits beside its name, to be recognised by sight; the name says it in words. */}
+					{!page && <PackPhoto src={product.imageUrl ?? null} alt="" size="thumb" />}
+					<span className="flex min-w-0 flex-col gap-1">
+						{product.rank && (
+							<span className="label-caps text-small">
+								{product.rank}° in classifica
+							</span>
+						)}
+						{heading ? (
+							<h1 id={nameId} className={nameClass}>
+								{product.name}
+							</h1>
+						) : (
+							<span id={nameId} className={nameClass}>
+								{product.name}
+							</span>
+						)}
+						{details && (
+							<span id={detailsId} className="text-small text-text-soft">
+								{details}
+							</span>
+						)}
+					</span>
 				</span>
 				<span id={describeId} className={page ? "contents" : "row-span-2 self-start"}>
-					{!page && details && <span className="sr-only">{details}. </span>}
 					<Verdict
 						rebuyPercent={product.rebuyPercent}
 						votesCount={product.votesCount}
@@ -79,12 +100,12 @@ export function ShelfLabel({
 						className={page ? "col-start-2 row-start-2 self-end" : undefined}
 					/>
 				</span>
-				{/* The EAN is for the eye and the scanner; in a list it would be read on every link. */}
-				<Barcode
-					ean={product.ean}
-					aria-hidden={!page}
-					className={cn("self-end", page && "col-start-1 row-start-2")}
-				/>
+				{page && product.scoreCounts && (
+					<ScoreSpread
+						counts={product.scoreCounts}
+						className="col-start-1 row-start-2 max-w-64 self-end"
+					/>
+				)}
 			</span>
 			{/* Inked across the label's bottom edge, half on the paper, as a hand stamp lands. */}
 			{stamp && <span className="absolute right-4 -bottom-5 z-10">{stamp}</span>}
@@ -99,7 +120,7 @@ export function ShelfLabel({
 			to="/prodotti/$ean"
 			params={{ ean: product.ean }}
 			aria-labelledby={nameId}
-			aria-describedby={describeId}
+			aria-describedby={details ? `${detailsId} ${describeId}` : describeId}
 			className={cn(
 				classes,
 				"hover:bg-text/10 transition-[scale,background-color] duration-150 ease-out motion-safe:active:scale-[0.96]"

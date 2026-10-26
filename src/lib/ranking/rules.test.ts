@@ -1,16 +1,20 @@
 import { describe, expect, it } from "vitest";
 
-import { bayesScore, isRanked, isScore, rebuyPercent } from "./rules";
+import { bayesRebuyShare, isRanked, isScore, rebuyPercent } from "./rules";
 
-describe("bayesScore", () => {
-	it("keeps a single top vote below a well-voted good product", () => {
-		const oneVote = bayesScore(4, 1, 2.8);
-		const manyVotes = bayesScore(3.8 * 200, 200, 2.8);
-		expect(oneVote).toBeLessThan(manyVotes);
+describe("bayesRebuyShare", () => {
+	it("keeps a few lucky votes below many good ones", () => {
+		const lucky = bayesRebuyShare(5, 7, 0.3); // 71% of 7
+		const solid = bayesRebuyShare(30, 40, 0.3); // 75% of 40
+		expect(lucky).toBeLessThan(solid);
 	});
 
-	it("is the global mean with no votes", () => {
-		expect(bayesScore(0, 0, 2.8)).toBeCloseTo(2.8);
+	it("never reverses two products with the same number of votes", () => {
+		expect(bayesRebuyShare(8, 15, 0.3)).toBeLessThan(bayesRebuyShare(10, 15, 0.3));
+	});
+
+	it("is the overall share with no votes", () => {
+		expect(bayesRebuyShare(0, 0, 0.3)).toBeCloseTo(0.3);
 	});
 });
 

@@ -9,7 +9,7 @@ export class TooManyRequests extends AppError {
 	constructor() {
 		super(
 			"INVALID",
-			"Stai votando un po' troppo in fretta: riprova tra qualche minuto"
+			"Stai votando un po’ troppo in fretta: riprova tra qualche minuto."
 		);
 	}
 }

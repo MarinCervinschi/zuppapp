@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as ProdottiEanRouteImport } from './routes/prodotti/$ean'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -17,6 +18,11 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesignRoute = DesignRouteImport.update({
@@ -37,12 +43,14 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/design': typeof DesignRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/design': typeof DesignRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/design': typeof DesignRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/design' | '/prodotti/$ean' | '/api/auth/$'
+  fullPaths: '/' | '/admin' | '/design' | '/prodotti/$ean' | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/design' | '/prodotti/$ean' | '/api/auth/$'
-  id: '__root__' | '/' | '/design' | '/prodotti/$ean' | '/api/auth/$'
+  to: '/' | '/admin' | '/design' | '/prodotti/$ean' | '/api/auth/$'
+  id: '__root__' | '/' | '/admin' | '/design' | '/prodotti/$ean' | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   DesignRoute: typeof DesignRoute
   ProdottiEanRoute: typeof ProdottiEanRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/design': {
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   DesignRoute: DesignRoute,
   ProdottiEanRoute: ProdottiEanRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

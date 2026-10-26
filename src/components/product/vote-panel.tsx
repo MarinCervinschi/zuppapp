@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { toast } from "sonner";
 
+import { Button } from "@/components/ds/button";
 import type { ProductCard } from "@/lib/catalog/types";
 import type { Score } from "@/lib/ranking/rules";
 import { useCastVote, useRemoveVote } from "@/lib/voting/mutations";
@@ -88,12 +89,34 @@ export function VotePanel({
 
 	return (
 		<section aria-labelledby="vote-heading" className="flex flex-col gap-6">
-			<h2
-				id="vote-heading"
-				className="font-condensed text-lead font-extrabold uppercase"
-			>
-				{vote.score ? "Il tuo voto" : "Com’era?"}
-			</h2>
+			<div className="flex flex-wrap items-center justify-between gap-3">
+				<h2
+					id="vote-heading"
+					className="font-condensed text-lead font-extrabold uppercase"
+				>
+					{vote.score ? "Il tuo voto" : "Com’era?"}
+				</h2>
+				{vote.score && (
+					// A real button, beside the heading it undoes; the toast that follows can put it back.
+					<Button
+						disabled={vote.busy}
+						onClick={() =>
+							vote.clear(() =>
+								// The button disappears with the vote: focus goes back to the first face.
+								requestAnimationFrame(() =>
+									picker.current?.querySelector<HTMLElement>('[role="radio"]')?.focus()
+								)
+							)
+						}
+						className="min-h-11 px-4"
+					>
+						<svg aria-hidden viewBox="0 0 12 12" className="size-3">
+							<path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="2" />
+						</svg>
+						Togli il voto
+					</Button>
+				)}
+			</div>
 			<FacePicker
 				ref={picker}
 				value={vote.score}
@@ -101,26 +124,14 @@ export function VotePanel({
 			/>
 			{vote.score && (
 				<>
+					<p className="text-small text-text-soft -mt-3">
+						Hai cambiato idea? Tocca un’altra faccia.
+					</p>
 					<TagPicker
 						options={product.tagOptions}
 						selected={vote.tagIds}
 						onChange={next => vote.submit(vote.score!, next)}
 					/>
-					<button
-						type="button"
-						disabled={vote.busy}
-						// The button disappears with the vote: focus goes back to the first face.
-						onClick={() =>
-							vote.clear(() =>
-								requestAnimationFrame(() =>
-									picker.current?.querySelector<HTMLElement>('[role="radio"]')?.focus()
-								)
-							)
-						}
-						className="text-body text-text-soft hover:text-text min-h-11 self-start underline"
-					>
-						Togli il mio voto
-					</button>
 				</>
 			)}
 		</section>

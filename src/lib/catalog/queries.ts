@@ -1,6 +1,11 @@
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
-import { getProductCardFn, listProductsFn } from "./api";
+import { facetsFn, getProductCardFn, rankingFn, searchFn, toTasteFn } from "./api";
+import type { BrowseParams } from "./schemas";
+
+// Filters without the page numbers: each list adds only its own page to its key.
+type Filters = Omit<BrowseParams, "pagina" | "posti" | "mostra" | "righe">;
+type Paging = { page: number; size?: number };
 
 export const catalogQueries = {
 	card: (ean: string) =>
@@ -8,9 +13,28 @@ export const catalogQueries = {
 			queryKey: ["catalog", "card", ean],
 			queryFn: () => getProductCardFn({ data: { ean } }),
 		}),
-	list: () =>
+	ranking: (filters: Filters, { page, size }: Paging) =>
 		queryOptions({
-			queryKey: ["catalog", "list"],
-			queryFn: () => listProductsFn(),
+			queryKey: ["catalog", "ranking", filters, page, size],
+			queryFn: () => rankingFn({ data: { ...filters, posti: page, righe: size } }),
+			placeholderData: keepPreviousData,
+		}),
+	facets: (filters: Filters) =>
+		queryOptions({
+			queryKey: ["catalog", "facets", filters],
+			queryFn: () => facetsFn({ data: filters }),
+			placeholderData: keepPreviousData,
+		}),
+	toTaste: (filters: Filters, { page, size }: Paging) =>
+		queryOptions({
+			queryKey: ["catalog", "to-taste", filters, page, size],
+			queryFn: () => toTasteFn({ data: { ...filters, pagina: page, mostra: size } }),
+			placeholderData: keepPreviousData,
+		}),
+	search: (filters: Filters, { page, size }: Paging) =>
+		queryOptions({
+			queryKey: ["catalog", "search", filters, page, size],
+			queryFn: () => searchFn({ data: { ...filters, pagina: page, mostra: size } }),
+			placeholderData: keepPreviousData,
 		}),
 };

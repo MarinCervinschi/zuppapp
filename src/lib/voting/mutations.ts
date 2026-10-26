@@ -15,23 +15,30 @@ async function ensureVoter() {
 	const { error } = await authClient.signIn.anonymous({
 		fetchOptions: token ? { headers: { "x-captcha-response": token } } : undefined,
 	});
-	if (error) throw new Error("Non è stato possibile registrare il voto. Riprova.");
+	if (error)
+		throw new Error(
+			"Il voto non è partito. Controlla la connessione e tocca di nuovo la faccia."
+		);
 }
 
-export function useCastVote(ean: string) {
+export function useCastVote(ean?: string) {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: async (input: {
 			productId: string;
 			score: number;
-			tagIds: string[];
+			tagIds?: string[];
 		}) => {
 			await ensureVoter();
 			await castVoteFn({ data: input });
 		},
+		// From a list tile the ranking may change, but the shelf under the reader's thumb stays
+		// put: refetching it would move the tile they just tapped.
 		onSuccess: () =>
-			queryClient.invalidateQueries({ queryKey: ["catalog", "card", ean] }),
+			queryClient.invalidateQueries({
+				queryKey: ean ? ["catalog", "card", ean] : ["catalog", "ranking"],
+			}),
 		onError: (error: Error) => toast.error(error.message),
 	});
 }

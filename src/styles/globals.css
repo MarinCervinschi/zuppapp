@@ -84,6 +84,13 @@
 		6.5rem
 	); /* the verdict, set like a shelf price */
 	--text-figure--line-height: 0.85;
+	/* Display sizes outside the reading scale, named for their one job. */
+	--text-wordmark: clamp(3.5rem, 16vw, 6.5rem); /* «Zuppapp» on the yellow header */
+	--text-wordmark--line-height: 0.82;
+	--text-rank: min(5rem, 22vw); /* 2nd and 3rd on the podium */
+	--text-rank--line-height: 0.8;
+	--text-rank-hero: min(10rem, 24vw); /* the 1st place */
+	--text-rank-hero--line-height: 0.8;
 	--text-figure-sm: 3.25rem; /* the verdict on a label in a list */
 	--text-figure-sm--line-height: 0.85;
 
@@ -156,6 +163,11 @@
 		outline-offset: 2px;
 	}
 
+	/* No lone word on the last line of a paragraph. */
+	p {
+		text-wrap: pretty;
+	}
+
 	a {
 		text-underline-offset: 0.18em;
 		text-decoration-thickness: from-font;
@@ -174,6 +186,42 @@
 	/* The rules between nutrients belong to the table, as on the pack. */
 	.nutrient-row {
 		border-bottom: 1px solid color-mix(in oklab, var(--rule) 40%, transparent); /* taste-skill-ignore */
+	}
+
+	/*
+	 * Anything printed on the yellow field keeps the light theme in both themes: yellow never
+	 * carries pale ink, so the text, the spread bar and the focus ring stay dark and red on it,
+	 * and a field set on it (the search) stays paper, so typed text stays dark on light.
+	 */
+	.on-field {
+		--ground: #f2f2f0;
+		--ground-raised: #e4e4e1;
+		--text: #1d1b19;
+		--text-soft: #4a4641;
+		--accent: #be241b;
+		color: var(--text);
+	}
+
+	/* «Mai più» in the spread bar: the same ink as «Si mangia», told apart by a 45° hatch. */
+	.hatch {
+		/* prettier-ignore */
+		background: repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 4px); /* taste-skill-ignore */
+	}
+
+	/*
+	 * Small capitals set like a shelf tag: condensed, black, uppercase. At 13px uppercase needs
+	 * air between the letters to stay legible, so these carry 0.05em of tracking.
+	 */
+	.label-caps {
+		font-stretch: 62%;
+		font-weight: 900;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	/* The only depth in the system, for a menu that floats over the content («Per pagina»). taste-skill-ignore */
+	.float-shadow {
+		box-shadow: 0 8px 24px rgb(0 0 0 / 0.22); /* taste-skill-ignore */
 	}
 
 	/* The dot leader of a receipt row: round 2px dots, the printer's way of joining label and value. */

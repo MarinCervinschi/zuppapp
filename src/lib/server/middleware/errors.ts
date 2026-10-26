@@ -11,7 +11,9 @@ export const errorMiddleware = createMiddleware({ type: "function" }).server(
 		} catch (err) {
 			if (isRedirect(err) || isNotFound(err) || err instanceof AppError) throw err;
 			console.error(err);
-			throw new Error("Si è verificato un errore. Riprova più tardi.");
+			throw new Error(
+				"Qualcosa non ha funzionato da parte nostra. Riprova tra un momento."
+			);
 		}
 	}
 );

@@ -3,16 +3,20 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { BowlFace } from "@/components/brand/bowl-face";
+import { Leaderboard, Podium } from "@/components/catalog/ranking";
+import { TasteTile } from "@/components/catalog/taste-tile";
 import { AppBar } from "@/components/ds/app-bar";
 import { Barcode } from "@/components/ds/barcode";
 import { Button } from "@/components/ds/button";
 import { NutritionLabel } from "@/components/ds/nutrition-label";
 import { Receipt, ReceiptRow, ReceiptTotal } from "@/components/ds/receipt";
+import { ScoreSpread, SpreadLegend } from "@/components/ds/score-spread";
 import { ShelfLabel } from "@/components/ds/shelf-label";
 import { Stamp } from "@/components/ds/stamp";
 import { Sticker } from "@/components/ds/sticker";
 import { VoteDistribution } from "@/components/ds/vote-distribution";
 import { FacePicker } from "@/components/product/face-picker";
+import type { ProductListItem } from "@/lib/catalog/types";
 import { SCORES, SCORE_LABELS, type Score } from "@/lib/ranking/rules";
 
 export const Route = createFileRoute("/design")({
@@ -45,6 +49,45 @@ const SAMPLE = {
 	rebuyPercent: 64,
 };
 
+// Sample products for the specimens; the EANs are shop-internal codes, never real packs.
+function sample(
+	rank: number | null,
+	name: string,
+	brand: string,
+	rebuy: number,
+	votes: number
+): ProductListItem {
+	const four = Math.round((votes * rebuy) / 100);
+	const rest = votes - four;
+	return {
+		id: `sample-${name}`,
+		ean: "2000000000015",
+		name,
+		brand,
+		subtype: "minestrone",
+		quantity: "620 g",
+		imageUrl: null,
+		votesCount: votes,
+		rebuyPercent: rebuy,
+		scoreCounts: {
+			4: four,
+			3: Math.ceil(rest / 2),
+			2: Math.floor(rest / 3),
+			1: rest - Math.ceil(rest / 2) - Math.floor(rest / 3),
+		},
+		rank,
+		myScore: null,
+	};
+}
+
+const RANKING = [
+	sample(1, "Minestrone di 11 verdure", "Marca Esempio", 79, 24),
+	sample(2, "Vellutata di zucca", "Marca Esempio", 71, 31),
+	sample(3, "Zuppa di legumi e cereali", "Altra Marca", 64, 18),
+	sample(4, "Passato di verdure", "Altra Marca", 50, 18),
+	sample(5, "Crema di funghi", "Marca Esempio", 41, 17),
+];
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
 	return (
 		<section className="flex flex-col gap-5">
@@ -66,7 +109,7 @@ function DesignPage() {
 	return (
 		<>
 			<AppBar back />
-			<main className="mx-auto flex max-w-xl flex-col gap-14 px-4 pt-6 pb-20">
+			<main className="mx-auto flex max-w-3xl flex-col gap-14 px-4 pt-6 pb-20">
 				<header className="flex flex-col gap-3">
 					<h1 className="font-condensed text-title font-black uppercase">
 						Design system
@@ -147,6 +190,33 @@ function DesignPage() {
 						heading={false}
 						product={{ ...SAMPLE, votesCount: 1, name: "Passato di verdure" }}
 					/>
+				</Section>
+
+				<Section title="Classifica: podio e righe">
+					<SpreadLegend />
+					<Podium products={RANKING.slice(0, 3)} />
+					<Leaderboard products={RANKING.slice(3)} start={4} />
+				</Section>
+
+				<Section title="Distribuzione dei voti">
+					<ScoreSpread counts={{ 4: 82, 3: 23, 2: 14, 1: 9 }} />
+				</Section>
+
+				<Section title="Da assaggiare, con voto rapido">
+					<ul className="grid grid-cols-2 gap-3">
+						<li>
+							<TasteTile
+								demo
+								product={sample(null, "Zuppa toscana", "Marca Esempio", 0, 2)}
+							/>
+						</li>
+						<li>
+							<TasteTile
+								demo
+								product={sample(null, "Brodo vegetale", "Altra Marca", 0, 0)}
+							/>
+						</li>
+					</ul>
 				</Section>
 
 				<Section title="Etichette dei tag">

@@ -45,8 +45,10 @@ export const products = pgTable(
 		attributes: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
 		imageKey: text(),
 		producerUrl: text(),
-		// Copied from the latest snapshot, so search and the card need no join.
+		// Copied from the latest snapshot, so search, filters and the card need no join.
 		ingredientsText: text(),
+		nutriscore: text(),
+		allergens: text().array().default([]).notNull(),
 		// Fields an admin corrected by hand; the Open Food Facts sync leaves them alone.
 		overrides: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
 		offLastModifiedAt: timestamp({ withTimezone: true }),
@@ -70,6 +72,8 @@ export const productSnapshots = pgTable(
 		nutriments: jsonb().$type<Record<string, number>>(),
 		nutriscore: text(),
 		nova: smallint(),
+		// Open Food Facts' front photo, CC-BY-SA: shown as is until a copy lives on R2.
+		imageUrl: text(),
 		fetchedAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
 	},
 	table => [index("idx_product_snapshots_product").on(table.productId, table.fetchedAt)]

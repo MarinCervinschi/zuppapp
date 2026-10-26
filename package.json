@@ -18,7 +18,10 @@
 		"db:generate": "dotenv run -q -- drizzle-kit generate",
 		"db:migrate": "dotenv run -q -- drizzle-kit migrate",
 		"db:studio": "dotenv run -q -- drizzle-kit studio",
-		"db:seed": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/seed-dev.ts"
+		"db:seed": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/seed-dev.ts",
+		"catalog:import": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/catalog-import.ts",
+		"user:admin": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/user-admin.ts",
+		"db:seed:votes": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/seed-dev-votes.ts"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
@@ -35,6 +38,7 @@
 		"@tanstack/react-router": "^1.170.46",
 		"@tanstack/react-router-ssr-query": "^1.167.3",
 		"@tanstack/react-start": "^1.169.4",
+		"aws4fetch": "^1.0.20",
 		"better-auth": "^1.7.13",
 		"clsx": "^2.1.1",
 		"drizzle-orm": "^0.45.4",

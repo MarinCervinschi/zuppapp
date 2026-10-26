@@ -13,10 +13,10 @@ const HOUR_MS = 60 * 60 * 1000;
 /** One vote per voter and product: voting again replaces the score and the tags. */
 export async function castVote(
 	userId: string,
-	input: { productId: string; score: number; tagIds: string[] }
+	input: { productId: string; score: number; tagIds?: string[] }
 ) {
 	hit(`vote:${clientIp()}`, VOTES_PER_HOUR, HOUR_MS);
-	const tagIds = [...new Set(input.tagIds)];
+	const tagIds = input.tagIds ? [...new Set(input.tagIds)] : null;
 
 	await getDb().transaction(async tx => {
 		const [product] = await tx
@@ -26,12 +26,15 @@ export async function castVote(
 		if (!product || product.status === "draft")
 			throw new NotFound("Prodotto non trovato");
 
-		if (tagIds.length > 0) {
+		if (tagIds && tagIds.length > 0) {
 			const known = await tx
 				.select({ id: tags.id })
 				.from(tags)
 				.where(and(inArray(tags.id, tagIds), eq(tags.active, true)));
-			if (known.length !== tagIds.length) throw new Invalid("Tag non valido");
+			if (known.length !== tagIds.length)
+				throw new Invalid(
+					"Uno dei tag non c’è più: ricarica la pagina e sceglilo di nuovo."
+				);
 		}
 
 		await tx
@@ -41,13 +44,17 @@ export async function castVote(
 				target: [votes.userId, votes.productId],
 				set: { score: input.score, updatedAt: sql`now()` },
 			});
-		await tx
-			.delete(voteTags)
-			.where(and(eq(voteTags.userId, userId), eq(voteTags.productId, input.productId)));
-		if (tagIds.length > 0) {
+		if (tagIds) {
 			await tx
-				.insert(voteTags)
-				.values(tagIds.map(tagId => ({ userId, productId: input.productId, tagId })));
+				.delete(voteTags)
+				.where(
+					and(eq(voteTags.userId, userId), eq(voteTags.productId, input.productId))
+				);
+			if (tagIds.length > 0) {
+				await tx
+					.insert(voteTags)
+					.values(tagIds.map(tagId => ({ userId, productId: input.productId, tagId })));
+			}
 		}
 
 		await refreshProductStats(tx, [input.productId]);

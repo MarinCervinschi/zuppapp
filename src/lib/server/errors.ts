@@ -14,19 +14,19 @@ export class AppError extends Error {
 }
 
 export class Unauthorized extends AppError {
-	constructor(message = "Non autenticato") {
+	constructor(message = "Accedi per continuare.") {
 		super("UNAUTHORIZED", message);
 	}
 }
 
 export class Forbidden extends AppError {
-	constructor(message = "Non hai i permessi per questa operazione") {
+	constructor(message = "Questa azione è riservata agli admin.") {
 		super("FORBIDDEN", message);
 	}
 }
 
 export class NotFound extends AppError {
-	constructor(message = "Risorsa non trovata") {
+	constructor(message = "Non l’abbiamo trovato. Torna a tutte le zuppe e riprova.") {
 		super("NOT_FOUND", message);
 	}
 }

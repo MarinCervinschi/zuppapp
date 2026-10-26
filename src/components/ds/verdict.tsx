@@ -1,3 +1,4 @@
+import { VOTI, count } from "@/lib/plural";
 import { MIN_VOTES_TO_RANK } from "@/lib/ranking/rules";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +40,9 @@ export function Verdict({
 					Da votare
 				</span>
 				<span className="text-small font-semibold">
-					{votesCount === 0 ? "nessun voto" : `${votesCount} su ${MIN_VOTES_TO_RANK}`}
+					{votesCount === 0
+						? "nessun voto"
+						: `${count(votesCount, VOTI)} su ${MIN_VOTES_TO_RANK}`}
 				</span>
 			</p>
 		);
@@ -54,9 +57,11 @@ export function Verdict({
 				)}
 			>
 				{rebuyPercent}
-				<span className={big ? "text-[0.5em]" : "text-[0.55em]"}>%</span>
+				<span className="text-[0.5em]">%</span>
 			</span>
-			<span className="text-small font-semibold">la ricompra</span>
+			<span className="text-small font-semibold">
+				la ricompra · {count(votesCount, VOTI)}
+			</span>
 		</p>
 	);
 }

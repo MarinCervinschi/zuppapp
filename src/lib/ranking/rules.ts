@@ -1,6 +1,6 @@
 // The ranking formula from SPEC.md, kept free of the database so it can be tested alone.
 
-/** Fake votes at the global mean every product starts with, so one top vote cannot win. */
+/** Fake votes at the overall share every product starts with, so one top vote cannot win. */
 export const PRIOR_VOTES = 5;
 /** Below this a product shows "Pochi voti" instead of a rank. */
 export const MIN_VOTES_TO_RANK = 3;
@@ -20,8 +20,16 @@ export function isScore(value: number): value is Score {
 	return (SCORES as readonly number[]).includes(value);
 }
 
-export function bayesScore(scoreSum: number, votesCount: number, globalMean: number) {
-	return (PRIOR_VOTES * globalMean + scoreSum) / (PRIOR_VOTES + votesCount);
+/**
+ * What the ranking orders by: the share of "La ricompro" votes, pulled towards the share of
+ * all votes by PRIOR_VOTES fake ones. The same formula runs in SQL in catalog/browse.ts.
+ */
+export function bayesRebuyShare(
+	rebuyCount: number,
+	votesCount: number,
+	globalShare: number
+) {
+	return (PRIOR_VOTES * globalShare + rebuyCount) / (PRIOR_VOTES + votesCount);
 }
 
 /** Share of 🤤 votes, 0–100, rounded: the number the card shows. */

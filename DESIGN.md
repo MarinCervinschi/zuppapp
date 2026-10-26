@@ -49,14 +49,16 @@ Press Start 2P), perché è generico e lontano dal soggetto.
 Due inchiostri su carta, più un giallo. I componenti usano solo i token semantici (`bg-ground`, `text-text-soft`,
 …), mai i primitivi. Il tema segue `prefers-color-scheme`, un solo meccanismo.
 
-| Token                | Chiaro                | Scuro                 | Ruolo                                                      |
-| -------------------- | --------------------- | --------------------- | ---------------------------------------------------------- |
-| `ground`             | `#f2f2f0`             | `#191816`             | carta termica, lo sfondo                                   |
-| `ground-raised`      | `#e4e4e1`             | `#26241f`             | il secondo foglio: cartellini, scontrini, controlli        |
-| `text`               | `#1d1b19`             | `#edebe6`             | inchiostro dello scontrino                                 |
-| `text-soft`          | `#5e5a55`             | `#b3aea6`             | inchiostro sbiadito: dettagli, note                        |
-| `accent`             | `#be241b`             | `#ff6b5b`             | rosso timbro: il voto e l'anello di focus, **nient'altro** |
-| `field` / `on-field` | `#ffd21f` / `#1d1b19` | `#e8be14` / `#1d1b19` | giallo scaffale: un campo per schermata, e il «Da votare»  |
+| Token                | Chiaro                | Scuro                 | Ruolo                                                                                          |
+| -------------------- | --------------------- | --------------------- | ---------------------------------------------------------------------------------------------- |
+| `ground`             | `#f2f2f0`             | `#191816`             | carta termica, lo sfondo                                                                       |
+| `ground-raised`      | `#e4e4e1`             | `#26241f`             | il secondo foglio: cartellini, scontrini, controlli                                            |
+| `text`               | `#1d1b19`             | `#edebe6`             | inchiostro dello scontrino                                                                     |
+| `text-soft`          | `#5e5a55`             | `#b3aea6`             | inchiostro sbiadito: dettagli, note                                                            |
+| `accent`             | `#be241b`             | `#ff6b5b`             | rosso timbro: il voto, «La ricompro», le ragioni a favore e l'anello di focus; **nient'altro** |
+| `field` / `on-field` | `#ffd21f` / `#1d1b19` | `#e8be14` / `#1d1b19` | giallo scaffale: un campo per schermata, e il «Da votare»                                      |
+
+**Sul campo giallo si stampa sempre con il tema chiaro**, anche in modalità scura: ogni contenitore `bg-field` porta la classe `.on-field`, che rimette inchiostro, rosso e carta ai valori chiari. Senza, in modalità scura la barra dei voti del 1° posto e l'anello di focus della ricerca sparirebbero sul giallo (1,5:1).
 
 Contrasti misurati con culori (WCAG 2):
 
@@ -96,6 +98,11 @@ Cinque misure, ognuna con la sua interlinea, in `rem`:
 | `text-figure`    | 64–104 px | 0,85       | il verdetto, come un prezzo a scaffale          |
 | `text-figure-sm` | 52 px     | 0,85       | il verdetto sul cartellino in lista             |
 
+Fuori dalla scala ci sono solo misure da esposizione con un nome e un compito: `text-wordmark` (il marchio),
+`text-rank-hero` (il 1° posto) e `text-rank` (2° e 3°). Le etichette maiuscole piccole usano `.label-caps`:
+stretto, nero, maiuscolo e **0,05 em di spaziatura**, perché a 13 px il maiuscolo senza aria non si legge. I
+paragrafi vanno a capo con `text-wrap: pretty`, così non resta una parola sola sull'ultima riga.
+
 Le cifre che cambiano o si confrontano (percentuali, conteggi, EAN, valori nutrizionali) usano `tabular-nums`.
 
 ## Oggetti (componenti)
@@ -122,15 +129,120 @@ Tutti in `src/components/ds/`, più le facce in `src/components/brand/`.
   stampati e una barra sottile sotto ciascuna: una serie sola, la barra non è mai l'unica portatrice del numero.
 - **`NutritionLabel`.** La dichiarazione nutrizionale UE come sta sulla confezione. È una tabella vera, quindi
   tiene le sue righe: spessa sotto il titolo, sottili tra i nutrienti.
-- **`Barcode`.** EAN-13 vero con zona di rispetto; un codice non valido mostra solo il testo.
+- **`PackPhoto`.** La foto della confezione, mai ritagliata (`object-contain`), con il contorno neutro da 1 px. Sulla pagina sta sopra il cartellino, come il prodotto sullo scaffale; in lista è una miniatura accanto al nome, con `alt` vuoto perché il nome la dice già.
+- **`Barcode`.** EAN-13 vero con zona di rispetto; un codice non valido mostra solo il testo. Compare **solo in fondo alla scheda prodotto**, piccolo: serve a uno scanner o a chi cerca quella confezione precisa, non a chi sceglie una zuppa (vedi «Regole»).
+- **Filtri e schede di stato** (home e `/admin`). Sono link, non pulsanti: ogni filtro è un URL che si può
+  condividere e che funziona anche senza JavaScript. Quello attivo è in negativo e ha `aria-current`, il
+  conteggio è in cifre tabulari. Marca e ordinamento usano `<select>` nativi con etichetta visibile, perché
+  le liste sono lunghe.
+- **Campo di ricerca.** Foglio rialzato con una riga d'inchiostro da 3 px sotto, come lo spazio da compilare
+  su un modulo; etichetta visibile e 16 px, così iOS non ingrandisce la pagina.
+- **`Podium`, `Leaderboard`** (`src/components/catalog/ranking.tsx`). Vedi «La classifica è un volantino».
+- **`ScoreSpread` e `SpreadLegend`.** Come si sono divisi i voti, in una barra: rosso per «La ricompro»,
+  inchiostro pieno per «Buona», inchiostro al 55% per «Si mangia» (almeno 3:1 sulla carta) e lo stesso
+  inchiostro tratteggiato a 45° per «Mai più» (`.hatch`), così non si devono distinguere due grigi. Segmenti
+  separati da 2 px di carta. Il nome accessibile è la frase con le percentuali. La legenda si stampa una volta sopra una lista di barre.
+- **`TasteTile` e `QuickVote`.** La scheda di un prodotto da assaggiare: confezione, nome, quanti voti mancano e
+  quattro scodelle. Ogni scodella è un pulsante da 48 px con `aria-pressed` e il nome della faccia, dentro un
+  gruppo «Vota <prodotto>».
+- **`FilterPanel`, `FilterSheet`, `ActiveFilters`.** Vedi «Filtri».
 - **`Button`.** Quadrato, piatto, un solo riempimento: `ink` per l'unica azione primaria della vista, `paper` per
   tutto il resto.
 - **`AppBar`.** Il marchio e la via di ritorno, senza cromature.
 
+## Regole per ogni schermata
+
+Valgono per ogni funzione nuova. Sono nate dalla revisione della home: una lista di cartellini tutti
+uguali non sembrava una classifica, e il codice a barre in primo piano non diceva niente a chi vota.
+
+### Gerarchia: cosa conta per chi sceglie una zuppa
+
+1. **La confezione** (foto): è così che la si riconosce allo scaffale.
+2. **Il verdetto**: la percentuale di «la ricompro» e quanti voti la sostengono.
+3. **Il nome**, poi marca, tipo e formato.
+4. **Come si sono divisi i voti** (`ScoreSpread`).
+5. Tutto il resto (EAN, codice a barre, NOVA, dati tecnici) va **in fondo alla scheda**, mai in una lista.
+
+Prima di aggiungere un'informazione a una lista bisogna chiedersi se aiuta a scegliere. Se non aiuta, va nella
+scheda.
+
+### La classifica è un volantino
+
+La home si impagina come la copertina di un volantino del supermercato. Dove il volantino stampa il prezzo,
+Zuppapp stampa la quota di «la ricompro».
+
+- **Podio** (`Podium`): il 1° è la copertina, sul campo giallo, con la confezione grande su un piatto bianco e la
+  posizione in cifre enormi. 2° e 3° stanno accanto, sul foglio rialzato. Su desktop la griglia è a 12 colonne
+  (7 + 5), e i tre riquadri condividono le stesse linee.
+- **Dal 4° in giù** (`Leaderboard`): una riga per prodotto con posizione in cifre grandi, miniatura, nome,
+  barra della distribuzione e percentuale. È un vero `<ol>` che parte da 4.
+- **Accanto a ogni percentuale c'è sempre il numero di voti**, con lo stesso peso («su 18 voti»): è questo che spiega l'ordine.
+- **L'ordine non deve mai smentire i numeri**: la classifica ordina per stima bayesiana della stessa quota che
+  si vede (`bayesRebuyShare`, 5 voti fittizi alla quota generale). Una riga sotto il titolo spiega perché pochi
+  voti salgono piano.
+- **Da 3 voti in su si entra in classifica.** Prima il prodotto sta in «Da assaggiare», con l'etichetta gialla
+  «Mancano N voti alla classifica».
+- **La posizione** si scrive «1° in classifica», con una cifra sola. Mai numeri decorativi come 01 o 02.
+
+### Votare deve costare un tap
+
+- Ogni scheda «Da assaggiare» ha le quattro scodelle (`QuickVote`): si vota dalla lista senza aprire niente. In una scheda stretta le scodelle vanno 2×2 con il nome sotto ciascuna; in riga, sotto stanno scritti i due estremi «Mai più» e «La ricompro», così nessuno vota la scala al contrario. Ogni scodella è alta almeno 48 px.
+- Il voto del lettore conta subito nell'etichetta della scheda: mai «Nessun voto» sopra «Hai votato».
+  Tag, scontrino e ripensamenti stanno nella scheda prodotto, a un link di distanza («Aggiungi due parole»).
+- Il voto rapido **non tocca i tag già scelti** (`tagIds` omesso).
+- Dopo il voto la scheda resta dov'era: si aggiorna la classifica, non la griglia sotto il pollice. Se il voto
+  è quello che fa entrare il prodotto in classifica, la scheda lo dice.
+
+### Il voto nella scheda prodotto
+
+- **Togliere il voto è un pulsante vero** («× Togli il voto»), accanto al titolo «Il tuo voto», mai un link
+  sbiadito. Il toast «Voto tolto» con «Rimettilo» lo annulla.
+- Sotto le facce una riga ricorda che si cambia idea toccando un'altra faccia.
+- **I tag si scelgono per significato**, in tre gruppi con un'etichetta: **Pro**, **Contro**, **Com'è**. Il
+  significato si legge in tre modi, così nessuno deve portarlo da solo: il gruppo, il segno (+ − ·) e
+  l'inchiostro. **Il rosso timbro vuol dire «a favore»** (è il rosso di «La ricompro»): il + dei Pro è rosso e un
+  Pro scelto si inchiostra di rosso; Contro e Com'è scelti si inchiostrano di nero. Lo scontrino elenca i tag
+  nello stesso ordine e con gli stessi segni.
+
+### Filtri
+
+- **Ogni filtro è un link**: è un URL che si può condividere, il tasto indietro lo annulla e funziona prima che
+  arrivi il JavaScript. Fa eccezione la marca, che è un `<select>` nativo perché la lista è lunga.
+- **Un solo pannello** (`FilterPanel`): laterale e fisso su desktop (≥ 1024 px), su telefono in un foglio dal
+  basso (`FilterSheet`, un `<dialog>` nativo) aperto da «Filtri (n)». Il foglio si chiude con «Mostra N zuppe».
+- **I filtri attivi** stanno sopra i risultati come chip in negativo, ciascuna con ×, più «Togli tutti».
+- **Ogni opzione mostra quante zuppe trova**, calcolato senza il proprio filtro, così le opzioni non spariscono.
+- **La marca ha un selettore nostro** (`BrandPicker`), mai il `<select>` nativo: un pulsante che apre nel flusso del pannello un campo «Cerca una marca» e l'elenco delle marche come link, con i conteggi, le più presenti prima. Esc lo chiude e riporta il focus sul pulsante.
+- **Lo stato si annuncia con `aria-current`**: ogni link che riscrive l'URL della home usa `activeOptions={EXACT_SEARCH}`, altrimenti il router segna come correnti anche «Tutte» e le chip da togliere.
+- **I filtri utili sono quelli di chi mangia**: tipo, Nutri-Score, «Senza» un allergene, marca. «Senza»
+  esclude chi dichiara l'allergene e ricorda di leggere sempre l'etichetta.
+
+### Liste e griglie
+
+- **Telefono**: una colonna per la classifica, due per le schede da assaggiare. **Desktop**: pannello filtri
+  da 16rem più contenuto, griglia a tre colonne. Contenitore massimo `max-w-6xl`.
+- **Le foto delle confezioni** stanno su un piatto bianco quadrato, intere (`object-contain`), e si chiedono
+  alla misura che si disegna (`sizedImage`: 100, 200 o 400 px da Open Food Facts).
+- **Nessun nome troncato**: si va a capo.
+- **Toccare una foto la ingrandisce, non apre la scheda** (`ZoomablePhoto`): le persone toccano una foto per leggere la confezione. Il resto della scheda resta il link al dettaglio, con un unico link «esteso» (`after:absolute after:inset-0` sul nome) e la foto sopra.
+- **Tutte le liste lunghe usano pagine numerate** (`Pagination`), mai liste infinite, in **una riga sola** sotto
+  la lista. A sinistra «‹ Indietro 1 2 … 38 Avanti ›»: numeri semplici sulla carta, la pagina corrente in
+  inchiostro pieno, «Indietro» e «Avanti» sbiaditi ma al loro posto quando non servono, così i numeri non
+  saltano; su telefono restano solo le frecce, e la parola resta per i lettori di schermo. A destra, in
+  piccolo, cosa mostra la pagina («49–72 di 446 zuppe», nella classifica «Posti 1–10 di 44») e «Per pagina
+  12 ▾»: un menu di link che si apre verso l'alto (12, 24, 48 schede; 10, 20, 50 righe). Ogni pagina e ogni
+  misura è un URL (`pagina` e `mostra` per «Da assaggiare» e per la ricerca, `posti` e `righe` per la
+  classifica). Il link riporta alla propria sezione, e cambiare misura riparte dalla pagina 1.
+- **Nella classifica «per pagina» conta i posti, podio compreso**: con 10 per pagina, pagina 1 mostra i posti
+  1–10 (il podio più le righe dal 4° al 10°), pagina 2 i posti 11–20. Il podio sta solo nella prima pagina,
+  così il numero scelto e i numeri sullo schermo dicono la stessa cosa.
+- **La ricerca cambia modo**: con un testo la home mostra i risultati per pertinenza, senza podio.
+
 ## Forma, spazio, movimento
 
 - **Angoli vivi ovunque** (`radius-none`). Le uniche curve sono le scodelle.
-- **Nessuna ombra, nessun gradiente visibile, nessun bordo sottile decorativo.** I fogli si separano con un passo
+- **Nessuna ombra, nessun gradiente visibile, nessun bordo sottile decorativo.** L'unica ombra è di ciò che
+  galleggia davvero sopra il contenuto: il menu «Per pagina». I fogli si separano con un passo
   di tono (`ground` → `ground-raised`). I bordi esistono solo nella tabella nutrizionale e nel timbro, dove sono
   l'oggetto stesso.
 - **Bordi sagomati**: lo zig-zag dello scontrino e le punte dello sticker sono maschere e `clip-path`, non
@@ -167,6 +279,24 @@ Tutti in `src/components/ds/`, più le facce in `src/components/brand/`.
 
 Italiano parlato da banco del supermercato, breve, alla seconda persona, con apostrofi e virgolette tipografici (’ « »): «Com’era?», «Due parole in più?»,
 «Togli il mio voto», «Da votare», «Lo scontrino dei voti». Niente punti esclamativi, niente «Ops!».
+
+Regole dei testi (da better-writing):
+
+- **Ogni errore dice cosa fare**: «Il codice EAN ha da 8 a 14 cifre.», «Il voto non è partito. Controlla la
+  connessione e tocca di nuovo la faccia.», «Uno dei tag non c'è più: ricarica la pagina e sceglilo di nuovo.»
+  Mai solo «non valido» o «non trovato».
+- **Annullare batte chiedere conferma** per le azioni frequenti e reversibili: togliere un voto, archiviare o
+  pubblicare prodotti in admin. Il toast offre «Annulla» o «Rimettilo».
+- **I conteggi passano da `count()`** (`src/lib/plural.ts`), che usa le regole del plurale e dei numeri
+  italiani: «1 voto», «12.345 zuppe». In italiano i numeri a quattro cifre non hanno il punto: «1234». Mai
+  costruire un plurale con `=== 1`.
+- **I link si capiscono anche fuori contesto**: «Vedi la scheda di <prodotto>», «Aggiungi due parole su
+  <prodotto>» (la parte col nome può essere solo per i lettori di schermo), «Togli tutti i filtri».
+- **I placeholder sono esempi, non istruzioni**: «minestrone, ceci, Knorr…», «Esselunga, Knorr…».
+- **Gli stati vuoti dicono cos'è quel posto e come riempirlo**, per esempio «Nessuna bozza da approvare. I
+  prodotti nuovi arrivano con l'import da Open Food Facts.»
+- **I pulsanti iniziano con un verbo**: «Togli il voto», «Chiudi la foto», «Mostra 47 zuppe», «Salva la
+  correzione».
 
 ## Controlli
 

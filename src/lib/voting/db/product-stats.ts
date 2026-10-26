@@ -10,13 +10,19 @@ export async function refreshProductStats(db: DbOrTx, productIds: string[]) {
 	if (productIds.length === 0) return;
 
 	await db.execute(sql`
-		INSERT INTO product_stats (product_id, votes_count, votes_registered, score_sum, rebuy_count, tag_counts, updated_at)
+		INSERT INTO product_stats (product_id, votes_count, votes_registered, score_sum, rebuy_count, score_counts, tag_counts, updated_at)
 		SELECT
 			p.id,
 			count(v.user_id)::int,
 			count(v.user_id) FILTER (WHERE NOT u.is_anonymous)::int,
 			coalesce(sum(v.score), 0)::int,
 			count(v.user_id) FILTER (WHERE v.score = 4)::int,
+			coalesce((
+				SELECT jsonb_object_agg(c.score::text, c.n)
+				FROM (
+					SELECT score, count(*)::int AS n FROM votes WHERE product_id = p.id GROUP BY score
+				) c
+			), '{}'::jsonb),
 			coalesce((
 				SELECT jsonb_object_agg(t.slug, t.n)
 				FROM (
@@ -37,6 +43,7 @@ export async function refreshProductStats(db: DbOrTx, productIds: string[]) {
 			votes_registered = excluded.votes_registered,
 			score_sum = excluded.score_sum,
 			rebuy_count = excluded.rebuy_count,
+			score_counts = excluded.score_counts,
 			tag_counts = excluded.tag_counts,
 			updated_at = excluded.updated_at
 	`);
