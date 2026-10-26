@@ -23,7 +23,7 @@ export function UserChip({ className }: { className?: string }) {
 				className={cn(link, "hover:bg-text/10 gap-2 pr-2 no-underline", className)}
 			>
 				<UserAvatar seed={viewer.avatarSeed} className="size-11" />
-				<span className="max-w-[12ch] truncate max-sm:sr-only">
+				<span className="max-w-[22ch] truncate max-sm:sr-only">
 					{viewer.displayName}
 				</span>
 			</Link>

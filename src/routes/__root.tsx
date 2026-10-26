@@ -54,8 +54,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 function RootLayout() {
 	return (
 		<>
-			{/* The page takes the free height, so on a short page the footer still sits at the bottom. */}
-			<div className="flex flex-1 flex-col">
+			{/* The page takes the free height, so on a short page the footer still sits at the bottom.
+			    A plain block, not a flex column: inside one, a centred `mx-auto` bar would shrink to its content. */}
+			<div className="flex-1">
 				<Outlet />
 			</div>
 			<SiteFooter />
