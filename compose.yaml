@@ -1,0 +1,20 @@
+# Local database: Postgres with pg_search (BM25), the same image production runs on Coolify.
+services:
+  db:
+    image: paradedb/paradedb:0.26.3-pg18
+    environment:
+      POSTGRES_USER: zuppapp
+      POSTGRES_PASSWORD: zuppapp
+      POSTGRES_DB: zuppapp
+    ports:
+      - "127.0.0.1:54330:5432"
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "zuppapp"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  db-data:

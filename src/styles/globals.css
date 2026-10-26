@@ -1,0 +1,194 @@
+@import "tailwindcss";
+@import "@fontsource-variable/archivo/wdth.css";
+
+/*
+ * Zuppapp design system — DESIGN.md explains every decision.
+ * The interface is a two-ink print job on supermarket paper: thermal-receipt paper, black
+ * ink, and one red for the rubber stamp. Primitives are named by what they are; components
+ * only use the semantic tokens declared in @theme. Contrast of every text pair is in DESIGN.md.
+ */
+
+:root {
+	/* Primitives: light */
+	--paper-50: #f2f2f0; /* thermal paper: near-neutral, never cream */
+	--paper-100: #e4e4e1; /* the paper one tone down: a second sheet, a pressed control */
+	--ink-900: #1d1b19; /* receipt black */
+	--ink-600: #5e5a55; /* faded thermal ink: secondary text, 6.1:1 on paper */
+	--stamp-600: #be241b; /* rubber-stamp red, 5.4:1 on paper, 4.8:1 on paper-100 */
+	--shelf-400: #ffd21f; /* the yellow of the shelf edge and of "offerta" tags */
+
+	/* Soups in the bowls: data colours, the same in both themes, because a bowl is an object */
+	--soup-1: #b7c48a; /* pea gone wrong */
+	--soup-2: #e3d6bc; /* plain broth */
+	--soup-3: #f2a65a; /* pumpkin */
+	--soup-4: #e8604c; /* tomato */
+	--bowl-ink: #1d1b19;
+	--bowl-rim: #f2f2f0;
+
+	--ground: var(--paper-50);
+	--ground-raised: var(--paper-100);
+	--text: var(--ink-900);
+	--text-soft: var(--ink-600);
+	--accent: var(--stamp-600);
+	--on-accent: var(--paper-50);
+	--field: var(--shelf-400);
+	--on-field: var(--ink-900);
+	--rule: var(--ink-900);
+
+	color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		/* The receipt read under the kitchen light at night: dark paper, pale ink. */
+		--paper-50: #191816;
+		--paper-100: #26241f;
+		--ink-900: #edebe6;
+		--ink-600: #b3aea6;
+		--stamp-600: #ff6b5b;
+		--shelf-400: #e8be14;
+		--on-accent: #191816;
+		/* Text on the yellow field stays black: yellow never carries pale ink. */
+		--on-field: #1d1b19;
+	}
+}
+
+@theme inline {
+	--color-ground: var(--ground);
+	--color-ground-raised: var(--ground-raised);
+	--color-text: var(--text);
+	--color-text-soft: var(--text-soft);
+	--color-accent: var(--accent);
+	--color-on-accent: var(--on-accent);
+	--color-field: var(--field);
+	--color-on-field: var(--on-field);
+	--color-rule: var(--rule);
+	--color-bowl-rim: var(--bowl-rim);
+	--color-bowl-ink: var(--bowl-ink);
+
+	--font-sans: "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
+
+	/* Five sizes, each with its leading. rem, so the reader's font size still applies. */
+	--text-small: 0.8125rem; /* 13px: captions, EAN, credits */
+	--text-small--line-height: 1.4;
+	--text-body: 1rem; /* 16px: everything people read */
+	--text-body--line-height: 1.5;
+	--text-lead: 1.25rem; /* 20px: product name on a list label, section heads */
+	--text-lead--line-height: 1.2;
+	/* The product name on its own page: an app title, not a poster. */
+	--text-title: clamp(1.75rem, 1.5rem + 1vw, 2rem);
+	--text-title--line-height: 0.95;
+	--text-figure: clamp(
+		4rem,
+		3rem + 6vw,
+		6.5rem
+	); /* the verdict, set like a shelf price */
+	--text-figure--line-height: 0.85;
+	--text-figure-sm: 3.25rem; /* the verdict on a label in a list */
+	--text-figure-sm--line-height: 0.85;
+
+	--radius-none: 0;
+
+	--ease-out-snap: cubic-bezier(0.2, 0, 0, 1);
+	--animate-stamp: stamp 240ms var(--ease-out-snap) both;
+	--animate-print: print 300ms var(--ease-out-snap) both;
+}
+
+@keyframes stamp {
+	from {
+		opacity: 0;
+		scale: 1.35;
+	}
+	to {
+		opacity: 1;
+		scale: 1;
+	}
+}
+
+/* A receipt line coming out of the printer. */
+@keyframes print {
+	from {
+		opacity: 0;
+		translate: 0 -12px;
+	}
+	to {
+		opacity: 1;
+		translate: 0 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	@keyframes stamp {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	@keyframes print {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+}
+
+@layer base {
+	html {
+		background: var(--ground);
+		color: var(--text);
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	::selection {
+		background: var(--field);
+		color: var(--on-field);
+	}
+
+	:focus-visible {
+		outline: 3px solid var(--accent);
+		outline-offset: 2px;
+	}
+
+	a {
+		text-underline-offset: 0.18em;
+		text-decoration-thickness: from-font;
+	}
+}
+
+@layer utilities {
+	/* Width axis of Archivo: condensed for anything set like a shelf label or a price. */
+	.font-condensed {
+		font-stretch: 62%;
+	}
+	.font-semicondensed {
+		font-stretch: 80%;
+	}
+
+	/* The rules between nutrients belong to the table, as on the pack. */
+	.nutrient-row {
+		border-bottom: 1px solid color-mix(in oklab, var(--rule) 40%, transparent); /* taste-skill-ignore */
+	}
+
+	/* The dot leader of a receipt row: round 2px dots, the printer's way of joining label and value. */
+	.leader-dots {
+		height: 4px;
+		/* prettier-ignore */
+		background: radial-gradient(circle, currentColor 1px, transparent 1.5px) 0 0 / 6px 4px repeat-x; /* taste-skill-ignore */
+	}
+
+	/* The torn bottom edge of a receipt: a 12px zigzag. */
+	.edge-zigzag {
+		--zz: 12px;
+		padding-bottom: calc(var(--zz) + 1.25rem);
+		/* A mask, not a visible gradient: each tile is a square turned 45° at the bottom edge. */
+		/* prettier-ignore */
+		mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / var(--zz) 100%; /* taste-skill-ignore */
+	}
+}

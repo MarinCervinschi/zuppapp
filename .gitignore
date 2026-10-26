@@ -1,0 +1,15 @@
+node_modules
+.DS_Store
+dist
+*.local
+.env
+.env.*
+!.env.example
+.nitro
+.tanstack
+.output
+.vinxi
+
+# taste-skill: keep the dealt direction, not the inspector screenshots
+.taste-skill/*
+!.taste-skill/direction.json
