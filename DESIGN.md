@@ -156,6 +156,11 @@ Tutti in `src/components/ds/`, più le facce in `src/components/brand/`.
   tutto il resto.
 - **`SiteFooter`.** La chiusura di ogni pagina, un tono sotto la carta: il marchio, i crediti che le licenze chiedono (Open Food Facts in ODbL, Critters di DiceBear in CC0), il link al codice e l'interruttore del tema.
 - **`AppBar`.** Il marchio e la via di ritorno, senza cromature.
+- **Icona.** La scodella fumante in `ink-900` su un quadrato pieno di `shelf-400`, angoli vivi: è un cartellino
+  giallo, come il bordo dello scaffale. Da 48 px in su è il disegno CC0 di svgrepo.com/svg/453/soup a tratto; a
+  16 e 32 px (`favicon.svg`, `favicon.ico`) è ridisegnata sulla griglia da 16, piena, perché il tratto sottile
+  sparisce nel giallo. La versione `maskable` lascia la scodella nel cerchio sicuro dell'80%. Tutti i file in
+  `public/` nascono da un solo script; per cambiarli si rigenera, non si ritocca un PNG.
 
 ## Regole per ogni schermata
 

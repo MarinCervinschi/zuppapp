@@ -24,7 +24,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 				content: "Quale zuppa pronta è la più buona? Vota con una faccia.",
 			},
 		],
-		links: [{ rel: "stylesheet", href: globalsCss }],
+		links: [
+			{ rel: "stylesheet", href: globalsCss },
+			// The bowl on shelf yellow; the sizes come from public/, made from one CC0 glyph.
+			{ rel: "icon", href: "/favicon.ico", sizes: "32x32" },
+			{ rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+			{ rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+			{ rel: "manifest", href: "/site.webmanifest" },
+		],
 		// The theme before the first paint: rendered into <head> on the server, not run by React.
 		scripts: [{ children: THEME_INIT_SCRIPT }],
 	}),

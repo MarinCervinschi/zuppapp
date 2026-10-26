@@ -21,6 +21,7 @@
 		"db:studio": "dotenv run -q -- drizzle-kit studio",
 		"db:seed": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/seed-dev.ts",
 		"catalog:import": "infisical run --silent -- tsx --tsconfig tsconfig.json scripts/catalog-import.ts",
+		"icons": "node scripts/make-icons.mjs",
 		"user:admin": "infisical run --silent -- tsx --tsconfig tsconfig.json scripts/user-admin.ts",
 		"db:seed:votes": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/seed-dev-votes.ts",
 		"infra:plan": "bash infra/run.sh prod plan",
@@ -55,6 +56,7 @@
 		"zod": "^4.6.7"
 	},
 	"devDependencies": {
+		"@resvg/resvg-js": "2.6.2",
 		"@trivago/prettier-plugin-sort-imports": "^6.0.2",
 		"@types/node": "^26.6.5",
 		"@types/pg": "^8.23.1",

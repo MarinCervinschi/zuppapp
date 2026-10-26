@@ -18,6 +18,7 @@ TriviaMore: tab + punto e virgola (Prettier), `@/` per `src/`, testi UI in itali
 | `pnpm db:seed`                                     | 4 prodotti d'esempio (EAN 2…, mai reali); come `db:seed:votes` e `--publish`, rifiuta un database non locale                                             |
 | `pnpm db:seed:votes`                               | 60 votanti finti su 45 prodotti, per vedere podio e classifica in locale                                                                                 |
 | `pnpm catalog:import`                              | zuppe italiane da Open Food Facts come bozze: `--sync` aggiorna quelle già presenti, `--ean a,b`, `--limit n`, `--dry-run`, `--publish` (solo in locale) |
+| `pnpm icons`                                       | rigenera favicon e icone in `public/` (`scripts/make-icons.mjs`)                                                                                         |
 | `pnpm test` · `pnpm typecheck` · `pnpm build`      |                                                                                                                                                          |
 
 **Mai `drizzle-kit push`**: non conosce l'indice BM25 di `drizzle/0001_search_index.sql` e lo
