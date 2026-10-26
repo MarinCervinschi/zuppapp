@@ -12,6 +12,7 @@ import { Leaderboard, Podium } from "@/components/catalog/ranking";
 import { SearchBox } from "@/components/catalog/search-box";
 import { TasteTile } from "@/components/catalog/taste-tile";
 import { SpreadLegend } from "@/components/ds/score-spread";
+import { UserChip } from "@/components/user/user-chip";
 import { subtypeLabel, zuppe } from "@/lib/catalog/labels";
 import { catalogQueries } from "@/lib/catalog/queries";
 import {
@@ -64,7 +65,10 @@ function Home() {
 	return (
 		<>
 			<header className="bg-field on-field">
-				<div className="mx-auto grid max-w-6xl gap-5 px-4 pt-6 pb-6 md:grid-cols-[auto_1fr] md:items-end md:gap-x-12 md:pt-10">
+				<div className="mx-auto flex max-w-6xl justify-end px-4 pt-3">
+					<UserChip />
+				</div>
+				<div className="mx-auto grid max-w-6xl gap-5 px-4 pt-2 pb-6 md:grid-cols-[auto_1fr] md:items-end md:gap-x-12 md:pt-4">
 					<div className="flex flex-col gap-2">
 						<h1 className="font-condensed text-wordmark font-black tracking-[-0.03em] uppercase">
 							Zuppapp

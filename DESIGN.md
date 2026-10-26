@@ -47,7 +47,13 @@ Press Start 2P), perché è generico e lontano dal soggetto.
 ## Colori
 
 Due inchiostri su carta, più un giallo. I componenti usano solo i token semantici (`bg-ground`, `text-text-soft`,
-…), mai i primitivi. Il tema segue `prefers-color-scheme`, un solo meccanismo.
+…), mai i primitivi. Il tema si sceglie tra **Sistema, Chiaro e Scuro** (`ThemeSwitch`, nel piè di pagina di ogni pagina e nel
+profilo). La scelta finisce in `<html data-theme>` e resta in quel browser (`localStorage`): è una
+preferenza dello schermo, non dell'account. Con «Sistema», o senza scelta, decide `prefers-color-scheme`.
+Uno script nell'`<head>` applica la scelta prima del primo disegno, così non si vede il tema sbagliato; al
+cambio le transizioni di colore si spengono per un fotogramma, altrimenti la pagina sfumerebbe a pezzi. Ogni
+regola scura (token, pulsante Google, la variante `dark:` di Tailwind) usa lo stesso doppio selettore:
+`[data-theme="dark"]`, oppure il sistema scuro quando non è `[data-theme="light"]`.
 
 | Token                | Chiaro                | Scuro                 | Ruolo                                                                                          |
 | -------------------- | --------------------- | --------------------- | ---------------------------------------------------------------------------------------------- |
@@ -130,7 +136,7 @@ Tutti in `src/components/ds/`, più le facce in `src/components/brand/`.
 - **`NutritionLabel`.** La dichiarazione nutrizionale UE come sta sulla confezione. È una tabella vera, quindi
   tiene le sue righe: spessa sotto il titolo, sottili tra i nutrienti.
 - **`PackPhoto`.** La foto della confezione, mai ritagliata (`object-contain`), con il contorno neutro da 1 px. Sulla pagina sta sopra il cartellino, come il prodotto sullo scaffale; in lista è una miniatura accanto al nome, con `alt` vuoto perché il nome la dice già.
-- **`Barcode`.** EAN-13 vero con zona di rispetto; un codice non valido mostra solo il testo. Compare **solo in fondo alla scheda prodotto**, piccolo: serve a uno scanner o a chi cerca quella confezione precisa, non a chi sceglie una zuppa (vedi «Regole»).
+- **`Barcode`.** EAN-13 vero con zona di rispetto, **sempre nero su bianco in entrambi i temi**, perché uno scanner non legge un codice al contrario; un codice non valido mostra solo il testo. Compare **solo in fondo alla scheda prodotto**, piccolo: serve a uno scanner o a chi cerca quella confezione precisa, non a chi sceglie una zuppa (vedi «Regole»).
 - **Filtri e schede di stato** (home e `/admin`). Sono link, non pulsanti: ogni filtro è un URL che si può
   condividere e che funziona anche senza JavaScript. Quello attivo è in negativo e ha `aria-current`, il
   conteggio è in cifre tabulari. Marca e ordinamento usano `<select>` nativi con etichetta visibile, perché
@@ -148,6 +154,7 @@ Tutti in `src/components/ds/`, più le facce in `src/components/brand/`.
 - **`FilterPanel`, `FilterSheet`, `ActiveFilters`.** Vedi «Filtri».
 - **`Button`.** Quadrato, piatto, un solo riempimento: `ink` per l'unica azione primaria della vista, `paper` per
   tutto il resto.
+- **`SiteFooter`.** La chiusura di ogni pagina, un tono sotto la carta: il marchio, i crediti che le licenze chiedono (Open Food Facts in ODbL, Critters di DiceBear in CC0), il link al codice e l'interruttore del tema.
 - **`AppBar`.** Il marchio e la via di ritorno, senza cromature.
 
 ## Regole per ogni schermata
@@ -203,6 +210,27 @@ Zuppapp stampa la quota di «la ricompro».
   l'inchiostro. **Il rosso timbro vuol dire «a favore»** (è il rosso di «La ricompro»): il + dei Pro è rosso e un
   Pro scelto si inchiostra di rosso; Contro e Com'è scelti si inchiostrano di nero. Lo scontrino elenca i tag
   nello stesso ordine e con gli stessi segni.
+
+### Account e profilo
+
+- **In alto a destra di ogni pagina c'è chi sei** (`UserChip`). Con un account: la tua faccia Critters e il tuo
+  nome, che portano a `/profilo`. Senza account: «Accedi», più «Le mie zuppe» appena hai votato una volta.
+- **Il nome pubblico è sempre il nickname**, mai il nome che arriva da Google. Finché non lo scegli sei un nome
+  da zuppa («Ribollita Anonimo #7277»), sempre lo stesso per lo stesso account (`soupNameFor`).
+- **L'avatar è Critters, quadrato sul foglio rialzato**, come ogni oggetto del sistema. Si sceglie tra dodici
+  facce generate dall'id («Altre facce» ne mostra altre dodici): toccarne una la salva subito.
+- **Accedere è «prendere la tua tessera»** (`/accedi`). La pagina mostra la carta fedeltà di Zuppapp
+  (`LoyaltyCard`): proporzioni di una carta di credito, giallo scaffale, la tua faccia, il tuo nome, i voti
+  già dati e un codice a barre vero. È un codice interno di negozio (prefisso 2), come quelli delle carte
+  fedeltà, ricavato dall'id (`loyaltyCode`). Su telefono la tessera viene prima, su desktop sta accanto al
+  testo, leggermente inclinata.
+- **Il pulsante di Google segue le sue linee guida** (`GoogleButton`): la «G» ufficiale nei quattro colori,
+  fondo bianco e bordo `#747775` nel tema chiaro, `#131314` e `#8e918f` nello scuro. Sono colori del marchio,
+  non nostri: è l'unico bordo da 1 px fuori dalle tabelle. Di nostro tiene solo gli angoli vivi.
+- **`/accedi` promette solo quello che esiste.** Le funzioni future si aggiungono all'elenco quando ci sono.
+- **«Le mie zuppe»** elenca i tuoi voti dal più recente, con faccia, tag e data. Per chi è anonimo, un avviso
+  giallo ricorda che i voti sono legati a quel browser e invita ad accedere. Lo stato vuoto porta a «Da
+  assaggiare».
 
 ### Filtri
 

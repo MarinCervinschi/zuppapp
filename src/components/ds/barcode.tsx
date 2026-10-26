@@ -6,10 +6,13 @@ export function Barcode({
 	ean,
 	className,
 	"aria-hidden": hidden,
+	caption,
 }: {
 	ean: string;
 	className?: string;
 	"aria-hidden"?: boolean;
+	/** What the digits are; "EAN …" by default. */
+	caption?: string;
 }) {
 	const modules = ean13Modules(ean);
 
@@ -26,14 +29,15 @@ export function Barcode({
 					preserveAspectRatio="none"
 					aria-hidden
 				>
-					<rect x="-11" width="117" height="40" fill="var(--color-ground-raised)" />
+					{/* Always black on white, in both themes: a scanner cannot read a barcode the other way round. */}
+					<rect x="-11" width="117" height="40" fill="#ffffff" />
 					{barRuns(modules).map(([x, width]) => (
-						<rect key={x} x={x} width={width} height="40" fill="currentColor" />
+						<rect key={x} x={x} width={width} height="40" fill="#1d1b19" />
 					))}
 				</svg>
 			)}
 			<figcaption className="text-small text-text-soft tabular-nums">
-				EAN {ean}
+				{caption ?? `EAN ${ean}`}
 			</figcaption>
 		</figure>
 	);

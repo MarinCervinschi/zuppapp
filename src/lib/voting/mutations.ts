@@ -35,10 +35,13 @@ export function useCastVote(ean?: string) {
 		},
 		// From a list tile the ranking may change, but the shelf under the reader's thumb stays
 		// put: refetching it would move the tile they just tapped.
-		onSuccess: () =>
+		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ean ? ["catalog", "card", ean] : ["catalog", "ranking"],
-			}),
+			});
+			// The first vote creates the voter, and every vote changes "Le mie zuppe".
+			queryClient.invalidateQueries({ queryKey: ["viewer"] });
+		},
 		onError: (error: Error) => toast.error(error.message),
 	});
 }

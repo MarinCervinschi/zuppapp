@@ -51,6 +51,9 @@ cancellerebbe. Ogni modifica passa da `generate` + `migrate`.
 - Admin: `/admin` risponde 404 a chiunque non sia admin (`isAdminFn` in `beforeLoad`), e ogni server
   function di `src/lib/admin/` ricontrolla con `adminMiddleware`. Le correzioni di nome, marca e tipo
   finiscono in `overrides`.
+- Utente: `src/lib/user/` (`viewerFn` legge dal database, non dalla cache di 5 minuti della sessione, così
+  nome e avatar cambiano subito; `myVotesFn` per «Le mie zuppe»). Il visitatore è precaricato nel loader di
+  `__root`. Pagine `/accedi`, `/profilo`, `/le-mie-zuppe`.
 - Design system: `DESIGN.md` (leggi «Regole per ogni schermata» prima di toccare la UI) e la pagina `/design`;
   componenti in `src/components/ds/` e `src/components/catalog/`.
 - `product_stats` è un rollup di `votes`: si aggiorna con `refreshProductStats` nella stessa

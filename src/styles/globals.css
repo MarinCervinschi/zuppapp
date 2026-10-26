@@ -1,6 +1,18 @@
 @import "tailwindcss";
 @import "@fontsource-variable/archivo/wdth.css";
 
+/* Tailwind's dark: follows the reader's choice first, the system when there is none. */
+@custom-variant dark {
+	&:where([data-theme="dark"], [data-theme="dark"] *) {
+		@slot;
+	}
+	@media (prefers-color-scheme: dark) {
+		&:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+			@slot;
+		}
+	}
+}
+
 /*
  * Zuppapp design system — DESIGN.md explains every decision.
  * The interface is a two-ink print job on supermarket paper: thermal-receipt paper, black
@@ -38,8 +50,30 @@
 	color-scheme: light dark;
 }
 
+/*
+ * Dark theme. The reader chooses Sistema, Chiaro or Scuro (ThemeSwitch); the choice lands on
+ * <html data-theme>. With no choice, or "Sistema", the system's preference decides.
+ */
+:root[data-theme="light"] {
+	color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+	/* The receipt read under the kitchen light at night: dark paper, pale ink. */
+	--paper-50: #191816;
+	--paper-100: #26241f;
+	--ink-900: #edebe6;
+	--ink-600: #b3aea6;
+	--stamp-600: #ff6b5b;
+	--shelf-400: #e8be14;
+	--on-accent: #191816;
+	/* Text on the yellow field stays black: yellow never carries pale ink. */
+	--on-field: #1d1b19;
+	color-scheme: dark;
+}
+
 @media (prefers-color-scheme: dark) {
-	:root {
+	:root:not([data-theme="light"]) {
 		/* The receipt read under the kitchen light at night: dark paper, pale ink. */
 		--paper-50: #191816;
 		--paper-100: #26241f;
@@ -50,6 +84,7 @@
 		--on-accent: #191816;
 		/* Text on the yellow field stays black: yellow never carries pale ink. */
 		--on-field: #1d1b19;
+		color-scheme: dark;
 	}
 }
 
@@ -222,6 +257,34 @@
 	/* The only depth in the system, for a menu that floats over the content («Per pagina»). taste-skill-ignore */
 	.float-shadow {
 		box-shadow: 0 8px 24px rgb(0 0 0 / 0.22); /* taste-skill-ignore */
+	}
+
+	/* Google's sign-in button, in its own light and dark colours (branding guidelines). */
+	.google-button {
+		background: #ffffff;
+		color: #1f1f1f;
+		border: 1px solid #747775; /* taste-skill-ignore */
+	}
+	.google-button:enabled:hover {
+		background: #f2f2f2;
+	}
+	:root[data-theme="dark"] .google-button {
+		background: #131314;
+		color: #e3e3e3;
+		border-color: #8e918f;
+	}
+	:root[data-theme="dark"] .google-button:enabled:hover {
+		background: #2a2a2c;
+	}
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) .google-button {
+			background: #131314;
+			color: #e3e3e3;
+			border-color: #8e918f;
+		}
+		:root:not([data-theme="light"]) .google-button:enabled:hover {
+			background: #2a2a2c;
+		}
 	}
 
 	/* The dot leader of a receipt row: round 2px dots, the printer's way of joining label and value. */

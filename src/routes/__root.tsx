@@ -7,7 +7,10 @@ import {
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 
+import { SiteFooter } from "@/components/ds/site-footer";
 import { ErrorPage, NotFoundPage } from "@/components/error/error-pages";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
+import { userQueries } from "@/lib/user/queries";
 import globalsCss from "@/styles/globals.css?url";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -22,7 +25,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 			},
 		],
 		links: [{ rel: "stylesheet", href: globalsCss }],
+		// The theme before the first paint: rendered into <head> on the server, not run by React.
+		scripts: [{ children: THEME_INIT_SCRIPT }],
 	}),
+	// Who is looking, for the header of every page; fetched once, on the server, before render.
+	loader: ({ context }) => context.queryClient.ensureQueryData(userQueries.viewer()),
 	shellComponent: RootDocument,
 	component: RootLayout,
 	errorComponent: ErrorPage,
@@ -31,7 +38,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="it">
+		// The theme script sets data-theme before React hydrates: the attribute is expected to differ.
+		<html lang="it" suppressHydrationWarning>
 			<head>
 				<HeadContent />
 			</head>
@@ -47,6 +55,7 @@ function RootLayout() {
 	return (
 		<>
 			<Outlet />
+			<SiteFooter />
 			<Toaster position="bottom-center" richColors />
 		</>
 	);

@@ -10,14 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccediRouteImport } from './routes/accedi'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as DesignRouteImport } from './routes/design'
+import { Route as LeMieZuppeRouteImport } from './routes/le-mie-zuppe'
+import { Route as ProfiloRouteImport } from './routes/profilo'
 import { Route as ProdottiEanRouteImport } from './routes/prodotti/$ean'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccediRoute = AccediRouteImport.update({
+  id: '/accedi',
+  path: '/accedi',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -28,6 +36,16 @@ const AdminRoute = AdminRouteImport.update({
 const DesignRoute = DesignRouteImport.update({
   id: '/design',
   path: '/design',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeMieZuppeRoute = LeMieZuppeRouteImport.update({
+  id: '/le-mie-zuppe',
+  path: '/le-mie-zuppe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfiloRoute = ProfiloRouteImport.update({
+  id: '/profilo',
+  path: '/profilo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProdottiEanRoute = ProdottiEanRouteImport.update({
@@ -43,38 +61,75 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/accedi': typeof AccediRoute
   '/admin': typeof AdminRoute
   '/design': typeof DesignRoute
+  '/le-mie-zuppe': typeof LeMieZuppeRoute
+  '/profilo': typeof ProfiloRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/accedi': typeof AccediRoute
   '/admin': typeof AdminRoute
   '/design': typeof DesignRoute
+  '/le-mie-zuppe': typeof LeMieZuppeRoute
+  '/profilo': typeof ProfiloRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/accedi': typeof AccediRoute
   '/admin': typeof AdminRoute
   '/design': typeof DesignRoute
+  '/le-mie-zuppe': typeof LeMieZuppeRoute
+  '/profilo': typeof ProfiloRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/design' | '/prodotti/$ean' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/accedi'
+    | '/admin'
+    | '/design'
+    | '/le-mie-zuppe'
+    | '/profilo'
+    | '/prodotti/$ean'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/design' | '/prodotti/$ean' | '/api/auth/$'
-  id: '__root__' | '/' | '/admin' | '/design' | '/prodotti/$ean' | '/api/auth/$'
+  to:
+    | '/'
+    | '/accedi'
+    | '/admin'
+    | '/design'
+    | '/le-mie-zuppe'
+    | '/profilo'
+    | '/prodotti/$ean'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/accedi'
+    | '/admin'
+    | '/design'
+    | '/le-mie-zuppe'
+    | '/profilo'
+    | '/prodotti/$ean'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccediRoute: typeof AccediRoute
   AdminRoute: typeof AdminRoute
   DesignRoute: typeof DesignRoute
+  LeMieZuppeRoute: typeof LeMieZuppeRoute
+  ProfiloRoute: typeof ProfiloRoute
   ProdottiEanRoute: typeof ProdottiEanRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -86,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/accedi': {
+      id: '/accedi'
+      path: '/accedi'
+      fullPath: '/accedi'
+      preLoaderRoute: typeof AccediRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -100,6 +162,20 @@ declare module '@tanstack/react-router' {
       path: '/design'
       fullPath: '/design'
       preLoaderRoute: typeof DesignRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/le-mie-zuppe': {
+      id: '/le-mie-zuppe'
+      path: '/le-mie-zuppe'
+      fullPath: '/le-mie-zuppe'
+      preLoaderRoute: typeof LeMieZuppeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profilo': {
+      id: '/profilo'
+      path: '/profilo'
+      fullPath: '/profilo'
+      preLoaderRoute: typeof ProfiloRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prodotti/$ean': {
@@ -121,8 +197,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccediRoute: AccediRoute,
   AdminRoute: AdminRoute,
   DesignRoute: DesignRoute,
+  LeMieZuppeRoute: LeMieZuppeRoute,
+  ProfiloRoute: ProfiloRoute,
   ProdottiEanRoute: ProdottiEanRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
