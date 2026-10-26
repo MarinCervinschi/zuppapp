@@ -43,7 +43,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="min-h-dvh antialiased">
+			<body className="flex min-h-dvh flex-col antialiased">
 				{children}
 				<Scripts />
 			</body>
@@ -54,7 +54,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 function RootLayout() {
 	return (
 		<>
-			<Outlet />
+			{/* The page takes the free height, so on a short page the footer still sits at the bottom. */}
+			<div className="flex flex-1 flex-col">
+				<Outlet />
+			</div>
 			<SiteFooter />
 			<Toaster position="bottom-center" richColors />
 		</>
