@@ -12,7 +12,7 @@ cp .env.example .env        # poi riempi BETTER_AUTH_SECRET (openssl rand -base6
 pnpm install
 pnpm db:up                  # ParadeDB su 127.0.0.1:54330
 pnpm db:migrate
-pnpm dev                    # http://localhost:3000
+pnpm dev:local              # http://localhost:3000, sul database locale
 ```
 
 Senza `GOOGLE_CLIENT_ID` si vota solo in anonimo; senza `TURNSTILE_SECRET_KEY` il controllo

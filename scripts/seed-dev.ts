@@ -7,6 +7,8 @@ import { eq, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { categories, productSnapshots, products } from "@/db/schema";
 
+import { assertLocalDatabase } from "./lib/local-db";
+
 type Example = {
 	ean: string;
 	name: string;
@@ -100,7 +102,7 @@ const EXAMPLES: Example[] = [
 ];
 
 async function main() {
-	if (process.env.NODE_ENV === "production") throw new Error("Not on production");
+	assertLocalDatabase("The sample products");
 	const db = getDb();
 	const [category] = await db
 		.select()

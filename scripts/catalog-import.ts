@@ -14,6 +14,8 @@ import { importProduct } from "@/lib/catalog/import";
 import { discoverSoupCodes, fetchProduct } from "@/lib/off/client";
 import { isStoreInternalCode, mapOffProduct } from "@/lib/off/map";
 
+import { assertLocalDatabase } from "./lib/local-db";
+
 const { values: args } = parseArgs({
 	options: {
 		sync: { type: "boolean", default: false },
@@ -37,11 +39,8 @@ async function* codes(): AsyncGenerator<string> {
 }
 
 async function main() {
-	if (args.publish && process.env.NODE_ENV === "production") {
-		throw new Error(
-			"--publish is for local databases: in production an admin approves drafts"
-		);
-	}
+	// In production an admin approves the drafts.
+	if (args.publish) assertLocalDatabase("--publish");
 	const limit = args.limit ? Number(args.limit) : Infinity;
 	const counts: Record<string, number> = {};
 	const count = (key: string) => (counts[key] = (counts[key] ?? 0) + 1);

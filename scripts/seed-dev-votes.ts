@@ -7,6 +7,8 @@ import { getDb } from "@/db";
 import { products, tags, users, voteTags, votes } from "@/db/schema";
 import { refreshProductStats } from "@/lib/voting/db/product-stats";
 
+import { assertLocalDatabase } from "./lib/local-db";
+
 const VOTERS = 60;
 const PRODUCTS = 45;
 
@@ -20,7 +22,7 @@ function faceFor(mean: number): number {
 }
 
 async function main() {
-	if (process.env.NODE_ENV === "production") throw new Error("Not on production");
+	assertLocalDatabase("The fake votes");
 	const db = getDb();
 
 	const voters = await db
