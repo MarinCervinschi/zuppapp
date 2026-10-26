@@ -13,3 +13,9 @@ dist
 # taste-skill: keep the dealt direction, not the inspector screenshots
 .taste-skill/*
 !.taste-skill/direction.json
+
+# Terraform: providers and local state stay out; the lock file is committed.
+infra/**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan

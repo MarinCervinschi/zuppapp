@@ -6,20 +6,27 @@ TriviaMore: tab + punto e virgola (Prettier), `@/` per `src/`, testi UI in itali
 
 ## Comandi
 
-|                                               |                                                                                                                                                          |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm db:up` / `pnpm db:down`                 | ParadeDB locale (`compose.yaml`, porta 54330)                                                                                                            |
-| `pnpm db:generate --name x`                   | migrazione dallo schema Drizzle                                                                                                                          |
-| `pnpm db:migrate`                             | applica le migrazioni                                                                                                                                    |
-| `pnpm dev`                                    | dev server su :3000, legge `.env`                                                                                                                        |
-| `pnpm user:admin <email>`                     | rende admin un account Google già entrato una volta (`--revoke` per togliere)                                                                            |
-| `pnpm db:seed`                                | 4 prodotti d'esempio (EAN 2…, mai reali)                                                                                                                 |
-| `pnpm db:seed:votes`                          | 60 votanti finti su 45 prodotti, per vedere podio e classifica in locale                                                                                 |
-| `pnpm catalog:import`                         | zuppe italiane da Open Food Facts come bozze: `--sync` aggiorna quelle già presenti, `--ean a,b`, `--limit n`, `--dry-run`, `--publish` (solo in locale) |
-| `pnpm test` · `pnpm typecheck` · `pnpm build` |                                                                                                                                                          |
+|                                                    |                                                                                                                                                          |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:up` / `pnpm db:down`                      | ParadeDB locale (`compose.yaml`, porta 54330)                                                                                                            |
+| `pnpm db:generate --name x`                        | migrazione dallo schema Drizzle                                                                                                                          |
+| `pnpm db:migrate`                                  | applica le migrazioni                                                                                                                                    |
+| `pnpm dev`                                         | dev server su :3000, legge `.env`                                                                                                                        |
+| `pnpm infra:plan` · `infra:apply` · `infra:output` | Terraform di produzione (`infra/README.md`): Infisical, Coolify, DNS                                                                                     |
+| `pnpm user:admin <email>`                          | rende admin un account Google già entrato una volta (`--revoke` per togliere)                                                                            |
+| `pnpm db:seed`                                     | 4 prodotti d'esempio (EAN 2…, mai reali)                                                                                                                 |
+| `pnpm db:seed:votes`                               | 60 votanti finti su 45 prodotti, per vedere podio e classifica in locale                                                                                 |
+| `pnpm catalog:import`                              | zuppe italiane da Open Food Facts come bozze: `--sync` aggiorna quelle già presenti, `--ean a,b`, `--limit n`, `--dry-run`, `--publish` (solo in locale) |
+| `pnpm test` · `pnpm typecheck` · `pnpm build`      |                                                                                                                                                          |
 
 **Mai `drizzle-kit push`**: non conosce l'indice BM25 di `drizzle/0001_search_index.sql` e lo
 cancellerebbe. Ogni modifica passa da `generate` + `migrate`.
+
+## Produzione
+
+Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segreti al build; all'avvio
+`docker-entrypoint.sh` entra in Infisical con l'identità `zuppapp-app`, applica le migrazioni
+(`scripts/migrate.mjs`) e poi avvia il server. Una sola istanza.
 
 ## Architettura
 
