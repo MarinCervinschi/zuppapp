@@ -1,6 +1,6 @@
-// Product photos live on R2 under their key; the bucket's public URL comes from the environment.
+// Product photos live in our bucket under their key; its public URL comes from the environment.
 export function productImageUrl(imageKey: string | null): string | null {
-	const base = process.env.IMAGE_BASE_URL;
+	const base = process.env.S3_PUBLIC_URL;
 	if (!imageKey || !base) return null;
 	return `${base.replace(/\/$/, "")}/${imageKey}`;
 }

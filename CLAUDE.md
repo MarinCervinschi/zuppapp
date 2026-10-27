@@ -49,6 +49,10 @@ Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segr
 - `src/lib/off/` legge Open Food Facts: Search-a-licious solo per scoprire i codici (la ricerca classica
   risponde 503 e le sue copie sono vecchie), l'API prodotto per i dati, al massimo 100 letture al minuto,
   con uno User-Agent che identifica l'app. `map.ts` è puro e testato.
+- Foto: `copyProductImage` (`src/lib/catalog/images.ts`) le copia nel bucket S3 di Garage (repo `cervinschi-infra`,
+  variabili `S3_*` in Infisical) nei 4 formati di Open Food Facts, `<hash>.400.jpg`, così `sizedImage` vale per
+  entrambi gli URL. `pnpm catalog:import --images` copia quelle dei prodotti già presenti; senza `S3_*` si usa l'URL
+  di Open Food Facts.
 - `src/lib/catalog/import.ts`: i prodotti nuovi entrano come `draft`; le correzioni a mano stanno in
   `products.overrides` (con la stessa chiave della colonna) e il sync non le tocca; si salva uno snapshot
   nuovo solo se l'etichetta cambia, e ingredienti diversi segnano `recipeChangedAt`.

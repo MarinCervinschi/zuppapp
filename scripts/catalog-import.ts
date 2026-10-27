@@ -5,14 +5,18 @@
 //   pnpm catalog:import --ean 800…,800…  just these EANs, e.g. a product someone reported
 //   --limit 20    stop after 20 products      --dry-run   read and map, write nothing
 //   --publish     publish new products at once (local only: in production an admin approves)
+//   pnpm catalog:import --images         copy the photos of products already here to the bucket,
+//                                        from their snapshot (with --ean and --limit too)
+import { desc, eq } from "drizzle-orm";
 import { parseArgs } from "node:util";
 
 import { getDb } from "@/db";
-import { products } from "@/db/schema";
+import { productSnapshots, products } from "@/db/schema";
 import { copyProductImage } from "@/lib/catalog/images";
 import { importProduct } from "@/lib/catalog/import";
 import { discoverSoupCodes, fetchProduct } from "@/lib/off/client";
 import { isStoreInternalCode, mapOffProduct } from "@/lib/off/map";
+import { isStorageConfigured } from "@/lib/storage/s3";
 
 import { assertLocalDatabase } from "./lib/local-db";
 
@@ -23,6 +27,7 @@ const { values: args } = parseArgs({
 		limit: { type: "string" },
 		"dry-run": { type: "boolean", default: false },
 		publish: { type: "boolean", default: false },
+		images: { type: "boolean", default: false },
 	},
 });
 
@@ -38,10 +43,53 @@ async function* codes(): AsyncGenerator<string> {
 	}
 }
 
+/** `--images`: the photos of products already here, from the URL their latest snapshot keeps. */
+async function copyImages(limit: number) {
+	const only = args.ean ? new Set(args.ean.split(",").map(code => code.trim())) : null;
+	const rows = await getDb()
+		.selectDistinctOn([products.id], {
+			ean: products.ean,
+			imageKey: products.imageKey,
+			imageUrl: productSnapshots.imageUrl,
+		})
+		.from(products)
+		.innerJoin(productSnapshots, eq(productSnapshots.productId, products.id))
+		.orderBy(products.id, desc(productSnapshots.fetchedAt));
+
+	const counts: Record<string, number> = {};
+	const count = (key: string) => (counts[key] = (counts[key] ?? 0) + 1);
+	let done = 0;
+	for (const row of rows) {
+		if (done >= limit) break;
+		if (only && !only.has(row.ean)) continue;
+		if (!row.imageUrl) {
+			count("senza foto");
+			continue;
+		}
+		done++;
+		const before = row.imageKey;
+		await copyProductImage(getDb(), row.ean, row.imageUrl)
+			.then(key => count(key === before ? "già copiata" : "copiata"))
+			.catch(error => {
+				count("non copiata");
+				console.warn(`${row.ean}: ${error.message}`);
+			});
+		if (done % 25 === 0) console.log(`… ${done} foto`);
+	}
+	for (const [key, value] of Object.entries(counts).sort((a, b) => b[1] - a[1])) {
+		console.log(`  ${String(value).padStart(4)}  ${key}`);
+	}
+}
+
 async function main() {
 	// In production an admin approves the drafts.
 	if (args.publish) assertLocalDatabase("--publish");
 	const limit = args.limit ? Number(args.limit) : Infinity;
+	if (args.images) {
+		if (!isStorageConfigured()) throw new Error("--images needs the S3_* variables");
+		await copyImages(limit);
+		process.exit(0);
+	}
 	const counts: Record<string, number> = {};
 	const count = (key: string) => (counts[key] = (counts[key] ?? 0) + 1);
 	const recipeChanges: string[] = [];
@@ -79,7 +127,7 @@ async function main() {
 				mapped.product.ean,
 				mapped.product.snapshot.imageUrl
 			).catch(error => {
-				count("foto non copiata su R2");
+				count("foto non copiata nel bucket");
 				console.warn(`${mapped.product.ean}: ${error.message}`);
 			});
 		}

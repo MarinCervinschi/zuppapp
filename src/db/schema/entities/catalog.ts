@@ -72,7 +72,7 @@ export const productSnapshots = pgTable(
 		nutriments: jsonb().$type<Record<string, number>>(),
 		nutriscore: text(),
 		nova: smallint(),
-		// Open Food Facts' front photo, CC-BY-SA: shown as is until a copy lives on R2.
+		// Open Food Facts' front photo, CC-BY-SA: shown as is until a copy lives in our bucket.
 		imageUrl: text(),
 		fetchedAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
 	},
