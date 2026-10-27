@@ -64,7 +64,8 @@ function Home() {
 				)}
 			</PageHead>
 
-			<div className="mx-auto max-w-xl px-4">
+			{/* Positioned, so its focus rim paints over the header it touches, not under it. */}
+			<div className="relative mx-auto max-w-xl px-4">
 				<SearchBox value={params.q ?? ""} />
 			</div>
 

@@ -40,7 +40,7 @@ export function SearchBox({ value }: { value: string }) {
 			<label htmlFor="catalog-search" className="sr-only">
 				Cerca una zuppa
 			</label>
-			<div className="bg-ground-raised float-shadow focus-within:outline-text flex min-h-14 items-center gap-3 rounded-full px-5 focus-within:outline-3 focus-within:outline-offset-2">
+			<div className="bg-ground-raised float-shadow focus-within:outline-text/50 flex min-h-14 items-center gap-3 rounded-full px-5 focus-within:outline-2 focus-within:outline-offset-2">
 				<svg
 					aria-hidden
 					viewBox="0 0 24 24"
