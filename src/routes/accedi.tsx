@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 
+import { SoupField } from "@/components/ds/soup-field";
 import { GoogleButton } from "@/components/user/google-button";
 import { LoyaltyCard } from "@/components/user/loyalty-card";
 import { authClient } from "@/lib/auth/client";
@@ -46,7 +47,9 @@ function SignIn() {
 	}
 
 	return (
-		<>
+		// Green drops behind the yellow card: the one soup that sets it off.
+		<div className="relative isolate overflow-hidden">
+			<SoupField soup="pea" className="bottom-auto h-[32rem]" />
 			<main className="mx-auto grid max-w-4xl grid-cols-[minmax(0,1fr)] gap-10 px-4 pt-14 md:min-h-[calc(100dvh-8rem)] md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-16 md:py-12">
 				{/* The card first on a phone, beside the words on a wide screen: it is what you get. */}
 				<div className="flex justify-center md:order-last">
@@ -113,6 +116,6 @@ function SignIn() {
 					</p>
 				</div>
 			</main>
-		</>
+		</div>
 	);
 }

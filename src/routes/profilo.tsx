@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
 import { Button } from "@/components/ds/button";
+import { SoupField } from "@/components/ds/soup-field";
 import { ThemeSwitch } from "@/components/ds/theme-switch";
 import { AvatarPicker } from "@/components/user/avatar-picker";
 import { NicknameForm } from "@/components/user/nickname-form";
@@ -35,8 +36,10 @@ function Profile() {
 
 	return (
 		<>
-			<main className="mx-auto flex max-w-xl flex-col gap-10 px-4 pt-14">
-				<header className="flex items-center gap-4">
+			{/* Your corner of the app gets its own soup: beetroot, rolling over the top. */}
+			<div className="relative isolate overflow-hidden">
+				<SoupField soup="beet" shape="onda" />
+				<header className="mx-auto flex max-w-xl items-center gap-4 px-4 pt-14 pb-10">
 					<UserAvatar seed={viewer.avatarSeed} className="size-24 rounded-full" />
 					<div className="flex min-w-0 flex-col gap-1">
 						<h1 className="font-display text-title font-semibold">
@@ -47,7 +50,8 @@ function Profile() {
 						</Link>
 					</div>
 				</header>
-
+			</div>
+			<main className="mx-auto flex max-w-xl flex-col gap-10 px-4 pt-2">
 				{!viewer.hasNickname && (
 					<p className="bg-field on-field text-body rounded-card p-5">
 						Scegli come ti chiami: per ora gli altri ti vedono come «

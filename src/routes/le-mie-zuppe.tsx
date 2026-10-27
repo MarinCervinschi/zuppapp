@@ -32,7 +32,7 @@ function MyVotes() {
 
 	return (
 		<>
-			<PageHead title="Le mie zuppe">
+			<PageHead blob="pumpkin" title="Le mie zuppe">
 				{votes && votes.total > 0 && (
 					<p>{count(votes.total, VOTI)}, dal più recente.</p>
 				)}

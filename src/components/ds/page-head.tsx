@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 
+import { type FieldShape, SoupField } from "./soup-field";
+
 export type Soup = "tomato" | "pumpkin" | "corn" | "pea" | "beet";
 
 // Each blob is two soups, the darker at the top: it fades into the paper below.
@@ -13,17 +15,20 @@ const BLOBS: Record<Soup, [string, string]> = {
 
 /**
  * The top of a screen: «ZUPPAPP» small, the page's one h1 large, a line under it. With a
- * `blob`, the poster's grainy soup colour spreads from the top edge into the paper.
+ * `blob`, the poster's grainy soup colour spreads from the top edge into the paper: a living
+ * `SoupField` in the given `shape`, over a still CSS gradient for when WebGL is missing.
  */
 export function PageHead({
 	title,
 	children,
 	blob,
+	shape = "gocce",
 	className,
 }: {
 	title: React.ReactNode;
 	children?: React.ReactNode;
 	blob?: Soup;
+	shape?: FieldShape;
 	className?: string;
 }) {
 	return (
@@ -37,11 +42,12 @@ export function PageHead({
 					: undefined
 			}
 			className={cn(
-				blob && "blob-head grain",
+				blob && "blob-head relative isolate overflow-hidden",
 				"px-4 pt-14 pb-8 text-center",
 				className
 			)}
 		>
+			{blob && <SoupField soup={blob} shape={shape} />}
 			<div className="mx-auto flex max-w-xl flex-col items-center gap-4">
 				<p
 					className={cn(

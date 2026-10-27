@@ -153,13 +153,16 @@ function DesignPage() {
 
 				<Section title="Intestazioni con la macchia">
 					<div className="grid gap-4 sm:grid-cols-2">
-						{SOUPS.slice(0, 4).map(([soup, label]) => (
+						{SOUPS.slice(0, 4).map(([soup, label], index) => (
 							<PageHead
 								key={soup}
 								blob={soup}
+								shape={index % 2 ? "onda" : "gocce"}
 								title={label}
-								className="rounded-card overflow-hidden pt-8 pb-10"
-							/>
+								className="rounded-card pt-8 pb-10"
+							>
+								<p>{index % 2 ? "Onda" : "Gocce"}: muovi il mouse qui sopra.</p>
+							</PageHead>
 						))}
 					</div>
 				</Section>

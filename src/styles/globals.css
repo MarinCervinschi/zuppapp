@@ -434,6 +434,12 @@
 		mask-image: linear-gradient(to bottom, black calc(100% - 2.5rem), transparent); /* taste-skill-ignore */
 	}
 
+	/* A canvas that ends in the page's own paper: its foot fades out, so no colour step shows. */
+	/* prettier-ignore */
+	.fade-foot {
+		mask-image: linear-gradient(to bottom, black 55%, transparent); /* taste-skill-ignore */
+	}
+
 	/* The drop that marks the current tab: lit along its top, lifted a little off the bar. */
 	/* prettier-ignore */
 	.glass-drop {

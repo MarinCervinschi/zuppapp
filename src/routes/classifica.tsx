@@ -49,6 +49,7 @@ function Ranking() {
 		<>
 			<PageHead
 				blob="tomato"
+				shape="onda"
 				title={first && top > 3 ? `Top ${top} zuppe` : "La classifica"}
 			>
 				<p>

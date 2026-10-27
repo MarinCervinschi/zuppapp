@@ -58,7 +58,7 @@ function Home() {
 
 	return (
 		<>
-			<PageHead title="Che zuppa stai cercando?">
+			<PageHead blob="corn" shape="onda" title="Che zuppa stai cercando?">
 				{facets && (
 					<p>{catalogueSize(facets.total)} pronte, votate da chi le ha assaggiate.</p>
 				)}

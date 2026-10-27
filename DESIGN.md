@@ -63,10 +63,37 @@ Contrasti misurati (WCAG 2):
 **L'arancio non è un colore per il testo**: sulla carta fa 2,5:1. Le zuppe colorano superfici (macchie,
 dischi del podio, avvisi), mai parole. Il focus è un anello da 2 px nel colore del testo, staccato di 3 px.
 
-**Le macchie** (`.blob-head`, via `PageHead blob="…"`) sono due zuppe in un gradiente radiale che parte dal bordo
-alto e sfuma nella carta, con la grana sopra (`.grain`, un rumore SVG in `soft-light`). In tema scuro portano il
-55% del colore (`--blob-strength`): di notte brillano, non urlano. Una macchia per schermata, solo dove la pagina
-è una vetrina (classifica, errori, `/design`); la ricerca resta pulita come nel mockup.
+**Le macchie vive** (`SoupField`, in `PageHead blob="…" shape="…"` o da sole) sono zuppa che si muove piano,
+disegnata in WebGL. Ci sono due forme:
+
+- **`gocce`**: tre gocce che pendono dal bordo alto, nate guardando Grainient di React Bits;
+- **`onda`**: un sipario con l'orlo che ondeggia, nato guardando Aurora e la forma rossa del poster di del Valle.
+
+Il bordo è **puntinato come la stampa dei poster**: vicino all'orlo ogni grano è o zuppa o carta. In più c'è una
+grana leggera su tutto. Sotto il mouse la zuppa si sporge un poco verso il puntatore. Il fondo del canvas sfuma
+nella carta vera (`.fade-foot`), così l'intestazione non ha bordo. In tema scuro le macchie portano il 55% del
+colore (`--blob-strength`): di notte brillano, non urlano.
+
+Il codice è nostro. Grainient e Aurora sono MIT + Commons Clause, che vieta di ridistribuire i componenti
+stessi, «anche come versione portata»: in una repo pubblica non possono entrare.
+
+Sotto il canvas resta la macchia CSS (`.blob-head`), per chi non ha WebGL e per il primo disegno; il canvas
+entra in dissolvenza sopra. Con `prefers-reduced-motion` si disegna un solo fotogramma fermo. Il canvas va in
+pausa fuori schermo e con la scheda nascosta, gira a 30 fotogrammi al secondo con al massimo 1,5 pixel per punto,
+e segue il cambio di tema.
+
+**Una macchia per schermata, una zuppa per posto:**
+
+| Schermata      | Zuppa                             | Forma |
+| -------------- | --------------------------------- | ----- |
+| Ricerca (home) | mais                              | onda  |
+| Classifica     | pomodoro                          | onda  |
+| Le mie zuppe   | zucca                             | gocce |
+| Profilo        | barbabietola                      | onda  |
+| Accesso        | piselli, dietro la tessera gialla | gocce |
+| Errori         | pomodoro                          | gocce |
+
+La scheda prodotto non ne ha: lì il colore lo dà la foto della confezione.
 
 ## Carattere
 
@@ -122,7 +149,8 @@ saturate(180%)`, una luce sul bordo alto, un bordo di luce e un riflesso in alto
 
 In `src/components/ds/`, più quelli del catalogo in `src/components/catalog/`.
 
-- **`PageHead`**: il marchio, `h1` e una riga, centrati; con `blob` la macchia sgranata.
+- **`PageHead`**: il marchio, `h1` e una riga, centrati; con `blob` (e `shape`) la macchia viva.
+- **`SoupField`**: la macchia viva da sola, dietro qualunque contenitore `relative isolate overflow-hidden`.
 - **`TabBar`**: i tre tab in vetro, link con `aria-current="page"`, così funzionano anche prima del
   JavaScript; la scheda corrente è una goccia chiara che scivola.
 - **`StarPicker`**: un vero `radiogroup` di cinque stelle; le frecce spostano il voto e il nome accessibile
