@@ -91,8 +91,11 @@ La media si scrive all'italiana, con la virgola: «4,7» (`formatStars`).
 
 - **Tutto arrotondato**: card e foto `rounded-card` (28 px), pannelli neri `rounded-panel` (24 px), miniature
   `rounded-thumb` (16 px), pill, pulsanti e campi `rounded-full`.
-- **Le foto stanno su un piatto bianco**, intere (`object-contain`): le foto di Open Food Facts sono scattate su
-  bianco. In classifica dal 4° in giù la miniatura è un tondo.
+- **Le foto stanno su un piatto bianco.** Nelle griglie e sul podio il piatto ha una forma fissa e la foto lo riempie
+  (`object-cover`, tagliata se serve), così le card di una riga sono alte uguali; nella scheda e ingrandita è intera
+  (`object-contain`). In classifica dal 4° in giù la miniatura è un tondo.
+- **Su telefono la foto non si ingrandisce**: nelle liste porta alla scheda, nella scheda non fa niente. Col mouse si
+  apre grande.
 - **Ombre solo per ciò che galleggia** (`.float-shadow`): il campo di ricerca.
 - **Vetro liquido per ciò che galleggia sopra il contenuto** (`.glass`): tab bar, pulsante indietro, menu «Per
   pagina». È la versione CSS del Liquid Glass di iOS 26: velo traslucido con `backdrop-filter: blur(20px)

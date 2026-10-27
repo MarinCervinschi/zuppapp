@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * The pack's photo, never cropped, on a white plate with rounded corners: white, because the
- * photos from Open Food Facts are shot on white. No photo, no plate. Until it arrives it is
- * invisible and its `.plate` shimmers; then it fades in.
+ * The pack's photo, whole unless the caller crops it, on a white plate with rounded corners:
+ * white, because the photos from Open Food Facts are shot on white. No photo, no plate. Until it
+ * arrives it is invisible and its `.plate` shimmers; then it fades in.
  */
 export function PackPhoto({
 	src,

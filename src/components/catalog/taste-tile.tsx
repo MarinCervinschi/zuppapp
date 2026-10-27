@@ -11,8 +11,9 @@ import { MIN_VOTES_TO_RANK, type Score } from "@/lib/ranking/rules";
 import { QuickVote } from "./quick-vote";
 
 /**
- * A product in a grid: its pack on a white plate, because that is how people find it on the
- * shelf, the rating on the plate's corner, the name, and the stars to vote it.
+ * A product in a grid: its pack, because that is how people find it on the shelf, filling a plate
+ * of fixed shape (cropped if it must, so the cards in a row line up); the rating on the plate's
+ * corner, the name, and the stars to vote it.
  */
 export function TasteTile({
 	product,
@@ -29,14 +30,16 @@ export function TasteTile({
 
 	return (
 		<article className="flex h-full flex-col gap-3">
-			<div className="plate rounded-card relative flex aspect-[4/3] items-center justify-center bg-white p-4 sm:aspect-square">
+			<div className="plate rounded-card relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-white sm:aspect-square">
 				{product.imageUrl ? (
 					<ZoomablePhoto
 						src={product.imageUrl}
 						name={product.name}
+						ean={product.ean}
 						size="shelf"
-						className="flex max-h-full items-center justify-center"
-						imageClassName="max-h-full"
+						thumb={400}
+						className="flex size-full"
+						imageClassName="size-full object-cover"
 					/>
 				) : (
 					<span className="font-display text-lead text-[#6a5f53]">Senza foto</span>

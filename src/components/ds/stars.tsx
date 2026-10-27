@@ -162,7 +162,7 @@ export const StarPicker = forwardRef<HTMLDivElement, PickerProps>(function StarP
 						}}
 						className={cn(
 							"relative flex cursor-pointer items-center justify-center rounded-full transition-[scale] duration-150 ease-out motion-safe:active:scale-90",
-							size === "lg" ? "size-14 sm:size-16" : "size-11"
+							size === "lg" ? "size-14 sm:size-16" : "size-12"
 						)}
 					>
 						<StarIcon
@@ -174,7 +174,7 @@ export const StarPicker = forwardRef<HTMLDivElement, PickerProps>(function StarP
 									: undefined
 							}
 							className={cn(
-								size === "lg" ? "size-12 sm:size-14" : "size-8",
+								size === "lg" ? "size-12 sm:size-14" : "size-9",
 								lit ? "text-star" : "text-current opacity-80",
 								hover === score && "scale-110 transition-[scale] duration-150",
 								picks > 0 && filled && "motion-safe:animate-pop"

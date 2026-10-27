@@ -68,6 +68,7 @@ function MyVotes() {
 									<ZoomablePhoto
 										src={vote.imageUrl}
 										name={vote.name}
+										ean={vote.ean}
 										size="thumb"
 										thumb={100}
 										imageClassName="size-14 rounded-full p-1"

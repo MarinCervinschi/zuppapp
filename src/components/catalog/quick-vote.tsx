@@ -51,7 +51,7 @@ export function QuickVote({
 
 	return (
 		<div className="flex flex-col gap-2">
-			<div className="bg-ink text-on-ink rounded-full px-1.5">
+			<div className="bg-ink text-on-ink rounded-full px-2 py-1">
 				<StarPicker value={score} onPick={vote} label={`Vota ${name}`} size="sm" />
 			</div>
 			<p className="text-small min-h-5 px-1" aria-live="polite">

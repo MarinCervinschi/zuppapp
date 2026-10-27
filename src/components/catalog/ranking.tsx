@@ -77,14 +77,15 @@ export function Podium({ products }: { products: ProductListItem[] }) {
 			{products.map(product => (
 				<li key={product.id}>
 					<article className="group relative flex flex-col gap-3">
-						<div className="plate rounded-card relative flex aspect-[16/10] items-center justify-center overflow-hidden bg-white p-3">
+						<div className="plate rounded-card relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-white">
 							<ZoomablePhoto
 								src={product.imageUrl}
 								name={product.name}
+								ean={product.ean}
 								size="shelf"
 								thumb={400}
-								className="flex h-full items-center justify-center"
-								imageClassName="max-h-full"
+								className="flex size-full"
+								imageClassName="size-full object-cover"
 							/>
 							<RankDisc
 								rank={product.rank ?? 0}

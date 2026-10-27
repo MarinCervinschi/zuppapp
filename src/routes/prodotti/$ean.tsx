@@ -65,7 +65,7 @@ function ProductView({ product }: { product: ProductCard }) {
 	return (
 		<main className="mx-auto max-w-xl">
 			{/* The pack, full width on its white plate; the way back floats over its corner. */}
-			<div className="plate relative flex h-72 items-center justify-center bg-white px-4 pt-6 pb-12 sm:h-80">
+			<div className="plate relative flex h-80 items-center justify-center bg-white px-4 pt-4 pb-10 sm:h-96">
 				<BackButton className="absolute top-4 left-4 z-20" />
 				{product.imageUrl ? (
 					<ZoomablePhoto
@@ -74,7 +74,7 @@ function ProductView({ product }: { product: ProductCard }) {
 						size="shelf"
 						thumb={400}
 						className="flex h-full items-center justify-center"
-						imageClassName="max-h-full"
+						imageClassName="h-full max-h-full max-w-full"
 					/>
 				) : (
 					<span className="font-display text-lead text-[#6a5f53]">Senza foto</span>

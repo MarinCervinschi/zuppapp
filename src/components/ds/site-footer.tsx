@@ -2,12 +2,13 @@ import { ThemeSwitch } from "./theme-switch";
 
 /**
  * The close of every page: the theme, and the credits the licences ask for (Open Food Facts'
- * data under ODbL, DiceBear's Critters under CC0). It leaves room for the tab bar below it.
+ * data under ODbL, DiceBear's Critters under CC0), on the raised paper so it reads as the end.
+ * It leaves room for the tab bar below it.
  */
 export function SiteFooter() {
 	return (
-		<footer className="pb-tabbar mt-16">
-			<div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-8 md:flex-row md:items-end md:justify-between">
+		<footer className="pb-tabbar bg-ground-raised mt-16">
+			<div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-8 pb-6 md:flex-row md:items-end md:justify-between">
 				<div className="flex flex-col gap-2">
 					<p className="wordmark text-wordmark text-text-soft">Zuppapp</p>
 					<p className="text-small text-text-soft max-w-[60ch]">
