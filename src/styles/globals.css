@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
 
 /* Tailwind's dark: follows the reader's choice first, the system when there is none. */
 @custom-variant dark {
@@ -15,37 +17,43 @@
 
 /*
  * Zuppapp design system — DESIGN.md explains every decision.
- * The interface is a two-ink print job on supermarket paper: thermal-receipt paper, black
- * ink, and one red for the rubber stamp. Primitives are named by what they are; components
- * only use the semantic tokens declared in @theme. Contrast of every text pair is in DESIGN.md.
+ * Warm paper, black ink and flat, grainy blobs of soup colour, after the designer's
+ * references (the Minute Maid / del Valle posters). Primitives are named by what they are;
+ * components only use the semantic tokens declared in @theme. Contrasts are in DESIGN.md.
  */
 
 :root {
 	/* Primitives: light */
-	--paper-50: #f2f2f0; /* thermal paper: near-neutral, never cream */
-	--paper-100: #e4e4e1; /* the paper one tone down: a second sheet, a pressed control */
-	--ink-900: #1d1b19; /* receipt black */
-	--ink-600: #5e5a55; /* faded thermal ink: secondary text, 6.1:1 on paper */
-	--stamp-600: #be241b; /* rubber-stamp red, 5.4:1 on paper, 4.8:1 on paper-100 */
-	--shelf-400: #ffd21f; /* the yellow of the shelf edge and of "offerta" tags */
+	--cream-100: #ede3d4; /* the paper every screen is printed on */
+	--cream-50: #f8f2ea; /* a sheet laid on it: cards, pills, fields */
+	--ink-950: #16120f; /* the black of titles, panels and the tab bar */
+	--ink-600: #6a5f53; /* secondary text, 4.9:1 on cream, 5.6:1 on a sheet */
 
-	/* Soups in the bowls: data colours, the same in both themes, because a bowl is an object */
-	--soup-1: #b7c48a; /* pea gone wrong */
-	--soup-2: #e3d6bc; /* plain broth */
-	--soup-3: #f2a65a; /* pumpkin */
-	--soup-4: #e8604c; /* tomato */
-	--bowl-ink: #1d1b19;
-	--bowl-rim: #f2f2f0;
+	/* The soups, flat and grainy: illustration colours, the same in both themes. */
+	--soup-tomato: #ff3d14;
+	--soup-pumpkin: #ff6a13;
+	--soup-corn: #ffc93c;
+	--soup-pea: #8fd16a;
+	--soup-beet: #e04aa0;
 
-	--ground: var(--paper-50);
-	--ground-raised: var(--paper-100);
-	--text: var(--ink-900);
+	--star: #ffd66b; /* a filled star: on ink 13.4:1 */
+	--badge-good: #9bd67a; /* the rating badge: ink on it 10.9:1 */
+
+	--ground: var(--cream-100);
+	--ground-raised: var(--cream-50);
+	--text: var(--ink-950);
 	--text-soft: var(--ink-600);
-	--accent: var(--stamp-600);
-	--on-accent: var(--paper-50);
-	--field: var(--shelf-400);
-	--on-field: var(--ink-900);
-	--rule: var(--ink-900);
+	--ink: var(--ink-950);
+	--on-ink: var(--cream-50);
+	--accent: var(--soup-pumpkin);
+	--on-accent: var(--ink-950);
+	--field: var(--soup-corn);
+	--on-field: var(--ink-950);
+	--rule: var(--ink-950);
+	--danger: #a8200d; /* errors in words: 5.7:1 on cream */
+	/* How much soup colour a blob and the product sheet carry: by night they glow, not shout. */
+	--blob-strength: 100%;
+	--sheet-tint: 45%;
 
 	color-scheme: light dark;
 }
@@ -59,31 +67,36 @@
 }
 
 :root[data-theme="dark"] {
-	/* The receipt read under the kitchen light at night: dark paper, pale ink. */
-	--paper-50: #191816;
-	--paper-100: #26241f;
-	--ink-900: #edebe6;
-	--ink-600: #b3aea6;
-	--stamp-600: #ff6b5b;
-	--shelf-400: #e8be14;
-	--on-accent: #191816;
-	/* Text on the yellow field stays black: yellow never carries pale ink. */
-	--on-field: #1d1b19;
+	/* The same paper by lamplight: warm brown-black, cream ink, the panels a step darker. */
+	--cream-100: #171411;
+	--cream-50: #241f1a;
+	--ink-950: #f5efe6;
+	--ink-600: #b5aa9c;
+	--ink: #0b0a08;
+	--on-ink: #f5efe6;
+	--on-accent: #16120f;
+	--on-field: #16120f;
+	--rule: #f5efe6;
+	--danger: #ff8a73;
+	--blob-strength: 55%;
+	--sheet-tint: 14%;
 	color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme="light"]) {
-		/* The receipt read under the kitchen light at night: dark paper, pale ink. */
-		--paper-50: #191816;
-		--paper-100: #26241f;
-		--ink-900: #edebe6;
-		--ink-600: #b3aea6;
-		--stamp-600: #ff6b5b;
-		--shelf-400: #e8be14;
-		--on-accent: #191816;
-		/* Text on the yellow field stays black: yellow never carries pale ink. */
-		--on-field: #1d1b19;
+		--cream-100: #171411;
+		--cream-50: #241f1a;
+		--ink-950: #f5efe6;
+		--ink-600: #b5aa9c;
+		--ink: #0b0a08;
+		--on-ink: #f5efe6;
+		--on-accent: #16120f;
+		--on-field: #16120f;
+		--rule: #f5efe6;
+		--danger: #ff8a73;
+		--blob-strength: 55%;
+		--sheet-tint: 14%;
 		color-scheme: dark;
 	}
 }
@@ -93,65 +106,71 @@
 	--color-ground-raised: var(--ground-raised);
 	--color-text: var(--text);
 	--color-text-soft: var(--text-soft);
+	--color-ink: var(--ink);
+	--color-on-ink: var(--on-ink);
 	--color-accent: var(--accent);
 	--color-on-accent: var(--on-accent);
 	--color-field: var(--field);
 	--color-on-field: var(--on-field);
 	--color-rule: var(--rule);
-	--color-bowl-rim: var(--bowl-rim);
-	--color-bowl-ink: var(--bowl-ink);
+	--color-danger: var(--danger);
+	--color-star: var(--star);
+	--color-badge-good: var(--badge-good);
+	--color-soup-tomato: var(--soup-tomato);
+	--color-soup-pumpkin: var(--soup-pumpkin);
+	--color-soup-corn: var(--soup-corn);
+	--color-soup-pea: var(--soup-pea);
+	--color-soup-beet: var(--soup-beet);
 
-	--font-sans: "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
+	/* Clash Display (Fontshare, ITF Free Font License) for titles, Poppins (OFL) for reading. */
+	--font-display: "Clash Display", "Poppins", ui-sans-serif, system-ui, sans-serif;
+	--font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
 
-	/* Five sizes, each with its leading. rem, so the reader's font size still applies. */
-	--text-small: 0.8125rem; /* 13px: captions, EAN, credits */
-	--text-small--line-height: 1.4;
+	/* Six sizes, each with its leading. rem, so the reader's font size still applies. */
+	--text-small: 0.8125rem; /* 13px: meta lines, credits, notes */
+	--text-small--line-height: 1.45;
 	--text-body: 1rem; /* 16px: everything people read */
 	--text-body--line-height: 1.5;
-	--text-lead: 1.25rem; /* 20px: product name on a list label, section heads */
+	--text-lead: 1.25rem; /* 20px: a product name in a list, section heads */
 	--text-lead--line-height: 1.2;
-	/* The product name on its own page: an app title, not a poster. */
-	--text-title: clamp(1.75rem, 1.5rem + 1vw, 2rem);
-	--text-title--line-height: 0.95;
-	--text-figure: clamp(
-		4rem,
-		3rem + 6vw,
-		6.5rem
-	); /* the verdict, set like a shelf price */
-	--text-figure--line-height: 0.85;
-	/* Display sizes outside the reading scale, named for their one job. */
-	--text-wordmark: clamp(3.5rem, 16vw, 6.5rem); /* «Zuppapp» on the yellow header */
-	--text-wordmark--line-height: 0.82;
-	--text-rank: min(5rem, 22vw); /* 2nd and 3rd on the podium */
-	--text-rank--line-height: 0.8;
-	--text-rank-hero: min(10rem, 24vw); /* the 1st place */
-	--text-rank-hero--line-height: 0.8;
-	--text-figure-sm: 3.25rem; /* the verdict on a label in a list */
-	--text-figure-sm--line-height: 0.85;
+	--text-title: clamp(
+		1.75rem,
+		1.5rem + 1vw,
+		2.125rem
+	); /* the product name on its page */
+	--text-title--line-height: 1.05;
+	--text-display: clamp(2.25rem, 1.75rem + 2.5vw, 3.5rem); /* the page's one h1 */
+	--text-display--line-height: 1;
+	--text-wordmark: 1.0625rem; /* the «ZUPPAPP» wordmark */
+	--text-wordmark--line-height: 1;
 
-	--radius-none: 0;
+	--radius-card: 1.75rem; /* photos and cards */
+	--radius-panel: 1.5rem; /* the black panels */
+	--radius-thumb: 1rem;
 
 	--ease-out-snap: cubic-bezier(0.2, 0, 0, 1);
-	--animate-stamp: stamp 240ms var(--ease-out-snap) both;
-	--animate-print: print 300ms var(--ease-out-snap) both;
+	--animate-pop: pop 260ms var(--ease-out-snap) both;
+	--animate-rise: rise 300ms var(--ease-out-snap) both;
 }
 
-@keyframes stamp {
-	from {
-		opacity: 0;
-		scale: 1.35;
+/* A star filling in. */
+@keyframes pop {
+	0% {
+		scale: 0.6;
 	}
-	to {
-		opacity: 1;
+	60% {
+		scale: 1.15;
+	}
+	100% {
 		scale: 1;
 	}
 }
 
-/* A receipt line coming out of the printer. */
-@keyframes print {
+/* Something arriving from below: the tags after the first star. */
+@keyframes rise {
 	from {
 		opacity: 0;
-		translate: 0 -12px;
+		translate: 0 12px;
 	}
 	to {
 		opacity: 1;
@@ -159,16 +178,46 @@
 	}
 }
 
+/* A stroke drawing itself, with stroke-dasharray: 1 and pathLength 1. */
+@keyframes draw {
+	from {
+		stroke-dashoffset: 1;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+@keyframes shimmer {
+	to {
+		background-position: -200% 0;
+	}
+}
+
+/* A drop flying out along --a, fading as it goes. */
+@keyframes burst {
+	from {
+		opacity: 1;
+		translate: -50% -50%;
+		scale: 1;
+	}
+	to {
+		opacity: 0;
+		translate: calc(-50% + cos(var(--a)) * 40px) calc(-50% + sin(var(--a)) * 40px);
+		scale: 0.3;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
-	@keyframes stamp {
+	@keyframes pop {
 		from {
-			opacity: 0;
+			opacity: 0.4;
 		}
 		to {
 			opacity: 1;
 		}
 	}
-	@keyframes print {
+	@keyframes rise {
 		from {
 			opacity: 0;
 		}
@@ -194,13 +243,19 @@
 	}
 
 	:focus-visible {
-		outline: 3px solid var(--accent);
-		outline-offset: 2px;
+		outline: 2px solid var(--text);
+		outline-offset: 3px;
 	}
 
 	/* No lone word on the last line of a paragraph. */
 	p {
 		text-wrap: pretty;
+	}
+
+	h1,
+	h2,
+	h3 {
+		text-wrap: balance;
 	}
 
 	a {
@@ -210,53 +265,214 @@
 }
 
 @layer utilities {
-	/* Width axis of Archivo: condensed for anything set like a shelf label or a price. */
-	.font-condensed {
-		font-stretch: 62%;
-	}
-	.font-semicondensed {
-		font-stretch: 80%;
-	}
-
 	/* The rules between nutrients belong to the table, as on the pack. */
 	.nutrient-row {
-		border-bottom: 1px solid color-mix(in oklab, var(--rule) 40%, transparent); /* taste-skill-ignore */
+		border-bottom: 1px solid color-mix(in oklab, var(--rule) 18%, transparent);
+	}
+
+	/*
+	 * The posters' grain: a fixed noise tile laid over a flat colour, so a blob reads as
+	 * printed, not as a CSS gradient. Put it on an element that already has a background.
+	 */
+	.grain {
+		position: relative;
+		isolation: isolate;
+	}
+	.grain::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		border-radius: inherit;
+		opacity: 0.35;
+		mix-blend-mode: soft-light;
+		/* prettier-ignore */
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.6 -0.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	}
+
+	/*
+	 * The blob at the top of a screen: a flat soup colour that fades into the paper, with
+	 * grain. --blob-from and --blob-to pick the soup.
+	 */
+	.blob-head {
+		/* prettier-ignore */
+		background:
+			radial-gradient( /* taste-skill-ignore */
+				120% 90% at 50% 0%,
+				color-mix(
+						in oklab,
+						var(--blob-from, var(--soup-tomato)) var(--blob-strength),
+						var(--ground)
+					)
+					0%,
+				color-mix(
+						in oklab,
+						var(--blob-to, var(--soup-pumpkin)) var(--blob-strength),
+						var(--ground)
+					)
+					38%,
+				transparent 72%
+			),
+			var(--ground);
+	}
+	/* The grain fades with the colour, so the blob has no edge where the header ends. */
+	.blob-head.grain::after {
+		mask-image: linear-gradient(black 30%, transparent 80%); /* taste-skill-ignore */
 	}
 
 	/*
 	 * Anything printed on the yellow field keeps the light theme in both themes: yellow never
-	 * carries pale ink, so the text, the spread bar and the focus ring stay dark and red on it,
-	 * and a field set on it (the search) stays paper, so typed text stays dark on light.
+	 * carries pale ink.
 	 */
 	.on-field {
-		--ground: #f2f2f0;
-		--ground-raised: #e4e4e1;
-		--text: #1d1b19;
-		--text-soft: #4a4641;
-		--accent: #be241b;
+		--ground: #ede3d4;
+		--ground-raised: #f8f2ea;
+		--text: #16120f;
+		--text-soft: #4f463d;
 		color: var(--text);
 	}
 
-	/* «Mai più» in the spread bar: the same ink as «Si mangia», told apart by a 45° hatch. */
-	.hatch {
+	/* «ZUPPAPP» in capitals: the wordmark over a screen's title and in the footer. */
+	/* prettier-ignore */
+	.wordmark { /* taste-skill-ignore */
+		font-family: var(--font-display);
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
+	}
+
+	/* The only depth in the system: what floats over the content (tab bar, menus, the back button). */
+	.float-shadow {
 		/* prettier-ignore */
-		background: repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 4px); /* taste-skill-ignore */
+		box-shadow: /* taste-skill-ignore */
+			0 1px 2px rgb(0 0 0 / 0.08),
+			0 8px 24px rgb(0 0 0 / 0.14);
 	}
 
 	/*
-	 * Small capitals set like a shelf tag: condensed, black, uppercase. At 13px uppercase needs
-	 * air between the letters to stay legible, so these carry 0.05em of tracking.
+	 * Liquid glass, after iOS 26: a translucent sheet that blurs and saturates what passes under
+	 * it, lit along the top edge and rimmed in light. Plain CSS, so it works in Safari too (the
+	 * SVG-refraction libraries only refract in Chromium). For what floats over content: the tab
+	 * bar, the back button, menus. Without backdrop-filter it falls back to the solid sheet.
 	 */
-	.label-caps {
-		font-stretch: 62%;
-		font-weight: 900;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
+	.glass {
+		--glass-tint: color-mix(in oklab, var(--ground-raised) 58%, transparent);
+		--glass-rim: rgb(255 255 255 / 0.55);
+		--glass-light: rgb(255 255 255 / 0.85);
+		/* No position here: it would override an absolute or fixed one. Give the element its own. */
+		isolation: isolate;
+		background: var(--glass-tint);
+		-webkit-backdrop-filter: blur(20px) saturate(180%); /* taste-skill-ignore */
+		backdrop-filter: blur(20px) saturate(180%); /* taste-skill-ignore */
+		/* prettier-ignore */
+		box-shadow: /* taste-skill-ignore */
+			inset 0 1px 0.5px var(--glass-light),
+			inset 0 -1px 1px rgb(0 0 0 / 0.06),
+			inset 0 0 0 1px var(--glass-rim),
+			0 1px 2px rgb(0 0 0 / 0.06),
+			0 10px 30px rgb(0 0 0 / 0.14);
+	}
+	/* The specular sheen: light caught in the upper left of the glass. */
+	.glass::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border-radius: inherit;
+		pointer-events: none;
+		/* prettier-ignore */
+		background: radial-gradient( /* taste-skill-ignore */
+			120% 80% at 20% 0%,
+			rgb(255 255 255 / 0.45),
+			transparent 55%
+		);
+	}
+	:root[data-theme="dark"] .glass {
+		--glass-tint: color-mix(in oklab, var(--ground-raised) 62%, transparent);
+		--glass-rim: rgb(255 255 255 / 0.12);
+		--glass-light: rgb(255 255 255 / 0.22);
+	}
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) .glass {
+			--glass-tint: color-mix(in oklab, var(--ground-raised) 62%, transparent);
+			--glass-rim: rgb(255 255 255 / 0.12);
+			--glass-light: rgb(255 255 255 / 0.22);
+		}
+	}
+	:root[data-theme="dark"] .glass::before {
+		opacity: 0.25;
+	}
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) .glass::before {
+			opacity: 0.25;
+		}
+	}
+	/* prettier-ignore */
+	@supports not (backdrop-filter: blur(1px)) { /* taste-skill-ignore */
+		.glass {
+			background: var(--ground-raised);
+		}
+	}
+	/* Reduced transparency asks for solid surfaces. */
+	@media (prefers-reduced-transparency: reduce) {
+		.glass {
+			background: var(--ground-raised);
+			backdrop-filter: none; /* taste-skill-ignore */
+		}
 	}
 
-	/* The only depth in the system, for a menu that floats over the content («Per pagina»). taste-skill-ignore */
-	.float-shadow {
-		box-shadow: 0 8px 24px rgb(0 0 0 / 0.22); /* taste-skill-ignore */
+	/* The product sheet: the field yellow at its top edge, fading into the paper. */
+	/* prettier-ignore */
+	.sheet-tint {
+		background: linear-gradient(to bottom, color-mix(in oklab, var(--field) var(--sheet-tint), var(--ground)), var(--ground) 16rem); /* taste-skill-ignore */
+	}
+
+	/* A scrolling list fades at its foot, to say there is more below. */
+	/* prettier-ignore */
+	.fade-bottom {
+		mask-image: linear-gradient(to bottom, black calc(100% - 2.5rem), transparent); /* taste-skill-ignore */
+	}
+
+	/* The drop that marks the current tab: lit along its top, lifted a little off the bar. */
+	/* prettier-ignore */
+	.glass-drop {
+		box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6), 0 2px 8px rgb(0 0 0 / 0.08); /* taste-skill-ignore */
+	}
+
+	/* A white plate under a pack photo shimmers while the photo is on its way. */
+	.plate:has(img[data-loaded="false"]) {
+		/* prettier-ignore */
+		background: linear-gradient(100deg, #ffffff 30%, #f1ebe2 50%, #ffffff 70%) 0 0 / /* taste-skill-ignore */
+			200% 100%;
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		.plate:has(img[data-loaded="false"]) {
+			animation: shimmer 1.2s linear infinite;
+		}
+	}
+
+	/* «La ricompro»: eight drops of yellow leave the fifth star. */
+	.star-burst > i {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 7px;
+		height: 7px;
+		border-radius: 9999px;
+		background: var(--star);
+		pointer-events: none;
+		animation: burst 650ms var(--ease-out-snap) forwards;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.star-burst {
+			display: none;
+		}
+	}
+
+	/* Room under the last thing on a page, so the tab bar never covers it. */
+	.pb-tabbar {
+		padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
 	}
 
 	/* Google's sign-in button, in its own light and dark colours (branding guidelines). */
@@ -285,21 +501,5 @@
 		:root:not([data-theme="light"]) .google-button:enabled:hover {
 			background: #2a2a2c;
 		}
-	}
-
-	/* The dot leader of a receipt row: round 2px dots, the printer's way of joining label and value. */
-	.leader-dots {
-		height: 4px;
-		/* prettier-ignore */
-		background: radial-gradient(circle, currentColor 1px, transparent 1.5px) 0 0 / 6px 4px repeat-x; /* taste-skill-ignore */
-	}
-
-	/* The torn bottom edge of a receipt: a 12px zigzag. */
-	.edge-zigzag {
-		--zz: 12px;
-		padding-bottom: calc(var(--zz) + 1.25rem);
-		/* A mask, not a visible gradient: each tile is a square turned 45° at the bottom edge. */
-		/* prettier-ignore */
-		mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / var(--zz) 100%; /* taste-skill-ignore */
 	}
 }

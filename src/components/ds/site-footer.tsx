@@ -1,15 +1,15 @@
 import { ThemeSwitch } from "./theme-switch";
 
 /**
- * The close of every page, one tone down from the paper: the theme, and the credits the
- * licences ask for (Open Food Facts' data under ODbL, DiceBear's Critters under CC0).
+ * The close of every page: the theme, and the credits the licences ask for (Open Food Facts'
+ * data under ODbL, DiceBear's Critters under CC0). It leaves room for the tab bar below it.
  */
 export function SiteFooter() {
 	return (
-		<footer className="bg-ground-raised mt-16">
-			<div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-[1fr_auto] md:items-end">
-				<div className="flex flex-col gap-3">
-					<p className="font-condensed text-title font-black uppercase">Zuppapp</p>
+		<footer className="pb-tabbar mt-16">
+			<div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-8 md:flex-row md:items-end md:justify-between">
+				<div className="flex flex-col gap-2">
+					<p className="wordmark text-wordmark text-text-soft">Zuppapp</p>
 					<p className="text-small text-text-soft max-w-[60ch]">
 						Dati dei prodotti da{" "}
 						<a
@@ -42,10 +42,10 @@ export function SiteFooter() {
 					</p>
 				</div>
 				<div className="flex flex-col gap-2 md:items-end">
-					<span aria-hidden className="label-caps text-small">
+					<span aria-hidden className="text-small text-text-soft">
 						Tema
 					</span>
-					<ThemeSwitch className="bg-ground" />
+					<ThemeSwitch />
 				</div>
 			</div>
 		</footer>

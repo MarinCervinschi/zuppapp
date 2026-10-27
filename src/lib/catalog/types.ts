@@ -25,10 +25,9 @@ export type ProductStatsView = {
 	ranked: boolean;
 	/** Position in the overall ranking, when the product is in it. */
 	rank: number | null;
-	/** The face of the plain mean, for the card; the ranking orders by the Bayesian score. */
-	meanFace: Score | null;
-	rebuyPercent: number;
-	/** Votes per face, for the receipt. */
+	/** The plain mean of the stars, to one decimal; the ranking orders by its Bayesian version. */
+	mean: number | null;
+	/** Votes per star. */
 	scoreCounts: Record<Score, number>;
 	tags: TagShare[];
 };
@@ -65,12 +64,13 @@ export type ProductListItem = {
 	quantity: string | null;
 	imageUrl: string | null;
 	votesCount: number;
-	rebuyPercent: number;
-	/** Votes per face, for the spread bar of the ranking. */
+	/** The plain mean of the stars, to one decimal; null with no votes. */
+	mean: number | null;
+	/** Votes per star. */
 	scoreCounts: Record<Score, number>;
 	/** Position in the current ranking view; null outside it. */
 	rank: number | null;
-	/** The reader's own face, so a tile can show it already voted. */
+	/** The reader's own stars, so a card can show it already voted. */
 	myScore: Score | null;
 };
 

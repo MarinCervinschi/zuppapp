@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
-import { AppBar } from "@/components/ds/app-bar";
 import { Button } from "@/components/ds/button";
 import { ThemeSwitch } from "@/components/ds/theme-switch";
 import { AvatarPicker } from "@/components/user/avatar-picker";
@@ -36,12 +35,11 @@ function Profile() {
 
 	return (
 		<>
-			<AppBar back />
-			<main className="mx-auto flex max-w-xl flex-col gap-10 px-4 pt-8 pb-16">
+			<main className="mx-auto flex max-w-xl flex-col gap-10 px-4 pt-14">
 				<header className="flex items-center gap-4">
-					<UserAvatar seed={viewer.avatarSeed} className="size-24" />
+					<UserAvatar seed={viewer.avatarSeed} className="size-24 rounded-full" />
 					<div className="flex min-w-0 flex-col gap-1">
-						<h1 className="font-semicondensed text-title font-extrabold text-balance">
+						<h1 className="font-display text-title font-semibold">
 							{viewer.displayName}
 						</h1>
 						<Link to="/le-mie-zuppe" className="text-body underline">
@@ -51,7 +49,7 @@ function Profile() {
 				</header>
 
 				{!viewer.hasNickname && (
-					<p className="bg-field on-field text-body p-4">
+					<p className="bg-field on-field text-body rounded-card p-5">
 						Scegli come ti chiami: per ora gli altri ti vedono come «
 						{viewer.displayName}».
 					</p>
@@ -61,10 +59,7 @@ function Profile() {
 				<AvatarPicker userId={viewer.id} current={viewer.avatarSeed} />
 
 				<section aria-labelledby="account-heading" className="flex flex-col gap-3">
-					<h2
-						id="account-heading"
-						className="font-condensed text-lead font-extrabold uppercase"
-					>
+					<h2 id="account-heading" className="font-display text-lead font-medium">
 						Account
 					</h2>
 					<div className="flex flex-col gap-2">

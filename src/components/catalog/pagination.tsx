@@ -7,6 +7,8 @@ import { EXACT_SEARCH } from "@/lib/catalog/schemas";
 import { cn } from "@/lib/utils";
 
 type PageParam = "pagina" | "posti";
+/** The two screens that page through the catalogue, with the same URL params. */
+export type CatalogRoute = "/" | "/classifica";
 
 /** 1 … 4 5 6 … 38: the first, the last and the neighbours of the current page. */
 export function pageWindow(page: number, pageCount: number): (number | "gap")[] {
@@ -27,9 +29,9 @@ const number = new Intl.NumberFormat("it-IT");
 // Quiet by default, like the rest of the controls: plain numbers on the paper, the current page
 // inked in. Every cell stays a 44px target even where it looks small.
 const cell =
-	"text-body inline-flex min-h-11 min-w-11 items-center justify-center px-2 font-semibold tabular-nums no-underline transition-[background-color] duration-150";
+	"text-body inline-flex min-h-11 min-w-11 items-center justify-center rounded-full px-2 font-medium tabular-nums no-underline transition-[background-color] duration-150";
 const step =
-	"text-body inline-flex min-h-11 items-center gap-1.5 px-2 font-semibold no-underline transition-[background-color] duration-150";
+	"text-body inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 font-medium no-underline transition-[background-color] duration-150";
 
 function Chevron({ back }: { back?: boolean }) {
 	return (
@@ -60,6 +62,7 @@ export function Pagination({
 	label,
 	unit,
 	firstNumber = 1,
+	route = "/",
 }: {
 	page: number;
 	pageCount: number;
@@ -77,6 +80,7 @@ export function Pagination({
 	unit: string;
 	/** The number of the first item of page 1: 4 in the ranking, after the podium. */
 	firstNumber?: number;
+	route?: CatalogRoute;
 }) {
 	if (total <= 0) return null;
 	const to = (p: number) => (prev: BrowseParams) => ({
@@ -98,7 +102,7 @@ export function Pagination({
 						<li>
 							{page > 1 ? (
 								<Link
-									to="/"
+									to={route}
 									activeOptions={EXACT_SEARCH}
 									search={to(page - 1)}
 									hash={section}
@@ -123,7 +127,7 @@ export function Pagination({
 							) : (
 								<li key={item}>
 									<Link
-										to="/"
+										to={route}
 										activeOptions={EXACT_SEARCH}
 										search={to(item)}
 										hash={section}
@@ -142,7 +146,7 @@ export function Pagination({
 						<li>
 							{page < pageCount ? (
 								<Link
-									to="/"
+									to={route}
 									activeOptions={EXACT_SEARCH}
 									search={to(page + 1)}
 									hash={section}
@@ -173,6 +177,7 @@ export function Pagination({
 						sizeParam={sizeParam}
 						section={section}
 						unit={unit}
+						route={route}
 					/>
 				)}
 			</div>
@@ -192,7 +197,9 @@ function PageSizeMenu({
 	sizeParam,
 	section,
 	unit,
+	route,
 }: {
+	route: CatalogRoute;
 	sizes: readonly number[];
 	current: number;
 	param: PageParam;
@@ -234,7 +241,7 @@ function PageSizeMenu({
 				aria-controls={menuId}
 				aria-label={`${current} ${unit} per pagina, cambia`}
 				onClick={() => setOpen(value => !value)}
-				className="bg-ground-raised text-body hover:bg-text/10 inline-flex min-h-11 items-center gap-2 px-3 font-semibold tabular-nums"
+				className="bg-ground-raised text-body hover:bg-text/10 inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-medium tabular-nums"
 			>
 				{current}
 				<svg
@@ -252,19 +259,19 @@ function PageSizeMenu({
 				<ul
 					id={menuId}
 					aria-labelledby={`${menuId}-label`}
-					className="bg-ground-raised float-shadow absolute right-0 bottom-full z-20 mb-1 flex min-w-full flex-col py-1"
+					className="glass rounded-thumb absolute right-0 bottom-full z-20 mb-1 flex min-w-full flex-col overflow-hidden py-1"
 				>
 					{sizes.map(size => (
 						<li key={size}>
 							<Link
-								to="/"
+								to={route}
 								activeOptions={EXACT_SEARCH}
 								search={sized(size)}
 								hash={section}
 								aria-current={size === current ? "true" : undefined}
 								onClick={() => close(false)}
 								className={cn(
-									"text-body flex min-h-11 items-center px-4 font-semibold tabular-nums no-underline",
+									"text-body flex min-h-11 items-center px-4 font-medium tabular-nums no-underline",
 									size === current ? "bg-text text-ground" : "hover:bg-text/10"
 								)}
 							>

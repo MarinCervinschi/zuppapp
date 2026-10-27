@@ -16,7 +16,7 @@ const FIELD_NAMES: Record<string, string> = {
 	subtype: "tipo",
 };
 
-const field = "bg-ground text-body min-h-12 w-full border-b-[3px] border-text px-3";
+const field = "bg-ground text-body min-h-12 w-full rounded-thumb px-4";
 
 export function ProductRow({
 	product,
@@ -38,7 +38,7 @@ export function ProductRow({
 		.join(" · ");
 
 	return (
-		<li className="bg-ground-raised flex flex-col gap-3 p-4">
+		<li className="bg-ground-raised rounded-card flex flex-col gap-3 p-5">
 			<div className="flex items-start gap-3">
 				<input
 					type="checkbox"
@@ -49,7 +49,7 @@ export function ProductRow({
 				/>
 				<PackPhoto src={product.imageUrl} alt="" size="thumb" />
 				<div className="flex min-w-0 flex-col gap-1">
-					<p className="font-semicondensed text-lead font-bold">{product.name}</p>
+					<p className="font-display text-lead font-medium">{product.name}</p>
 					<p className="text-small text-text-soft">
 						{details || "Senza marca né tipo"} · EAN {product.ean}
 					</p>
@@ -128,7 +128,7 @@ export function ProductRow({
 						/>
 					</label>
 					{error && (
-						<p role="alert" className="text-body text-accent sm:col-span-2">
+						<p role="alert" className="text-body text-danger sm:col-span-2">
 							{error}
 						</p>
 					)}

@@ -47,7 +47,7 @@ export function GoogleButton({
 			onClick={onClick}
 			disabled={disabled || pending}
 			className={cn(
-				"google-button text-body inline-flex min-h-12 items-center justify-center gap-3 px-5 font-medium",
+				"google-button text-body inline-flex min-h-12 items-center justify-center gap-3 rounded-full px-5 font-medium",
 				"transition-[scale,background-color] duration-150 ease-out motion-safe:enabled:active:scale-[0.96]",
 				"disabled:cursor-not-allowed disabled:opacity-50",
 				className

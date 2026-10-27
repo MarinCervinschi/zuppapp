@@ -2,15 +2,15 @@ import { useEffect, useRef, useState } from "react";
 
 import { toast } from "sonner";
 
-import { Button } from "@/components/ds/button";
+import { StarPicker } from "@/components/ds/stars";
 import type { ProductCard } from "@/lib/catalog/types";
 import type { Score } from "@/lib/ranking/rules";
+import { SCORE_LABELS } from "@/lib/ranking/rules";
 import { useCastVote, useRemoveVote } from "@/lib/voting/mutations";
 
-import { FacePicker } from "./face-picker";
 import { TagPicker } from "./tag-picker";
 
-// Long enough to arrow across the four faces without sending four votes.
+// Long enough to arrow across the five stars without sending five votes.
 const SAVE_DELAY_MS = 600;
 
 /**
@@ -23,8 +23,6 @@ export function useVote(product: ProductCard) {
 
 	const [score, setScore] = useState<Score | null>(product.myVote?.score ?? null);
 	const [tagIds, setTagIds] = useState<string[]>(product.myVote?.tagIds ?? []);
-	// Counts saved changes of face, so the stamp is pressed on each one but not on page load.
-	const [stampKey, setStampKey] = useState(0);
 	const saved = useRef({ score, tagIds });
 	const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -40,7 +38,6 @@ export function useVote(product: ProductCard) {
 				{ productId: product.id, score: nextScore, tagIds: nextTags },
 				{
 					onSuccess: () => {
-						if (nextScore !== previous.score) setStampKey(key => key + 1);
 						saved.current = { score: nextScore, tagIds: nextTags };
 					},
 					onError: () => {
@@ -75,9 +72,10 @@ export function useVote(product: ProductCard) {
 		});
 	}
 
-	return { score, tagIds, busy: removeVote.isPending, stampKey, submit, clear };
+	return { score, tagIds, busy: removeVote.isPending, submit, clear };
 }
 
+/** The black panel with the five stars, then, once there is a vote, the tags under it. */
 export function VotePanel({
 	product,
 	vote,
@@ -86,53 +84,69 @@ export function VotePanel({
 	vote: ReturnType<typeof useVote>;
 }) {
 	const picker = useRef<HTMLDivElement>(null);
+	// The star under the mouse, named before it is clicked.
+	const [preview, setPreview] = useState<Score | null>(null);
 
 	return (
 		<section aria-labelledby="vote-heading" className="flex flex-col gap-6">
-			<div className="flex flex-wrap items-center justify-between gap-3">
-				<h2
-					id="vote-heading"
-					className="font-condensed text-lead font-extrabold uppercase"
-				>
-					{vote.score ? "Il tuo voto" : "Com’era?"}
+			<div className="bg-ink text-on-ink rounded-panel flex flex-col items-center gap-4 px-4 pt-5 pb-4">
+				<h2 id="vote-heading" className="font-display text-lead font-medium">
+					{vote.score ? "La tua valutazione" : "Com’era?"}
 				</h2>
-				{vote.score && (
-					// A real button, beside the heading it undoes; the toast that follows can put it back.
-					<Button
-						disabled={vote.busy}
-						onClick={() =>
-							vote.clear(() =>
-								// The button disappears with the vote: focus goes back to the first face.
-								requestAnimationFrame(() =>
-									picker.current?.querySelector<HTMLElement>('[role="radio"]')?.focus()
-								)
-							)
-						}
-						className="min-h-11 px-4"
-					>
-						<svg aria-hidden viewBox="0 0 12 12" className="size-3">
-							<path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="2" />
-						</svg>
-						Togli il voto
-					</Button>
-				)}
+				<StarPicker
+					ref={picker}
+					value={vote.score}
+					onPick={next => vote.submit(next, vote.tagIds)}
+					onPreview={setPreview}
+				/>
+				<div
+					className="text-small flex min-h-11 flex-wrap items-center justify-center gap-x-4"
+					aria-live="polite"
+				>
+					{preview && preview !== vote.score ? (
+						// For the mouse only: the radio's own name already says it to a screen reader.
+						<span aria-hidden className="text-body font-medium">
+							«{SCORE_LABELS[preview].label}»
+						</span>
+					) : vote.score ? (
+						<>
+							<span>
+								«{SCORE_LABELS[vote.score].label}». Per cambiare, tocca un’altra stella.
+							</span>
+							{/* A real button: the toast that follows can put the vote back. */}
+							<button
+								type="button"
+								disabled={vote.busy}
+								onClick={() =>
+									vote.clear(() =>
+										// The button disappears with the vote: focus goes back to the first star.
+										requestAnimationFrame(() =>
+											picker.current
+												?.querySelector<HTMLElement>('[role="radio"]')
+												?.focus()
+										)
+									)
+								}
+								className="min-h-11 rounded-full px-2 underline disabled:opacity-50"
+							>
+								Togli il voto
+							</button>
+						</>
+					) : (
+						<span className="text-on-ink/75">
+							Una stella: mai più. Cinque: la ricompro.
+						</span>
+					)}
+				</div>
 			</div>
-			<FacePicker
-				ref={picker}
-				value={vote.score}
-				onPick={next => vote.submit(next, vote.tagIds)}
-			/>
 			{vote.score && (
-				<>
-					<p className="text-small text-text-soft -mt-3">
-						Hai cambiato idea? Tocca un’altra faccia.
-					</p>
+				<div className="motion-safe:animate-rise">
 					<TagPicker
 						options={product.tagOptions}
 						selected={vote.tagIds}
 						onChange={next => vote.submit(vote.score!, next)}
 					/>
-				</>
+				</div>
 			)}
 		</section>
 	);

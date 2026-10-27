@@ -16,7 +16,7 @@ export function UserAvatar({ seed, className }: { seed: string; className?: stri
 			alt=""
 			width={96}
 			height={96}
-			className={cn("bg-ground-raised size-10 shrink-0", className)}
+			className={cn("bg-ground-raised size-10 shrink-0 rounded-full", className)}
 		/>
 	);
 }

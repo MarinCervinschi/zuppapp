@@ -32,7 +32,7 @@ export function ThemeSwitch({ className }: { className?: string }) {
 		<div
 			role="radiogroup"
 			aria-label="Tema"
-			className={cn("bg-ground-raised inline-flex p-1", className)}
+			className={cn("bg-ground-raised inline-flex rounded-full p-1", className)}
 		>
 			{CHOICES.map(({ value, label }, index) => {
 				const on = choice === value;
@@ -58,7 +58,7 @@ export function ThemeSwitch({ className }: { className?: string }) {
 							)?.focus();
 						}}
 						className={cn(
-							"text-body min-h-11 px-4 font-semibold transition-[background-color] duration-150",
+							"text-body min-h-11 rounded-full px-4 font-medium transition-[background-color] duration-150",
 							on ? "bg-text text-ground" : "hover:bg-text/10"
 						)}
 					>

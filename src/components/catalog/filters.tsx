@@ -20,9 +20,10 @@ import { BrandPicker } from "./brand-picker";
 // the JavaScript arrives. The brand, a long list, adds a search field above its links.
 
 const chip =
-	"font-semicondensed text-body inline-flex min-h-11 items-center gap-2 px-3 font-semibold no-underline transition-[background-color] duration-150";
+	"text-body inline-flex min-h-11 items-center gap-2 rounded-full px-4 no-underline transition-[background-color] duration-150";
 const on = "bg-text text-ground";
-const off = "bg-ground hover:bg-text/10";
+// A tint of the ink, not a surface: it reads on the page (sidebar) and on the sheet alike.
+const off = "bg-text/[0.06] hover:bg-text/10";
 
 function toggled(list: string | undefined, item: string) {
 	const items = listParam(list);
@@ -33,9 +34,7 @@ function toggled(list: string | undefined, item: string) {
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
 	return (
 		<fieldset className="flex flex-col gap-3">
-			<legend className="font-condensed text-lead mb-3 font-extrabold uppercase">
-				{title}
-			</legend>
+			<legend className="font-display text-lead mb-3 font-medium">{title}</legend>
 			{children}
 		</fieldset>
 	);
@@ -115,11 +114,11 @@ export function FilterPanel({
 									aria-current={active ? "true" : undefined}
 									aria-label={`Nutri-Score ${grade.toUpperCase()}, ${counts[grade] ?? 0} zuppe`}
 									className={cn(
-										"font-condensed flex min-h-14 flex-col items-center justify-center no-underline transition-[background-color] duration-150",
+										"rounded-thumb flex min-h-14 flex-col items-center justify-center no-underline transition-[background-color] duration-150",
 										active ? on : off
 									)}
 								>
-									<span className="text-title leading-none font-black uppercase">
+									<span className="font-display text-title leading-none font-semibold uppercase">
 										{grade}
 									</span>
 									<span
@@ -250,21 +249,31 @@ export function FilterSheet({
 	return (
 		<>
 			<Button onClick={() => dialog.current?.showModal()} className="lg:hidden">
+				<svg
+					aria-hidden
+					viewBox="0 0 24 24"
+					className="size-5"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="1.8"
+					strokeLinecap="round"
+				>
+					<path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
+					<circle cx="16" cy="7" r="2" />
+					<circle cx="8" cy="17" r="2" />
+				</svg>
 				Filtri{active > 0 && <span className="tabular-nums"> ({active})</span>}
 			</Button>
 			<dialog
 				ref={dialog}
 				aria-labelledby="filter-sheet-title"
-				className="bg-ground-raised text-text m-0 mt-auto max-h-[85dvh] w-full max-w-none overflow-y-auto overscroll-contain p-0 backdrop:bg-black/50"
+				className="bg-ground-raised text-text m-0 mt-auto max-h-[85dvh] w-full max-w-none overflow-y-auto overscroll-contain rounded-t-[var(--radius-card)] p-0 backdrop:bg-black/50"
 				onClick={event => {
 					if (event.target === dialog.current) dialog.current.close();
 				}}
 			>
 				<div className="bg-ground-raised sticky top-0 z-10 flex items-center justify-between px-4 pt-4 pb-3">
-					<h2
-						id="filter-sheet-title"
-						className="font-condensed text-title font-black uppercase"
-					>
+					<h2 id="filter-sheet-title" className="font-display text-title font-semibold">
 						Filtri
 					</h2>
 					<Button variant="ink" onClick={() => dialog.current?.close()}>

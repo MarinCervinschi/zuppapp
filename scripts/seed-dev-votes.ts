@@ -17,8 +17,8 @@ function pick<T>(list: T[], count: number): T[] {
 }
 
 // Each product gets a character, so the ranking has a spread: some loved, some not.
-function faceFor(mean: number): number {
-	return Math.min(4, Math.max(1, Math.round(mean + (Math.random() - 0.5) * 2.2)));
+function starsFor(mean: number): number {
+	return Math.min(5, Math.max(1, Math.round(mean + (Math.random() - 0.5) * 2.2)));
 }
 
 async function main() {
@@ -56,12 +56,12 @@ async function main() {
 	const tagRows = await db.select({ id: tags.id }).from(tags);
 
 	for (const product of chosen) {
-		const mean = 1.5 + Math.random() * 2.5;
+		const mean = 1.5 + Math.random() * 3.2;
 		const count = 2 + Math.floor(Math.random() * 30);
 		const rows = pick(voters, count).map(voter => ({
 			userId: voter.id,
 			productId: product.id,
-			score: faceFor(mean),
+			score: starsFor(mean),
 		}));
 		await db.insert(votes).values(rows);
 		const tagged = rows.filter(() => Math.random() < 0.5);

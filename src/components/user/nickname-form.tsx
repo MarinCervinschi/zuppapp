@@ -28,10 +28,7 @@ export function NicknameForm({ current }: { current: string | null }) {
 				});
 			}}
 		>
-			<label
-				htmlFor="nickname"
-				className="font-condensed text-lead font-extrabold uppercase"
-			>
+			<label htmlFor="nickname" className="font-display text-lead font-medium">
 				Il tuo nome
 			</label>
 			<p id="nickname-help" className="text-small text-text-soft">
@@ -47,14 +44,14 @@ export function NicknameForm({ current }: { current: string | null }) {
 					autoComplete="nickname"
 					aria-invalid={error ? true : undefined}
 					aria-describedby={error ? "nickname-help nickname-error" : "nickname-help"}
-					className="bg-ground-raised text-body placeholder:text-text-soft border-text min-h-12 w-full border-b-[3px] px-4"
+					className="bg-ground-raised text-body placeholder:text-text-soft min-h-12 w-full rounded-full px-5"
 				/>
 				<Button type="submit" variant="ink" disabled={save.isPending}>
 					{save.isPending ? "Salvo…" : "Salva"}
 				</Button>
 			</div>
 			{error && (
-				<p id="nickname-error" role="alert" className="text-body text-accent">
+				<p id="nickname-error" role="alert" className="text-body text-danger">
 					{error}
 				</p>
 			)}

@@ -1,9 +1,8 @@
 import { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 
-import { AppBar } from "@/components/ds/app-bar";
 import { GoogleButton } from "@/components/user/google-button";
 import { LoyaltyCard } from "@/components/user/loyalty-card";
 import { authClient } from "@/lib/auth/client";
@@ -48,8 +47,7 @@ function SignIn() {
 
 	return (
 		<>
-			<AppBar back wide />
-			<main className="mx-auto grid max-w-4xl gap-10 px-4 pt-10 pb-16 md:min-h-[calc(100dvh-4rem)] md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-16 md:py-12">
+			<main className="mx-auto grid max-w-4xl grid-cols-[minmax(0,1fr)] gap-10 px-4 pt-14 md:min-h-[calc(100dvh-8rem)] md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-16 md:py-12">
 				{/* The card first on a phone, beside the words on a wide screen: it is what you get. */}
 				<div className="flex justify-center md:order-last">
 					<LoyaltyCard
@@ -63,7 +61,7 @@ function SignIn() {
 
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col gap-3">
-						<h1 className="font-condensed text-figure-sm font-black tracking-[-0.02em] text-balance uppercase">
+						<h1 className="font-display text-title sm:text-display font-semibold">
 							Prendi la tua tessera
 						</h1>
 						<p className="text-lead">È gratis e la fai con il tuo account Google.</p>
@@ -72,7 +70,7 @@ function SignIn() {
 					<ul className="flex flex-col gap-2">
 						{REASONS.map(reason => (
 							<li key={reason} className="text-body flex gap-3">
-								<span aria-hidden className="text-accent font-black">
+								<span aria-hidden className="font-semibold">
 									+
 								</span>
 								{reason}
@@ -91,7 +89,10 @@ function SignIn() {
 							<p className="text-body">
 								{votes === 1
 									? "Il voto che hai già dato da questo browser passa sulla tessera."
-									: `I ${count(votes, VOTI)} che hai già dato da questo browser passano sulla tessera.`}
+									: `I ${count(votes, VOTI)} che hai già dato da questo browser passano sulla tessera.`}{" "}
+								<Link to="/le-mie-zuppe" className="underline">
+									Vedi le tue zuppe
+								</Link>
 							</p>
 						)}
 						{data && !data.googleEnabled && (
@@ -100,7 +101,7 @@ function SignIn() {
 							</p>
 						)}
 						{error && (
-							<p role="alert" className="text-body text-accent">
+							<p role="alert" className="text-body text-danger">
 								{error}
 							</p>
 						)}

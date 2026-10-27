@@ -7,7 +7,7 @@ import {
 	SCORES,
 	type Score,
 	isScore,
-	rebuyPercent,
+	meanStars,
 } from "@/lib/ranking/rules";
 import { matchesText, relevance } from "@/lib/search/service";
 
@@ -27,11 +27,11 @@ import type {
 	RankingPage,
 } from "./types";
 
-// The catalogue the home shows, in three cuts: the ranking (enough votes, by Bayesian score),
+// The public catalogue, in three cuts: the ranking (enough votes, by Bayesian score),
 // the shelf still to taste (not enough votes yet) and search results (by relevance).
 
-// With no vote anywhere yet, the prior assumes one person in four would buy it again.
-const NEUTRAL_REBUY_SHARE = 0.25;
+// With no vote anywhere yet, the prior is the middle star.
+const NEUTRAL_MEAN = 3;
 
 type Row = {
 	id: string;
@@ -43,7 +43,7 @@ type Row = {
 	image_key: string | null;
 	off_image_url: string | null;
 	votes_count: number;
-	rebuy_count: number;
+	score_sum: number;
 	score_counts: Record<string, number> | null;
 	my_score: number | null;
 	total: number;
@@ -85,7 +85,7 @@ function select(userId: string | null) {
 		(SELECT image_url FROM product_snapshots s WHERE s.product_id = products.id
 			ORDER BY s.fetched_at DESC LIMIT 1) AS off_image_url,
 		coalesce(ps.votes_count, 0)::int AS votes_count,
-		coalesce(ps.rebuy_count, 0)::int AS rebuy_count,
+		coalesce(ps.score_sum, 0)::int AS score_sum,
 		ps.score_counts,
 		${
 			userId
@@ -96,18 +96,18 @@ function select(userId: string | null) {
 }
 
 /**
- * The ranking orders by the figure every label prints, the share of "La ricompro", made
- * Bayesian: each product starts with PRIOR_VOTES fake votes at the share of all votes, so
- * 5 of 7 cannot beat 30 of 40 by luck, and the order never contradicts the numbers shown.
+ * The ranking orders by the figure every badge prints, the mean of the stars, made Bayesian:
+ * each product starts with PRIOR_VOTES fake votes at the mean of all votes, so a 5.0 from 7
+ * votes cannot beat a 4.8 from 40 by luck. The formula is bayesMean in ranking/rules.ts.
  */
-export async function bayesRebuyShare() {
-	const [{ share }] = (
-		await getDb().execute<{ share: number }>(sql`
-			SELECT coalesce(sum(rebuy_count)::float / nullif(sum(votes_count), 0), ${NEUTRAL_REBUY_SHARE}) AS share
+export async function bayesScore() {
+	const [{ mean }] = (
+		await getDb().execute<{ mean: number }>(sql`
+			SELECT coalesce(sum(score_sum)::float / nullif(sum(votes_count), 0), ${NEUTRAL_MEAN}) AS mean
 			FROM product_stats
 		`)
 	).rows;
-	return sql`(${PRIOR_VOTES} * ${share}::float + coalesce(ps.rebuy_count, 0)) / (${PRIOR_VOTES} + coalesce(ps.votes_count, 0))`;
+	return sql`(${PRIOR_VOTES} * ${mean}::float + coalesce(ps.score_sum, 0)) / (${PRIOR_VOTES} + coalesce(ps.votes_count, 0))`;
 }
 
 function toItem(row: Row, rank: number | null): ProductListItem {
@@ -123,7 +123,7 @@ function toItem(row: Row, rank: number | null): ProductListItem {
 		quantity: row.quantity,
 		imageUrl: productImageUrl(row.image_key) ?? row.off_image_url,
 		votesCount: row.votes_count,
-		rebuyPercent: rebuyPercent(row.rebuy_count, row.votes_count),
+		mean: meanStars(row.score_sum, row.votes_count),
 		scoreCounts,
 		rank,
 		myScore: row.my_score !== null && isScore(row.my_score) ? row.my_score : null,
@@ -157,7 +157,7 @@ export async function getRanking(params: BrowseParams): Promise<RankingPage> {
 	const page = params.posti ?? 1;
 	const size = params.righe ?? ROW_PAGE_SIZES[0];
 	const where = sql`${filtersOf(params)} AND coalesce(ps.votes_count, 0) >= ${MIN_VOTES_TO_RANK}`;
-	const order = sql`${await bayesRebuyShare()} DESC, coalesce(ps.score_sum, 0)::float / greatest(ps.votes_count, 1) DESC, products.name`;
+	const order = sql`${await bayesScore()} DESC, coalesce(ps.votes_count, 0) DESC, products.name`;
 	const offset = (page - 1) * size;
 
 	const rows = (await query(where, order, size, offset, null)).map((row, index) =>
@@ -200,7 +200,7 @@ export async function getToTaste(
 	);
 }
 
-/** Search results, most relevant first, ranked or not. */
+/** Search results, most relevant first, ranked or not; with no text, the whole shelf by name. */
 export async function searchCatalog(
 	params: BrowseParams,
 	userId: string | null
@@ -209,7 +209,7 @@ export async function searchCatalog(
 	const size = params.mostra ?? TILE_PAGE_SIZES[0];
 	const rows = await query(
 		filtersOf(params),
-		sql`${relevance} DESC, products.name`,
+		params.q ? sql`${relevance} DESC, products.name` : sql`products.name`,
 		size,
 		(page - 1) * size,
 		userId

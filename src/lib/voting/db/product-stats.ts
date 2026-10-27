@@ -16,7 +16,7 @@ export async function refreshProductStats(db: DbOrTx, productIds: string[]) {
 			count(v.user_id)::int,
 			count(v.user_id) FILTER (WHERE NOT u.is_anonymous)::int,
 			coalesce(sum(v.score), 0)::int,
-			count(v.user_id) FILTER (WHERE v.score = 4)::int,
+			count(v.user_id) FILTER (WHERE v.score = 5)::int,
 			coalesce((
 				SELECT jsonb_object_agg(c.score::text, c.n)
 				FROM (

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import {
 	ActiveFilters,
@@ -8,80 +8,67 @@ import {
 	activeFilterCount,
 } from "@/components/catalog/filters";
 import { Pagination } from "@/components/catalog/pagination";
-import { Leaderboard, Podium } from "@/components/catalog/ranking";
 import { SearchBox } from "@/components/catalog/search-box";
 import { TasteTile } from "@/components/catalog/taste-tile";
-import { SpreadLegend } from "@/components/ds/score-spread";
-import { UserChip } from "@/components/user/user-chip";
-import { subtypeLabel, zuppe } from "@/lib/catalog/labels";
+import { buttonClass } from "@/components/ds/button";
+import { PageHead } from "@/components/ds/page-head";
+import { zuppe } from "@/lib/catalog/labels";
 import { catalogQueries } from "@/lib/catalog/queries";
 import {
 	type BrowseParams,
-	ROW_PAGE_SIZES,
+	EXACT_SEARCH,
 	TILE_PAGE_SIZES,
 	browseSchema,
 } from "@/lib/catalog/schemas";
-import { MIN_VOTES_TO_RANK } from "@/lib/ranking/rules";
 import { cn } from "@/lib/utils";
+
+// «Zuppe», the first tab: a search first. With text, a filter or «Vedi tutte» it lists the
+// catalogue; before any of those it offers the soups still waiting for votes.
 
 export const Route = createFileRoute("/")({
 	validateSearch: browseSchema,
 	loaderDeps: ({ search }) => search,
 	loader: async ({ context: { queryClient }, deps }) => {
-		const { pagina, posti, mostra, righe, ...filters } = deps;
+		const { pagina, posti: _posti, mostra, righe: _righe, ...filters } = deps;
+		const paging = { page: pagina ?? 1, size: mostra };
 		await Promise.all([
 			queryClient.ensureQueryData(catalogQueries.facets(filters)),
-			filters.q
-				? queryClient.ensureQueryData(
-						catalogQueries.search(filters, { page: pagina ?? 1, size: mostra })
-					)
-				: Promise.all([
-						queryClient.ensureQueryData(
-							catalogQueries.ranking(filters, { page: posti ?? 1, size: righe })
-						),
-						queryClient.ensureQueryData(
-							catalogQueries.toTaste(filters, { page: pagina ?? 1, size: mostra })
-						),
-					]),
+			isBrowsing(deps)
+				? queryClient.ensureQueryData(catalogQueries.search(filters, paging))
+				: queryClient.ensureQueryData(catalogQueries.toTaste(filters, paging)),
 		]);
 	},
 	component: Home,
 });
 
+function isBrowsing(params: BrowseParams) {
+	return Boolean(params.q || params.vedi || activeFilterCount(params) > 0);
+}
+
+/** «Più di 450 zuppe pronte»: a round figure reads better in a headline than 477. */
+function catalogueSize(total: number) {
+	return total >= 100 ? `Più di ${Math.floor(total / 50) * 50} zuppe` : zuppe(total);
+}
+
 function Home() {
 	const params = Route.useSearch();
-	const { pagina, posti, mostra, righe, ...filters } = params;
+	const { pagina, posti: _posti, mostra, righe: _righe, ...filters } = params;
 	const { data: facets } = useQuery(catalogQueries.facets(filters));
-	// Shares its cache with <Results>: here only to feed the status line below.
-	const search = useQuery({
-		...catalogQueries.search(filters, { page: pagina ?? 1, size: mostra }),
-		enabled: Boolean(params.q),
-	});
-	const status =
-		params.q && search.data
-			? `${search.data.total === 0 ? "Nessuna zuppa" : zuppe(search.data.total)} per «${params.q}»`
-			: "";
+	const browsing = isBrowsing(params);
 
 	return (
 		<>
-			<header className="bg-field on-field">
-				<div className="mx-auto flex max-w-6xl justify-end px-4 pt-3">
-					<UserChip />
-				</div>
-				<div className="mx-auto grid max-w-6xl gap-5 px-4 pt-2 pb-6 md:grid-cols-[auto_1fr] md:items-end md:gap-x-12 md:pt-4">
-					<div className="flex flex-col gap-2">
-						<h1 className="font-condensed text-wordmark font-black tracking-[-0.03em] uppercase">
-							Zuppapp
-						</h1>
-						<p className="text-body max-w-[30ch] font-semibold">
-							La classifica delle zuppe pronte, votata da chi le ha assaggiate.
-						</p>
-					</div>
-					<SearchBox value={params.q ?? ""} />
-				</div>
-			</header>
+			<PageHead title="Che zuppa stai cercando?">
+				{facets && (
+					<p>{catalogueSize(facets.total)} pronte, votate da chi le ha assaggiate.</p>
+				)}
+			</PageHead>
 
-			<div className="mx-auto grid max-w-6xl gap-10 px-4 pt-6 pb-16 lg:grid-cols-[16rem_1fr] lg:pt-10">
+			<div className="mx-auto max-w-xl px-4">
+				<SearchBox value={params.q ?? ""} />
+			</div>
+
+			<div className="mx-auto grid max-w-6xl gap-10 px-4 pt-8 lg:grid-cols-[16rem_1fr]">
 				{facets && (
 					<aside
 						aria-label="Filtri"
@@ -91,29 +78,32 @@ function Home() {
 					</aside>
 				)}
 
-				<main className="flex min-w-0 flex-col gap-10">
-					{/* Always in the page, so a screen reader hears the results each time the text changes. */}
-					<p role="status" className="sr-only">
-						{status}
-					</p>
+				<main className="flex min-w-0 flex-col gap-8">
 					{facets && (
-						<div className="flex flex-wrap items-center gap-3">
+						<div className="flex flex-wrap items-center justify-center gap-3 lg:justify-start">
 							<FilterSheet
 								params={params}
 								facets={facets}
 								active={activeFilterCount(params)}
 							/>
+							{!browsing && (
+								<Link
+									to="/"
+									activeOptions={EXACT_SEARCH}
+									search={prev => ({ ...prev, vedi: "tutte" })}
+									hash="risultati"
+									className={buttonClass("ink")}
+								>
+									Vedi {zuppe(facets.total)}
+								</Link>
+							)}
 							<ActiveFilters params={params} />
 						</div>
 					)}
-					{params.q ? (
-						<Results params={params} page={pagina ?? 1} />
+					{browsing ? (
+						<Results params={params} page={pagina ?? 1} size={mostra} />
 					) : (
-						<Shelf
-							filters={filters}
-							ranking={{ page: posti ?? 1, size: righe }}
-							shelf={{ page: pagina ?? 1, size: mostra }}
-						/>
+						<ToTaste params={params} page={pagina ?? 1} size={mostra} />
 					)}
 				</main>
 			</div>
@@ -121,134 +111,24 @@ function Home() {
 	);
 }
 
-type Paging = { page: number; size?: number };
+type ListProps = { params: BrowseParams; page: number; size?: number };
 
-function Shelf({
-	filters,
-	ranking: rankingPaging,
-	shelf,
-}: {
-	filters: Omit<BrowseParams, "pagina" | "posti" | "mostra" | "righe">;
-	ranking: Paging;
-	shelf: Paging;
-}) {
-	const ranking = useQuery(catalogQueries.ranking(filters, rankingPaging));
-	const toTaste = useQuery(catalogQueries.toTaste(filters, shelf));
-	const scope = filters.tipo ? subtypeLabel(filters.tipo).toLowerCase() : "zuppe";
-	const board = ranking.data;
-
-	return (
-		<>
-			<section
-				id="classifica"
-				aria-labelledby="ranking-heading"
-				className="flex scroll-mt-6 flex-col gap-5"
-			>
-				<div className="flex flex-col gap-3">
-					<h2
-						id="ranking-heading"
-						className="font-condensed text-title font-black uppercase"
-					>
-						La classifica{filters.tipo && ` delle ${scope}`}
-					</h2>
-					{board && board.total > 0 && (
-						<>
-							<p className="text-body max-w-[60ch]">
-								In ordine di quanti la ricomprerebbero, contando anche quanti l’hanno
-								votata: il 60% su 5 voti vale meno del 50% su 18.
-							</p>
-							<SpreadLegend />
-						</>
-					)}
-				</div>
-				{!board || board.total === 0 ? (
-					<p className="bg-ground-raised text-body p-5">
-						Qui non c’è ancora nessuna classifica: una zuppa entra dal{" "}
-						{MIN_VOTES_TO_RANK}° voto. Assaggia e vota quelle qui sotto.
-					</p>
-				) : (
-					<>
-						{/* Page 1 opens on the podium; the next pages are rows only. */}
-						<Podium products={board.podium} />
-						<div
-							className={cn(
-								"flex flex-col gap-4",
-								ranking.isPlaceholderData && "opacity-60"
-							)}
-						>
-							<Leaderboard products={board.rows} start={board.rows[0]?.rank ?? 1} />
-							<Pagination
-								page={board.page}
-								pageCount={board.pageCount}
-								pageSize={board.pageSize}
-								total={board.total}
-								sizes={ROW_PAGE_SIZES}
-								param="posti"
-								sizeParam="righe"
-								unit="posti"
-								section="classifica"
-								label="Pagine della classifica"
-							/>
-						</div>
-					</>
-				)}
-			</section>
-
-			<section
-				id="da-assaggiare"
-				aria-labelledby="taste-heading"
-				className="flex scroll-mt-6 flex-col gap-5"
-			>
-				<div className="flex flex-col gap-1">
-					<h2
-						id="taste-heading"
-						className="font-condensed text-title font-black uppercase"
-					>
-						Da assaggiare
-					</h2>
-					<p className="text-body">
-						{toTaste.data?.total
-							? `${zuppe(toTaste.data.total)} aspettano ancora i voti per entrare in classifica.`
-							: "Tutte le zuppe qui sono già in classifica."}
-					</p>
-				</div>
-				<ul
-					className={cn(
-						"grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4",
-						toTaste.isPlaceholderData && "opacity-60"
-					)}
-				>
-					{toTaste.data?.items.map(product => (
-						<li key={product.id}>
-							<TasteTile product={product} />
-						</li>
-					))}
-				</ul>
-				{toTaste.data && (
-					<Pagination
-						page={toTaste.data.page}
-						pageCount={toTaste.data.pageCount}
-						pageSize={toTaste.data.pageSize}
-						total={toTaste.data.total}
-						sizes={TILE_PAGE_SIZES}
-						param="pagina"
-						sizeParam="mostra"
-						unit="zuppe"
-						section="da-assaggiare"
-						label="Pagine delle zuppe da assaggiare"
-					/>
-				)}
-			</section>
-		</>
-	);
-}
-
-function Results({ params, page }: { params: BrowseParams; page: number }) {
-	const { pagina: _page, posti: _posti, mostra, righe: _righe, ...filters } = params;
-	const { data, isFetching } = useQuery(
-		catalogQueries.search(filters, { page, size: mostra })
-	);
+function Results({ params, page, size }: ListProps) {
+	const {
+		pagina: _page,
+		posti: _posti,
+		mostra: _mostra,
+		righe: _righe,
+		...filters
+	} = params;
+	const { data, isFetching } = useQuery(catalogQueries.search(filters, { page, size }));
 	if (!data) return null;
+
+	const heading = params.q
+		? `${data.total === 0 ? "Nessuna zuppa" : zuppe(data.total)} per «${params.q}»`
+		: data.total === 0
+			? "Nessuna zuppa con questi filtri"
+			: zuppe(data.total);
 
 	return (
 		<section
@@ -257,11 +137,13 @@ function Results({ params, page }: { params: BrowseParams; page: number }) {
 			aria-busy={isFetching}
 			className="flex scroll-mt-6 flex-col gap-5"
 		>
+			{/* A live region, so a screen reader hears the count each time the text changes. */}
 			<h2
 				id="results-heading"
-				className="font-condensed text-title font-black uppercase"
+				role="status"
+				className="font-display text-title font-semibold"
 			>
-				{data.total === 0 ? "Nessuna zuppa" : zuppe(data.total)} per «{params.q}»
+				{heading}
 			</h2>
 			{data.total === 0 ? (
 				<p className="text-body">
@@ -269,18 +151,7 @@ function Results({ params, page }: { params: BrowseParams; page: number }) {
 					dei filtri attivi, prova a toglierli.
 				</p>
 			) : (
-				<ul
-					className={cn(
-						"grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4",
-						isFetching && "opacity-60"
-					)}
-				>
-					{data.items.map(product => (
-						<li key={product.id}>
-							<TasteTile product={product} />
-						</li>
-					))}
-				</ul>
+				<Grid items={data.items} dim={isFetching} />
 			)}
 			<Pagination
 				page={page}
@@ -295,5 +166,72 @@ function Results({ params, page }: { params: BrowseParams; page: number }) {
 				label="Pagine dei risultati"
 			/>
 		</section>
+	);
+}
+
+function ToTaste({ params, page, size }: ListProps) {
+	const {
+		pagina: _page,
+		posti: _posti,
+		mostra: _mostra,
+		righe: _righe,
+		...filters
+	} = params;
+	const { data, isPlaceholderData } = useQuery(
+		catalogQueries.toTaste(filters, { page, size })
+	);
+	if (!data || data.total === 0) return null;
+
+	return (
+		<section
+			id="da-assaggiare"
+			aria-labelledby="taste-heading"
+			className="flex scroll-mt-6 flex-col gap-5"
+		>
+			<div className="flex flex-col gap-1">
+				<h2 id="taste-heading" className="font-display text-title font-semibold">
+					Da assaggiare
+				</h2>
+				<p className="text-body text-text-soft">
+					{zuppe(data.total)} aspettano ancora qualche voto per entrare in classifica.
+				</p>
+			</div>
+			<Grid items={data.items} dim={isPlaceholderData} />
+			<Pagination
+				page={data.page}
+				pageCount={data.pageCount}
+				pageSize={data.pageSize}
+				total={data.total}
+				sizes={TILE_PAGE_SIZES}
+				param="pagina"
+				sizeParam="mostra"
+				unit="zuppe"
+				section="da-assaggiare"
+				label="Pagine delle zuppe da assaggiare"
+			/>
+		</section>
+	);
+}
+
+function Grid({
+	items,
+	dim,
+}: {
+	items: Parameters<typeof TasteTile>[0]["product"][];
+	dim: boolean;
+}) {
+	return (
+		<ul
+			className={cn(
+				"grid grid-cols-1 gap-x-4 gap-y-10 sm:grid-cols-2 md:grid-cols-3 md:gap-x-5",
+				dim && "opacity-60"
+			)}
+		>
+			{items.map(product => (
+				<li key={product.id}>
+					<TasteTile product={product} />
+				</li>
+			))}
+		</ul>
 	);
 }

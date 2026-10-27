@@ -32,7 +32,7 @@ export function Barcode({
 					{/* Always black on white, in both themes: a scanner cannot read a barcode the other way round. */}
 					<rect x="-11" width="117" height="40" fill="#ffffff" />
 					{barRuns(modules).map(([x, width]) => (
-						<rect key={x} x={x} width={width} height="40" fill="#1d1b19" />
+						<rect key={x} x={x} width={width} height="40" fill="#16120f" />
 					))}
 				</svg>
 			)}

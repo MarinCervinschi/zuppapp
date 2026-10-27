@@ -52,16 +52,16 @@ export function ZoomablePhoto({
 			<dialog
 				ref={dialog}
 				aria-label={`Foto di ${name}`}
-				className="bg-ground-raised text-text m-auto max-h-[92dvh] w-[min(92vw,40rem)] max-w-none overflow-y-auto overscroll-contain p-0 backdrop:bg-black/70"
+				className="bg-ground-raised text-text rounded-card m-auto max-h-[92dvh] w-[min(92vw,40rem)] max-w-none overflow-y-auto overscroll-contain p-0 backdrop:bg-black/70"
 				onClick={event => {
 					if (event.target === dialog.current) dialog.current.close();
 				}}
 			>
 				<div className="flex items-center justify-between gap-4 p-3 pl-4">
-					<p className="font-semicondensed text-body font-bold text-balance">{name}</p>
+					<p className="font-display text-body font-medium text-balance">{name}</p>
 					<Button onClick={() => dialog.current?.close()}>Chiudi la foto</Button>
 				</div>
-				<div className="flex justify-center bg-white p-4">
+				<div className="rounded-card m-2 mt-0 flex justify-center bg-white p-4">
 					{/* Loaded only when opened: lazy images inside a closed dialog are never fetched. A fixed
 					    height, so a small original still opens large. */}
 					<img

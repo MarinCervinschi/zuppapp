@@ -36,6 +36,13 @@
       "when": 1793029836701,
       "tag": "0004_filters_and_spread",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793110566499,
+      "tag": "0005_five_stars",
+      "breakpoints": true
     }
   ]
 }

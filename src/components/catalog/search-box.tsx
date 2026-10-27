@@ -29,27 +29,41 @@ export function SearchBox({ value }: { value: string }) {
 				clearTimeout(timer.current);
 				go(text, false);
 			}}
-			className="flex flex-col gap-2"
+			className="w-full"
 		>
-			<label htmlFor="catalog-search" className="text-body font-semibold">
+			<label htmlFor="catalog-search" className="sr-only">
 				Cerca una zuppa
 			</label>
-			<input
-				id="catalog-search"
-				type="search"
-				name="q"
-				value={text}
-				autoComplete="off"
-				enterKeyHint="search"
-				placeholder="minestrone, ceci, Knorr…"
-				onChange={event => {
-					const next = event.target.value;
-					setText(next);
-					clearTimeout(timer.current);
-					timer.current = setTimeout(() => go(next, true), TYPING_PAUSE_MS);
-				}}
-				className="bg-ground text-text text-body placeholder:text-text-soft border-text min-h-12 w-full border-b-[3px] px-4"
-			/>
+			<div className="bg-ground-raised float-shadow focus-within:outline-text flex min-h-14 items-center gap-3 rounded-full px-5 focus-within:outline-3 focus-within:outline-offset-2">
+				<svg
+					aria-hidden
+					viewBox="0 0 24 24"
+					className="text-text size-5 shrink-0"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+				>
+					<circle cx="11" cy="11" r="6.5" />
+					<path d="M16 16l4.5 4.5" />
+				</svg>
+				<input
+					id="catalog-search"
+					type="search"
+					name="q"
+					value={text}
+					autoComplete="off"
+					enterKeyHint="search"
+					placeholder="minestrone, ceci, Knorr…"
+					onChange={event => {
+						const next = event.target.value;
+						setText(next);
+						clearTimeout(timer.current);
+						timer.current = setTimeout(() => go(next, true), TYPING_PAUSE_MS);
+					}}
+					className="text-text text-body placeholder:text-text-soft min-h-12 w-full min-w-0 bg-transparent outline-none"
+				/>
+			</div>
 		</form>
 	);
 }

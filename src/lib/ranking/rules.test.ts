@@ -1,30 +1,30 @@
 import { describe, expect, it } from "vitest";
 
-import { bayesRebuyShare, isRanked, isScore, rebuyPercent } from "./rules";
+import { bayesMean, isRanked, isScore, meanStars } from "./rules";
 
-describe("bayesRebuyShare", () => {
+describe("bayesMean", () => {
 	it("keeps a few lucky votes below many good ones", () => {
-		const lucky = bayesRebuyShare(5, 7, 0.3); // 71% of 7
-		const solid = bayesRebuyShare(30, 40, 0.3); // 75% of 40
+		const lucky = bayesMean(35, 7, 3.5); // 5.0 from 7 votes
+		const solid = bayesMean(190, 40, 3.5); // 4.75 from 40 votes
 		expect(lucky).toBeLessThan(solid);
 	});
 
 	it("never reverses two products with the same number of votes", () => {
-		expect(bayesRebuyShare(8, 15, 0.3)).toBeLessThan(bayesRebuyShare(10, 15, 0.3));
+		expect(bayesMean(60, 15, 3.5)).toBeLessThan(bayesMean(65, 15, 3.5));
 	});
 
-	it("is the overall share with no votes", () => {
-		expect(bayesRebuyShare(0, 0, 0.3)).toBeCloseTo(0.3);
+	it("is the overall mean with no votes", () => {
+		expect(bayesMean(0, 0, 3.5)).toBeCloseTo(3.5);
 	});
 });
 
-describe("rebuyPercent", () => {
-	it("rounds the share of top votes", () => {
-		expect(rebuyPercent(2, 3)).toBe(67);
+describe("meanStars", () => {
+	it("rounds to one decimal", () => {
+		expect(meanStars(14, 3)).toBe(4.7);
 	});
 
-	it("is 0 with no votes", () => {
-		expect(rebuyPercent(0, 0)).toBe(0);
+	it("is null with no votes", () => {
+		expect(meanStars(0, 0)).toBeNull();
 	});
 });
 
@@ -33,8 +33,8 @@ it("ranks from three votes", () => {
 	expect(isRanked(3)).toBe(true);
 });
 
-it("accepts only the four faces", () => {
-	expect(isScore(4)).toBe(true);
+it("accepts only one to five stars", () => {
+	expect(isScore(5)).toBe(true);
 	expect(isScore(0)).toBe(false);
-	expect(isScore(5)).toBe(false);
+	expect(isScore(6)).toBe(false);
 });

@@ -1,6 +1,6 @@
 # Zuppapp
 
-Vota le zuppe pronte con una faccia (1–4) e dei tag. Prodotto e decisioni: `SPEC.md`.
+Vota le zuppe pronte con le stelle (1–5) e dei tag. Prodotto e decisioni: `SPEC.md`.
 TanStack Start (React 19, Vite, Nitro) · Drizzle · Better Auth · ParadeDB. Stesse convenzioni di
 TriviaMore: tab + punto e virgola (Prettier), `@/` per `src/`, testi UI in italiano.
 
@@ -59,8 +59,9 @@ Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segr
   `products.overrides` (con la stessa chiave della colonna) e il sync non le tocca; si salva uno snapshot
   nuovo solo se l'etichetta cambia, e ingredienti diversi segnano `recipeChangedAt`.
 - Catalogo pubblico: `src/lib/catalog/browse.ts` (classifica, da assaggiare, ricerca, conteggi dei filtri).
-  Filtri nell'URL (`browseSchema`, liste come `a,b`). La classifica ordina per `bayesRebuyShare`, la stessa
-  quota che i cartellini mostrano.
+  Filtri nell'URL (`browseSchema`, liste come `a,b`). Tre tab: `/` (ricerca), `/classifica`, `/profilo`.
+  La classifica ordina per `bayesScore`, la media bayesiana delle stelle (`bayesMean` in `ranking/rules.ts`);
+  i badge mostrano la media semplice (`meanStars`).
 - I codici che iniziano per 2 (e 02, 04) sono interni dei negozi e non identificano nulla:
   `isStoreInternalCode` li tiene fuori da import e sync.
 - Admin: `/admin` risponde 404 a chiunque non sia admin (`isAdminFn` in `beforeLoad`), e ogni server
@@ -69,7 +70,9 @@ Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segr
 - Utente: `src/lib/user/` (`viewerFn` legge dal database, non dalla cache di 5 minuti della sessione, così
   nome e avatar cambiano subito; `myVotesFn` per «Le mie zuppe»). Il visitatore è precaricato nel loader di
   `__root`. Pagine `/accedi`, `/profilo`, `/le-mie-zuppe`.
-- Design system: `DESIGN.md` (leggi «Regole per ogni schermata» prima di toccare la UI) e la pagina `/design`;
+- Design system: `DESIGN.md` (leggi «Regole per ogni schermata» prima di toccare la UI) e la pagina `/design`.
+  Clash Display arriva dal CDN di Fontshare (la licenza ITF non permette di ridistribuirne i file), Poppins da
+  `@fontsource`;
   componenti in `src/components/ds/` e `src/components/catalog/`.
 - `product_stats` è un rollup di `votes`: si aggiorna con `refreshProductStats` nella stessa
   transazione che cambia i voti. Il punteggio bayesiano si calcola in lettura, perché dipende

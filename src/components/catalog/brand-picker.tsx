@@ -40,7 +40,7 @@ export function BrandPicker({
 	}
 
 	const row =
-		"text-body flex min-h-11 items-center justify-between gap-3 px-3 no-underline transition-[background-color] duration-150";
+		"text-body flex min-h-11 items-center justify-between gap-3 rounded-full px-4 no-underline transition-[background-color] duration-150";
 
 	return (
 		<div
@@ -52,10 +52,7 @@ export function BrandPicker({
 				}
 			}}
 		>
-			<span
-				className="font-condensed text-lead font-extrabold uppercase"
-				id={`${panelId}-label`}
-			>
+			<span className="font-display text-lead font-medium" id={`${panelId}-label`}>
 				Marca
 			</span>
 			<button
@@ -66,8 +63,8 @@ export function BrandPicker({
 				aria-describedby={`${panelId}-label`}
 				onClick={() => (open ? close() : setOpen(true))}
 				className={cn(
-					"text-body flex min-h-12 w-full items-center justify-between gap-3 px-3 text-left font-semibold",
-					current ? "bg-text text-ground" : "bg-ground hover:bg-text/10"
+					"text-body flex min-h-12 w-full items-center justify-between gap-3 rounded-full px-4 text-left",
+					current ? "bg-text text-ground" : "bg-text/[0.06] hover:bg-text/10"
 				)}
 			>
 				<span className="truncate">{current ?? "Tutte le marche"}</span>
@@ -85,24 +82,41 @@ export function BrandPicker({
 			</button>
 
 			{open && (
-				<div id={panelId} className="bg-ground flex flex-col">
+				<div
+					id={panelId}
+					className="bg-text/[0.06] rounded-panel motion-safe:animate-rise flex flex-col gap-1 p-1.5"
+				>
 					<label className="sr-only" htmlFor={`${panelId}-search`}>
 						Cerca una marca
 					</label>
-					<input
-						id={`${panelId}-search`}
-						type="search"
-						autoFocus
-						value={text}
-						onChange={event => setText(event.target.value)}
-						placeholder="Esselunga, Knorr…"
-						autoComplete="off"
-						className="bg-ground-raised text-body placeholder:text-text-soft border-text m-2 min-h-11 border-b-[3px] px-3"
-					/>
+					<span className="relative flex items-center">
+						<svg
+							aria-hidden
+							viewBox="0 0 24 24"
+							className="text-text-soft pointer-events-none absolute left-4 size-4"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+						>
+							<circle cx="11" cy="11" r="6.5" />
+							<path d="M16 16l4.5 4.5" />
+						</svg>
+						<input
+							id={`${panelId}-search`}
+							type="search"
+							autoFocus
+							value={text}
+							onChange={event => setText(event.target.value)}
+							placeholder="Esselunga, Knorr…"
+							autoComplete="off"
+							className="bg-ground-raised text-body placeholder:text-text-soft min-h-11 w-full rounded-full pr-4 pl-10 focus-visible:outline-offset-0"
+						/>
+					</span>
 					<p className="sr-only" aria-live="polite">
 						{count(shown.length, MARCHE)}
 					</p>
-					<ul className="max-h-72 overflow-y-auto overscroll-contain pb-2">
+					<ul className="fade-bottom flex max-h-72 [scrollbar-width:thin] flex-col gap-0.5 overflow-y-auto overscroll-contain pb-6">
 						{!text && (
 							<li>
 								<Link

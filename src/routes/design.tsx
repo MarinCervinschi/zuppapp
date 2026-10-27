@@ -2,22 +2,18 @@ import { useState } from "react";
 
 import { createFileRoute } from "@tanstack/react-router";
 
-import { BowlFace } from "@/components/brand/bowl-face";
 import { Leaderboard, Podium } from "@/components/catalog/ranking";
 import { TasteTile } from "@/components/catalog/taste-tile";
-import { AppBar } from "@/components/ds/app-bar";
 import { Barcode } from "@/components/ds/barcode";
 import { Button } from "@/components/ds/button";
+import { NutriScore } from "@/components/ds/nutri-score";
 import { NutritionLabel } from "@/components/ds/nutrition-label";
-import { Receipt, ReceiptRow, ReceiptTotal } from "@/components/ds/receipt";
-import { ScoreSpread, SpreadLegend } from "@/components/ds/score-spread";
-import { ShelfLabel } from "@/components/ds/shelf-label";
-import { Stamp } from "@/components/ds/stamp";
-import { Sticker } from "@/components/ds/sticker";
-import { VoteDistribution } from "@/components/ds/vote-distribution";
-import { FacePicker } from "@/components/product/face-picker";
+import { PageHead, type Soup } from "@/components/ds/page-head";
+import { Pill } from "@/components/ds/pill";
+import { StarDistribution } from "@/components/ds/star-distribution";
+import { RatingBadge, StarPicker } from "@/components/ds/stars";
 import type { ProductListItem } from "@/lib/catalog/types";
-import { SCORES, SCORE_LABELS, type Score } from "@/lib/ranking/rules";
+import { SCORE_LABELS, type Score } from "@/lib/ranking/rules";
 
 export const Route = createFileRoute("/design")({
 	head: () => ({ meta: [{ title: "Design system · Zuppapp" }] }),
@@ -27,71 +23,68 @@ export const Route = createFileRoute("/design")({
 // The living style guide: every token and component of DESIGN.md, rendered by the real code.
 
 const SWATCHES = [
-	["ground", "bg-ground", "Carta termica: lo sfondo"],
+	["ground", "bg-ground", "La carta: lo sfondo di ogni schermata"],
 	[
 		"ground-raised",
 		"bg-ground-raised",
-		"Il secondo foglio: cartellini, scontrini, controlli",
+		"Il foglio sopra: pill, campi, card senza foto",
 	],
-	["text", "bg-text", "Inchiostro dello scontrino"],
-	["text-soft", "bg-text-soft", "Inchiostro sbiadito: note e dettagli"],
-	["accent", "bg-accent", "Rosso timbro: il voto e il focus, nient’altro"],
-	["field", "bg-field", "Giallo scaffale: un campo per schermata"],
+	["text", "bg-text", "L’inchiostro dei titoli e del testo"],
+	["text-soft", "bg-text-soft", "Inchiostro chiaro: marca, tipo, note"],
+	["ink", "bg-ink", "I pannelli neri: il voto, la tab attiva, l’azione primaria"],
+	["badge-good", "bg-badge-good", "Il badge verde con la media delle stelle"],
+	["star", "bg-star", "La stella piena, solo sul nero"],
+	["field", "bg-field", "Giallo mais: avvisi, la tessera, il foglio della scheda"],
 ] as const;
 
-const SAMPLE = {
-	ean: "2000000000015",
-	name: "Vellutata di zucca",
-	brand: "Marca Esempio",
-	subtype: "vellutata",
-	quantity: "620 g",
-	votesCount: 128,
-	rebuyPercent: 64,
-};
+const SOUPS: [Soup, string, string][] = [
+	["tomato", "Pomodoro", "bg-soup-tomato"],
+	["pumpkin", "Zucca", "bg-soup-pumpkin"],
+	["corn", "Mais", "bg-soup-corn"],
+	["pea", "Piselli", "bg-soup-pea"],
+	["beet", "Barbabietola", "bg-soup-beet"],
+];
 
 // Sample products for the specimens; the EANs are shop-internal codes, never real packs.
 function sample(
 	rank: number | null,
 	name: string,
 	brand: string,
-	rebuy: number,
+	mean: number,
 	votes: number
 ): ProductListItem {
-	const four = Math.round((votes * rebuy) / 100);
-	const rest = votes - four;
+	const five = Math.round((votes * (mean - 3)) / 2);
+	const four = votes - five;
 	return {
 		id: `sample-${name}`,
 		ean: "2000000000015",
 		name,
 		brand,
-		subtype: "minestrone",
+		subtype: "vellutata",
 		quantity: "620 g",
 		imageUrl: null,
 		votesCount: votes,
-		rebuyPercent: rebuy,
-		scoreCounts: {
-			4: four,
-			3: Math.ceil(rest / 2),
-			2: Math.floor(rest / 3),
-			1: rest - Math.ceil(rest / 2) - Math.floor(rest / 3),
-		},
+		mean,
+		scoreCounts: { 5: five, 4: four, 3: 0, 2: 0, 1: 0 },
 		rank,
 		myScore: null,
 	};
 }
 
-const RANKING = [
-	sample(1, "Minestrone di 11 verdure", "Marca Esempio", 79, 24),
-	sample(2, "Vellutata di zucca", "Marca Esempio", 71, 31),
-	sample(3, "Zuppa di legumi e cereali", "Altra Marca", 64, 18),
-	sample(4, "Passato di verdure", "Altra Marca", 50, 18),
-	sample(5, "Crema di funghi", "Marca Esempio", 41, 17),
+const PODIUM = [
+	sample(1, "Crema di zucca e fagioli cannellini", "Marca Esempio", 4.7, 25),
+	sample(2, "Crema di zucchine e patate", "Marca Esempio", 4.6, 31),
+	sample(3, "Vellutata di asparagi", "Altra Marca", 4.5, 18),
+];
+const ROWS = [
+	sample(4, "Minestrone di verdure", "Marca Esempio", 4.3, 40),
+	sample(5, "Zuppa di ceci", "Altra Marca", 4.2, 12),
 ];
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
 	return (
 		<section className="flex flex-col gap-5">
-			<h2 className="font-condensed text-lead font-extrabold uppercase">{title}</h2>
+			<h2 className="font-display text-title font-semibold">{title}</h2>
 			{children}
 		</section>
 	);
@@ -99,182 +92,157 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function DesignPage() {
 	const [score, setScore] = useState<Score | null>(4);
-	const [stamps, setStamps] = useState(0);
 	const [tags, setTags] = useState<string[]>(["cremosa"]);
-	const toggle = (slug: string) =>
+	const toggle = (tag: string) =>
 		setTags(current =>
-			current.includes(slug) ? current.filter(t => t !== slug) : [...current, slug]
+			current.includes(tag) ? current.filter(t => t !== tag) : [...current, tag]
 		);
 
 	return (
 		<>
-			<AppBar back />
-			<main className="mx-auto flex max-w-3xl flex-col gap-14 px-4 pt-6 pb-20">
-				<header className="flex flex-col gap-3">
-					<h1 className="font-condensed text-title font-black uppercase">
-						Design system
-					</h1>
-					<p className="text-body">
-						Zuppapp è stampata sulla carta del supermercato: il cartellino dello
-						scaffale, lo scontrino, la tabella nutrizionale e un timbro rosso per il tuo
-						voto. Due inchiostri, un giallo, angoli vivi.
-					</p>
-				</header>
+			<PageHead blob="tomato" title="Design system">
+				<p>
+					Carta calda, inchiostro nero e macchie di zuppa: ogni pezzo qui è il codice
+					vero.
+				</p>
+			</PageHead>
 
+			<main className="mx-auto flex max-w-4xl flex-col gap-16 px-4">
 				<Section title="Colori">
-					<ul className="grid grid-cols-2 gap-3">
-						{SWATCHES.map(([name, swatch, use]) => (
-							<li key={name} className="flex flex-col gap-2">
-								<span className={`block h-16 ${swatch}`} />
-								<span className="text-body font-semibold">{name}</span>
-								<span className="text-small text-text-soft">{use}</span>
-							</li>
-						))}
-					</ul>
-				</Section>
-
-				<Section title="Caratteri">
-					<p className="font-condensed text-figure font-black tracking-[-0.03em]">
-						64%
-					</p>
-					<p className="font-semicondensed text-title font-extrabold tracking-[-0.02em]">
-						Minestrone di verdure
-					</p>
-					<p className="font-condensed text-lead font-extrabold uppercase">
-						Lo scontrino dei voti
-					</p>
-					<p className="text-body">
-						Archivo, un solo carattere variabile: stretto per tutto ciò che è stampato
-						come un prezzo, normale per tutto ciò che si legge.
-					</p>
-					<p className="text-small text-text-soft">
-						EAN 2000000000015 · 13 px, il minimo
-					</p>
-				</Section>
-
-				<Section title="Le quattro facce">
-					<ul className="text-bowl-ink grid grid-cols-4 gap-2">
-						{SCORES.map(s => (
-							<li key={s} className="flex flex-col items-center gap-2">
-								<BowlFace score={s} className="size-16" />
-								<span className="font-semicondensed text-small text-text font-bold">
-									{SCORE_LABELS[s].label}
+					<ul className="grid gap-3 sm:grid-cols-2">
+						{SWATCHES.map(([name, swatch, role]) => (
+							<li key={name} className="flex items-center gap-3">
+								<span
+									aria-hidden
+									className={`${swatch} size-14 shrink-0 rounded-full outline-1 outline-black/10`}
+								/>
+								<span className="flex flex-col">
+									<code className="text-small font-medium">{name}</code>
+									<span className="text-small text-text-soft">{role}</span>
 								</span>
 							</li>
 						))}
 					</ul>
-					<FacePicker
-						value={score}
-						onPick={next => {
-							setScore(next);
-							setStamps(n => n + 1);
-						}}
-					/>
+					<h3 className="font-display text-lead font-medium">Le zuppe</h3>
+					<ul className="flex flex-wrap gap-4">
+						{SOUPS.map(([soup, label, swatch]) => (
+							<li key={soup} className="flex flex-col items-center gap-2">
+								<span aria-hidden className={`${swatch} grain size-20 rounded-full`} />
+								<span className="text-small">{label}</span>
+							</li>
+						))}
+					</ul>
 				</Section>
 
-				<Section title="Cartellino">
-					<ShelfLabel
-						as="static"
-						heading={false}
-						product={SAMPLE}
-						stamp={
-							score && (
-								<Stamp key={stamps} pressed={stamps > 0}>
-									{SCORE_LABELS[score].label}
-								</Stamp>
-							)
-						}
-					/>
-					<ShelfLabel
-						as="static"
-						heading={false}
-						product={{ ...SAMPLE, votesCount: 1, name: "Passato di verdure" }}
-					/>
+				<Section title="Carattere">
+					<p className="wordmark text-wordmark text-text-soft">Zuppapp · marchio</p>
+					<p className="font-display text-display font-semibold">
+						Clash Display, display
+					</p>
+					<p className="font-display text-title font-semibold">
+						Il nome della zuppa, title
+					</p>
+					<p className="font-display text-lead font-medium">
+						Un titolo di sezione, lead
+					</p>
+					<p className="text-body">Poppins, body: tutto ciò che si legge, a 16 px.</p>
+					<p className="text-small text-text-soft">
+						Poppins, small: marca • tipo • formato
+					</p>
 				</Section>
 
-				<Section title="Classifica: podio e righe">
-					<SpreadLegend />
-					<Podium products={RANKING.slice(0, 3)} />
-					<Leaderboard products={RANKING.slice(3)} start={4} />
+				<Section title="Intestazioni con la macchia">
+					<div className="grid gap-4 sm:grid-cols-2">
+						{SOUPS.slice(0, 4).map(([soup, label]) => (
+							<PageHead
+								key={soup}
+								blob={soup}
+								title={label}
+								className="rounded-card overflow-hidden pt-8 pb-10"
+							/>
+						))}
+					</div>
 				</Section>
 
-				<Section title="Distribuzione dei voti">
-					<ScoreSpread counts={{ 4: 82, 3: 23, 2: 14, 1: 9 }} />
+				<Section title="Il voto">
+					<div className="bg-ink text-on-ink rounded-panel flex flex-col items-center gap-4 px-4 pt-5 pb-4">
+						<p className="font-display text-lead font-medium">La tua valutazione</p>
+						<StarPicker value={score} onPick={setScore} />
+						<p className="text-small" aria-live="polite">
+							{score
+								? `«${SCORE_LABELS[score].label}»`
+								: "Una stella: mai più. Cinque: la ricompro."}
+						</p>
+					</div>
+					<p className="flex flex-wrap items-center gap-3">
+						<RatingBadge mean={4.7} votesCount={25} />
+						<RatingBadge mean={4.2} votesCount={9} size="sm" />
+						<RatingBadge mean={null} votesCount={0} />
+					</p>
+					<StarDistribution counts={{ 5: 14, 4: 7, 3: 2, 2: 1, 1: 1 }} />
 				</Section>
 
-				<Section title="Da assaggiare, con voto rapido">
-					<ul className="grid grid-cols-2 gap-3">
+				<Section title="Pill e pulsanti">
+					<div className="flex flex-wrap gap-2">
+						{["cremosa", "saporita", "troppo salata"].map(tag => (
+							<Pill key={tag} pressed={tags.includes(tag)} onClick={() => toggle(tag)}>
+								{tag}
+							</Pill>
+						))}
+						<Pill>Glutine</Pill>
+					</div>
+					<div className="flex flex-wrap gap-3">
+						<Button variant="ink">Vedi 477 zuppe</Button>
+						<Button>Filtri</Button>
+						<Button disabled>Disattivato</Button>
+					</div>
+				</Section>
+
+				<Section title="Classifica">
+					<Podium products={PODIUM} />
+					<Leaderboard products={ROWS} start={4} />
+				</Section>
+
+				<Section title="Card da assaggiare">
+					<ul className="grid grid-cols-1 gap-x-4 gap-y-10 sm:grid-cols-2 md:grid-cols-3">
 						<li>
 							<TasteTile
 								demo
-								product={sample(null, "Zuppa toscana", "Marca Esempio", 0, 2)}
+								product={{
+									...sample(null, "Zuppa di farro", "Marca Esempio", 4, 1),
+									rank: null,
+								}}
 							/>
 						</li>
 						<li>
 							<TasteTile
 								demo
-								product={sample(null, "Brodo vegetale", "Altra Marca", 0, 0)}
+								product={{
+									...sample(null, "Passato di verdure", "Altra Marca", 3.5, 0),
+									mean: null,
+									rank: null,
+								}}
 							/>
 						</li>
 					</ul>
 				</Section>
 
-				<Section title="Etichette dei tag">
-					<div className="flex flex-wrap gap-2">
-						<Sticker
-							tone="positive"
-							pressed={tags.includes("cremosa")}
-							onClick={() => toggle("cremosa")}
-						>
-							Cremosa
-						</Sticker>
-						<Sticker
-							tone="negative"
-							pressed={tags.includes("salata")}
-							onClick={() => toggle("salata")}
-						>
-							Troppo salata
-						</Sticker>
-						<Sticker
-							tone="neutral"
-							pressed={tags.includes("densa")}
-							onClick={() => toggle("densa")}
-						>
-							Densa
-						</Sticker>
-					</div>
-				</Section>
-
-				<Section title="Scontrino">
-					<Receipt title="Lo scontrino dei voti" headingLevel={3}>
-						<VoteDistribution counts={{ 1: 9, 2: 14, 3: 23, 4: 82 }} />
-						<div className="mt-3 flex flex-col gap-2">
-							<ReceiptRow label="«Cremosa»" value="41%" />
-							<ReceiptRow label="«Troppo salata»" value="12%" />
-						</div>
-						<ReceiptTotal label="Totale voti" value={128} />
-					</Receipt>
-				</Section>
-
-				<Section title="Etichetta nutrizionale">
+				<Section title="Etichetta">
 					<NutritionLabel
 						nutrition={{
-							energyKcal: 42,
-							fat: 1.8,
-							saturatedFat: 0.3,
-							carbohydrates: 5.4,
+							energyKcal: 45,
+							fat: 1.6,
+							saturatedFat: 0.2,
+							carbohydrates: 5.8,
 							sugars: 2.1,
-							proteins: 0.9,
+							proteins: 1.3,
 							salt: 0.7,
 						}}
 					/>
-				</Section>
-
-				<Section title="Pulsanti e codice a barre">
-					<div className="flex flex-wrap gap-3">
-						<Button variant="ink">Accedi con Google</Button>
-						<Button>Annulla</Button>
-						<Button disabled>Non disponibile</Button>
+					<div className="flex flex-wrap justify-center gap-4">
+						{["a", "b", "c", "d", "e"].map(grade => (
+							<NutriScore key={grade} grade={grade} className="size-36" />
+						))}
 					</div>
 					<Barcode ean="2000000000015" />
 				</Section>

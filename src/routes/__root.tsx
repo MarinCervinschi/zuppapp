@@ -8,6 +8,7 @@ import {
 import { Toaster } from "sonner";
 
 import { SiteFooter } from "@/components/ds/site-footer";
+import { TabBar } from "@/components/ds/tab-bar";
 import { ErrorPage, NotFoundPage } from "@/components/error/error-pages";
 import { analyticsQueries } from "@/lib/analytics/queries";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
@@ -31,10 +32,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 			{ title: "Zuppapp" },
 			{
 				name: "description",
-				content: "Quale zuppa pronta è la più buona? Vota con una faccia.",
+				content: "Quale zuppa pronta è la più buona? Votala con le stelle.",
 			},
 		],
 		links: [
+			// Clash Display comes from Fontshare: its licence lets us use it, not ship its files.
+			{ rel: "preconnect", href: "https://api.fontshare.com" },
+			{
+				rel: "preconnect",
+				href: "https://cdn.fontshare.com",
+				crossOrigin: "anonymous",
+			},
+			{
+				rel: "stylesheet",
+				href: "https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap",
+			},
 			{ rel: "stylesheet", href: globalsCss },
 			// The bowl on shelf yellow; the sizes come from public/, made from one CC0 glyph.
 			{ rel: "icon", href: "/favicon.ico", sizes: "32x32" },
@@ -86,7 +98,14 @@ function RootLayout() {
 				<Outlet />
 			</div>
 			<SiteFooter />
-			<Toaster position="bottom-center" richColors />
+			<TabBar />
+			{/* Above the tab bar, so a toast never hides it or hides under it. */}
+			<Toaster
+				position="bottom-center"
+				richColors
+				offset={{ bottom: 104 }}
+				mobileOffset={{ bottom: 104 }}
+			/>
 		</>
 	);
 }

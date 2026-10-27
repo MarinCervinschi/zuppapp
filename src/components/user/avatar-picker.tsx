@@ -21,9 +21,7 @@ export function AvatarPicker({ userId, current }: { userId: string; current: str
 
 	return (
 		<fieldset className="flex flex-col gap-4">
-			<legend className="font-condensed text-lead mb-4 font-extrabold uppercase">
-				La tua faccia
-			</legend>
+			<legend className="font-display text-lead mb-4 font-medium">La tua faccia</legend>
 			<div
 				role="radiogroup"
 				aria-label="Scegli la tua faccia"
@@ -41,7 +39,7 @@ export function AvatarPicker({ userId, current }: { userId: string; current: str
 							disabled={save.isPending}
 							onClick={() => save.mutate(seed)}
 							className={cn(
-								"flex aspect-square items-center justify-center p-1 transition-[background-color,scale] duration-150 ease-out motion-safe:active:scale-[0.96]",
+								"flex aspect-square items-center justify-center rounded-full p-1 transition-[background-color,scale] duration-150 ease-out motion-safe:active:scale-[0.96]",
 								chosen ? "bg-text" : "bg-ground-raised hover:bg-text/10"
 							)}
 						>
@@ -53,7 +51,7 @@ export function AvatarPicker({ userId, current }: { userId: string; current: str
 			<button
 				type="button"
 				onClick={() => setRound(value => value + 1)}
-				className="text-body min-h-11 self-start font-semibold underline"
+				className="text-body min-h-11 self-start font-medium underline"
 			>
 				Altre facce
 			</button>

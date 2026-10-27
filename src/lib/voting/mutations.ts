@@ -17,7 +17,7 @@ async function ensureVoter() {
 	});
 	if (error)
 		throw new Error(
-			"Il voto non è partito. Controlla la connessione e tocca di nuovo la faccia."
+			"Il voto non è partito. Controlla la connessione e tocca di nuovo le stelle."
 		);
 }
 

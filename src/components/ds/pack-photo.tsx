@@ -1,8 +1,11 @@
+import { useEffect, useRef, useState } from "react";
+
 import { cn } from "@/lib/utils";
 
 /**
- * The pack as it stands on the shelf: its photo on the paper, never cropped, with the thin
- * neutral outline that keeps a white pack from melting into a light page. No photo, no box.
+ * The pack's photo, never cropped, on a white plate with rounded corners: white, because the
+ * photos from Open Food Facts are shot on white. No photo, no plate. Until it arrives it is
+ * invisible and its `.plate` shimmers; then it fades in.
  */
 export function PackPhoto({
 	src,
@@ -15,16 +18,27 @@ export function PackPhoto({
 	size: "thumb" | "shelf";
 	className?: string;
 }) {
+	const image = useRef<HTMLImageElement>(null);
+	const [loaded, setLoaded] = useState(false);
+	// A photo that loaded before React hydrated fired its load event unheard.
+	useEffect(() => {
+		if (image.current?.complete) setLoaded(true);
+	}, []);
+
 	if (!src) return null;
 	return (
 		<img
+			ref={image}
 			src={src}
 			alt={alt}
 			loading={size === "thumb" ? "lazy" : undefined}
 			decoding="async"
+			data-loaded={loaded}
+			onLoad={() => setLoaded(true)}
+			onError={() => setLoaded(true)}
 			className={cn(
-				"object-contain outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10",
-				size === "thumb" ? "size-16 shrink-0 bg-white" : "max-h-64 w-auto",
+				"bg-white object-contain transition-opacity duration-300 data-[loaded=false]:opacity-0",
+				size === "thumb" ? "rounded-thumb size-16 shrink-0" : "max-h-64 w-auto",
 				className
 			)}
 		/>

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccediRouteImport } from './routes/accedi'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ClassificaRouteImport } from './routes/classifica'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as LeMieZuppeRouteImport } from './routes/le-mie-zuppe'
@@ -32,6 +33,11 @@ const AccediRoute = AccediRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClassificaRoute = ClassificaRouteImport.update({
+  id: '/classifica',
+  path: '/classifica',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesignRoute = DesignRouteImport.update({
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/accedi': typeof AccediRoute
   '/admin': typeof AdminRoute
+  '/classifica': typeof ClassificaRoute
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/accedi': typeof AccediRoute
   '/admin': typeof AdminRoute
+  '/classifica': typeof ClassificaRoute
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/accedi': typeof AccediRoute
   '/admin': typeof AdminRoute
+  '/classifica': typeof ClassificaRoute
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/accedi'
     | '/admin'
+    | '/classifica'
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/accedi'
     | '/admin'
+    | '/classifica'
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/accedi'
     | '/admin'
+    | '/classifica'
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
@@ -139,6 +151,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccediRoute: typeof AccediRoute
   AdminRoute: typeof AdminRoute
+  ClassificaRoute: typeof ClassificaRoute
   DesignRoute: typeof DesignRoute
   HealthRoute: typeof HealthRoute
   LeMieZuppeRoute: typeof LeMieZuppeRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/classifica': {
+      id: '/classifica'
+      path: '/classifica'
+      fullPath: '/classifica'
+      preLoaderRoute: typeof ClassificaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/design': {
@@ -219,6 +239,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccediRoute: AccediRoute,
   AdminRoute: AdminRoute,
+  ClassificaRoute: ClassificaRoute,
   DesignRoute: DesignRoute,
   HealthRoute: HealthRoute,
   LeMieZuppeRoute: LeMieZuppeRoute,

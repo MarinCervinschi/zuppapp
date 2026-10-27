@@ -23,7 +23,7 @@ export const tagSentiment = pgEnum("tag_sentiment", [
 	"neutral",
 ]);
 
-/** One per voter and product: voting again changes the score. 1 Mai più · 2 Si mangia · 3 Buona · 4 La ricompro. */
+/** One per voter and product: voting again changes the score. 1 to 5 stars (SCORE_LABELS names them). */
 export const votes = pgTable(
 	"votes",
 	{
@@ -39,7 +39,7 @@ export const votes = pgTable(
 	},
 	table => [
 		primaryKey({ columns: [table.userId, table.productId] }),
-		check("votes_score_range", sql`${table.score} between 1 and 4`),
+		check("votes_score_range", sql`${table.score} between 1 and 5`),
 	]
 );
 
@@ -86,8 +86,9 @@ export const productStats = pgTable("product_stats", {
 	votesCount: integer().default(0).notNull(),
 	votesRegistered: integer().default(0).notNull(),
 	scoreSum: integer().default(0).notNull(),
+	/** Five-star votes, «La ricompro». */
 	rebuyCount: integer().default(0).notNull(),
-	/** Votes per face, "1" to "4": the spread the ranking draws. */
+	/** Votes per star, "1" to "5": the spread the product page draws. */
 	scoreCounts: jsonb().$type<Record<string, number>>().default({}).notNull(),
 	tagCounts: jsonb().$type<Record<string, number>>().default({}).notNull(),
 	updatedAt: timestamp({ withTimezone: true }).defaultNow().notNull(),

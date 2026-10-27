@@ -1,20 +1,16 @@
 import { Link } from "@tanstack/react-router";
 
-import { BowlFace } from "@/components/brand/bowl-face";
-import { AppBar } from "@/components/ds/app-bar";
+import { buttonClass } from "@/components/ds/button";
+import { PageHead } from "@/components/ds/page-head";
 
 function Page({ title, text }: { title: string; text: string }) {
 	return (
 		<>
-			<AppBar />
-			<main className="mx-auto flex max-w-xl flex-col items-start gap-5 px-4 pt-10 pb-16">
-				<BowlFace score={1} className="text-bowl-ink size-20" />
-				<h1 className="font-condensed text-title font-black uppercase">{title}</h1>
-				<p className="text-body">{text}</p>
-				<Link
-					to="/"
-					className="bg-text text-ground text-body inline-flex min-h-12 items-center px-5 font-semibold no-underline"
-				>
+			<PageHead blob="tomato" title={title}>
+				<p>{text}</p>
+			</PageHead>
+			<main className="flex justify-center px-4">
+				<Link to="/" className={buttonClass("ink")}>
 					Tutte le zuppe
 				</Link>
 			</main>

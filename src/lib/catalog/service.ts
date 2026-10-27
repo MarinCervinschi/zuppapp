@@ -11,17 +11,17 @@ import {
 	voteTags,
 	votes,
 } from "@/db/schema";
+import { decodeEntities } from "@/lib/entities";
 import {
 	MIN_VOTES_TO_RANK,
 	type Score,
 	isRanked,
 	isScore,
-	rebuyPercent,
+	meanStars,
 } from "@/lib/ranking/rules";
-import { decodeEntities } from "@/lib/entities";
 import { NotFound } from "@/lib/server/errors";
 
-import { bayesRebuyShare } from "./browse";
+import { bayesScore } from "./browse";
 import { productImageUrl } from "./image";
 import type { Nutrition, ProductCard, ProductStatsView, TagOption } from "./types";
 
@@ -51,14 +51,11 @@ function statsView(
 		votesCount: number;
 		votesRegistered: number;
 		scoreSum: number;
-		rebuyCount: number;
 		tagCounts: Record<string, number>;
 	} | null,
 	tagOptions: TagOption[]
 ): ProductStatsView {
 	const votesCount = row?.votesCount ?? 0;
-	const mean = votesCount > 0 ? row!.scoreSum / votesCount : null;
-	const meanFace = mean === null ? null : Math.round(mean);
 	const counts = row?.tagCounts ?? {};
 
 	return {
@@ -66,8 +63,7 @@ function statsView(
 		rank: null,
 		votesRegistered: row?.votesRegistered ?? 0,
 		ranked: isRanked(votesCount),
-		meanFace: meanFace !== null && isScore(meanFace) ? meanFace : null,
-		rebuyPercent: rebuyPercent(row?.rebuyCount ?? 0, votesCount),
+		mean: meanStars(row?.scoreSum ?? 0, votesCount),
 		scoreCounts,
 		tags: tagOptions
 			.filter(tag => (counts[tag.slug] ?? 0) > 0)
@@ -126,7 +122,7 @@ export async function getProductCard(
 				.groupBy(votes.score),
 		]);
 	const rank = isRanked(stats?.votesCount ?? 0) ? await rankOf(id) : null;
-	const scoreCounts: Record<Score, number> = { 1: 0, 2: 0, 3: 0, 4: 0 };
+	const scoreCounts: Record<Score, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 	for (const row of scoreRows)
 		if (isScore(row.score)) scoreCounts[row.score] = row.count;
 
@@ -176,7 +172,7 @@ async function readMyVote(
 
 /** Where a ranked product stands: one plus the published, ranked products ordered above it. */
 async function rankOf(productId: string): Promise<number> {
-	const order = await bayesRebuyShare();
+	const order = await bayesScore();
 	const [{ rank }] = (
 		await getDb().execute<{ rank: number }>(sql`
 			WITH ranked AS (

@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 
 import { ProductRow } from "@/components/admin/product-row";
-import { AppBar } from "@/components/ds/app-bar";
 import { Button } from "@/components/ds/button";
 import { NotFoundPage } from "@/components/error/error-pages";
 import { isAdminFn } from "@/lib/admin/api";
@@ -59,7 +58,7 @@ const EMPTY = {
 } as const;
 
 const tab =
-	"font-semicondensed text-body inline-flex min-h-11 items-center gap-2 px-4 font-semibold no-underline";
+	"text-body inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-medium no-underline";
 
 function AdminPage() {
 	const params = Route.useSearch();
@@ -83,11 +82,8 @@ function AdminPage() {
 
 	return (
 		<>
-			<AppBar back />
-			<main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 pt-6 pb-16">
-				<h1 className="font-condensed text-title font-black uppercase">
-					Gestione prodotti
-				</h1>
+			<main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 pt-14">
+				<h1 className="font-display text-display font-semibold">Gestione prodotti</h1>
 
 				<nav aria-label="Stato dei prodotti">
 					<ul className="flex flex-wrap gap-2">
@@ -140,13 +136,13 @@ function AdminPage() {
 							type="search"
 							name="q"
 							defaultValue={params.q ?? ""}
-							className="bg-ground-raised text-body border-text min-h-12 w-full border-b-[3px] px-4"
+							className="bg-ground-raised text-body min-h-12 w-full rounded-full px-5"
 						/>
 						<Button type="submit">Cerca</Button>
 					</div>
 				</form>
 
-				<div className="bg-ground-raised sticky top-0 z-10 flex flex-wrap items-center gap-3 p-3">
+				<div className="bg-ground-raised rounded-panel sticky top-2 z-10 flex flex-wrap items-center gap-3 p-3">
 					<label className="text-body flex min-h-11 items-center gap-2 font-semibold">
 						<input
 							type="checkbox"

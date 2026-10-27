@@ -1,6 +1,9 @@
-import { Sticker } from "@/components/ds/sticker";
+import { Pill } from "@/components/ds/pill";
 import type { TagOption } from "@/lib/catalog/types";
 import { MAX_TAGS_PER_VOTE } from "@/lib/voting/schemas";
+
+// Meaning is told twice, so neither has to carry it alone: the group and the sign.
+const SIGN = { positive: "+", negative: "−", neutral: "·" } as const;
 
 const GROUPS = [
 	{ sentiment: "positive", title: "Pro" },
@@ -25,9 +28,9 @@ export function TagPicker({ options, selected, onChange }: Props) {
 
 	return (
 		<fieldset className="flex flex-col gap-5">
-			<legend className="text-body mb-4 font-semibold">
+			<legend className="font-display text-lead mb-4 font-medium">
 				Due parole in più?{" "}
-				<span className="text-text-soft font-normal">
+				<span className="text-body text-text-soft block font-sans font-normal">
 					{full
 						? "Ne hai scelte tre: togline una per sceglierne un’altra."
 						: `Fino a ${MAX_TAGS_PER_VOTE}, tra tutte.`}
@@ -44,22 +47,27 @@ export function TagPicker({ options, selected, onChange }: Props) {
 						aria-labelledby={`tags-${group.sentiment}`}
 						className="flex flex-col gap-2"
 					>
-						<p id={`tags-${group.sentiment}`} className="label-caps text-small">
+						<p
+							id={`tags-${group.sentiment}`}
+							className="text-small text-text-soft font-medium"
+						>
 							{group.title}
 						</p>
 						<div className="flex flex-wrap gap-2">
 							{tags.map(tag => {
 								const on = selected.includes(tag.id);
 								return (
-									<Sticker
+									<Pill
 										key={tag.id}
-										tone={tag.sentiment}
 										pressed={on}
 										disabled={!on && full}
 										onClick={() => toggle(tag.id)}
 									>
+										<span aria-hidden className="font-semibold">
+											{SIGN[tag.sentiment]}
+										</span>
 										{tag.label}
-									</Sticker>
+									</Pill>
 								);
 							})}
 						</div>
