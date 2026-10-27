@@ -9,9 +9,15 @@ export function SearchBox({ value }: { value: string }) {
 	const navigate = useNavigate({ from: "/" });
 	const [text, setText] = useState(value);
 	const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+	const input = useRef<HTMLInputElement>(null);
 
-	// Back and forward change the URL under us: follow it.
-	useEffect(() => setText(value), [value]);
+	// Back and forward change the URL under us: follow it. But not while typing: the URL holds the
+	// text of the last pause, trimmed, and writing it back would drop a trailing space or, on a slow
+	// render, the letters typed since.
+	useEffect(() => {
+		if (document.activeElement === input.current) return;
+		setText(text => (text.trim() === value ? text : value));
+	}, [value]);
 	useEffect(() => () => clearTimeout(timer.current), []);
 
 	function go(next: string, replace: boolean) {
@@ -48,6 +54,7 @@ export function SearchBox({ value }: { value: string }) {
 					<path d="M16 16l4.5 4.5" />
 				</svg>
 				<input
+					ref={input}
 					id="catalog-search"
 					type="search"
 					name="q"
