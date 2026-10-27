@@ -53,6 +53,8 @@ Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segr
   variabili `S3_*` in Infisical) nei 4 formati di Open Food Facts, `<hash>.400.jpg`, così `sizedImage` vale per
   entrambi gli URL. `pnpm catalog:import --images` copia quelle dei prodotti già presenti; senza `S3_*` si usa l'URL
   di Open Food Facts.
+- Analytics: Umami self-hosted su cervinschi-hub, senza cookie. Lo script entra nel `head` di `__root` solo se
+  `UMAMI_SCRIPT_URL` e `UMAMI_WEBSITE_ID` sono impostate (solo in `prod`), lette all'avvio da `umamiFn`.
 - `src/lib/catalog/import.ts`: i prodotti nuovi entrano come `draft`; le correzioni a mano stanno in
   `products.overrides` (con la stessa chiave della colonna) e il sync non le tocca; si salva uno snapshot
   nuovo solo se l'etichetta cambia, e ingredienti diversi segnano `recipeChangedAt`.

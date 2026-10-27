@@ -9,12 +9,22 @@ import { Toaster } from "sonner";
 
 import { SiteFooter } from "@/components/ds/site-footer";
 import { ErrorPage, NotFoundPage } from "@/components/error/error-pages";
+import { analyticsQueries } from "@/lib/analytics/queries";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { userQueries } from "@/lib/user/queries";
 import globalsCss from "@/styles/globals.css?url";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-	head: () => ({
+	// Who is looking, for the header of every page, and the Umami script where it is set up; fetched
+	// on the server before render. Declared before head, which reads what it returns.
+	loader: async ({ context }) => {
+		const [, umami] = await Promise.all([
+			context.queryClient.ensureQueryData(userQueries.viewer()),
+			context.queryClient.ensureQueryData(analyticsQueries.umami()),
+		]);
+		return { umami };
+	},
+	head: ({ loaderData }) => ({
 		meta: [
 			{ charSet: "utf-8" },
 			{ name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -33,10 +43,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 			{ rel: "manifest", href: "/site.webmanifest" },
 		],
 		// The theme before the first paint: rendered into <head> on the server, not run by React.
-		scripts: [{ children: THEME_INIT_SCRIPT }],
+		scripts: [
+			{ children: THEME_INIT_SCRIPT },
+			...(loaderData?.umami
+				? [
+						{
+							src: loaderData.umami.src,
+							defer: true,
+							"data-website-id": loaderData.umami.websiteId,
+						},
+					]
+				: []),
+		],
 	}),
-	// Who is looking, for the header of every page; fetched once, on the server, before render.
-	loader: ({ context }) => context.queryClient.ensureQueryData(userQueries.viewer()),
 	shellComponent: RootDocument,
 	component: RootLayout,
 	errorComponent: ErrorPage,
