@@ -1,3 +1,5 @@
+import { decodeEntities } from "@/lib/entities";
+
 // Open Food Facts product → our row, kept free of I/O so the rules can be tested alone.
 
 export type OffProduct = {
@@ -79,7 +81,7 @@ export function subtypeOf(name: string): string | null {
 }
 
 function clean(value: string | undefined): string | null {
-	const trimmed = value?.replace(/\s+/g, " ").trim();
+	const trimmed = value && decodeEntities(value).replace(/\s+/g, " ").trim();
 	return trimmed ? trimmed : null;
 }
 

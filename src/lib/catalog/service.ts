@@ -18,11 +18,15 @@ import {
 	isScore,
 	rebuyPercent,
 } from "@/lib/ranking/rules";
+import { decodeEntities } from "@/lib/entities";
 import { NotFound } from "@/lib/server/errors";
 
 import { bayesRebuyShare } from "./browse";
 import { productImageUrl } from "./image";
 import type { Nutrition, ProductCard, ProductStatsView, TagOption } from "./types";
+
+// Snapshots imported before map.ts decoded entities still carry them.
+const decodeOrNull = (text: string | null) => (text ? decodeEntities(text) : null);
 
 // Open Food Facts' keys, per 100 g.
 function readNutrition(nutriments: Record<string, number> | null): Nutrition | null {
@@ -137,8 +141,9 @@ export async function getProductCard(
 		imageUrl: productImageUrl(product.product.imageKey) ?? snapshot?.imageUrl ?? null,
 		producerUrl: product.product.producerUrl,
 		retailers,
-		ingredientsText:
-			product.product.ingredientsText ?? snapshot?.ingredientsText ?? null,
+		ingredientsText: decodeOrNull(
+			product.product.ingredientsText ?? snapshot?.ingredientsText ?? null
+		),
 		allergens: snapshot?.allergens ?? [],
 		nutrition: readNutrition(snapshot?.nutriments ?? null),
 		nutriscore: snapshot?.nutriscore ?? null,
