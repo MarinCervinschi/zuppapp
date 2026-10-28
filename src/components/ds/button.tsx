@@ -25,3 +25,9 @@ export function buttonClass(variant: "ink" | "paper" = "paper") {
 			: "bg-ground-raised text-text hover:bg-text/10"
 	);
 }
+
+/**
+ * A `paper` button on a raised surface (a card, the admin's action bar) would be the same colour
+ * as what's under it: this steps it back down to the ground.
+ */
+export const paperOnRaised = "bg-ground hover:bg-text/10";

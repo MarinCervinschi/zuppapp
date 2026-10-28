@@ -2,12 +2,13 @@ import { useState } from "react";
 
 import { Link } from "@tanstack/react-router";
 
-import { Button } from "@/components/ds/button";
+import { Button, paperOnRaised } from "@/components/ds/button";
 import { PackPhoto } from "@/components/ds/pack-photo";
 import { useCorrectProduct } from "@/lib/admin/mutations";
 import type { AdminProduct } from "@/lib/admin/service";
 import { subtypeLabel } from "@/lib/catalog/labels";
 import { VOTI, count } from "@/lib/plural";
+import { cn } from "@/lib/utils";
 
 const SUBTYPES = ["vellutata", "minestrone", "legumi", "cereali", "brodo", "passato"];
 const FIELD_NAMES: Record<string, string> = {
@@ -140,7 +141,7 @@ export function ProductRow({
 						type="submit"
 						variant="paper"
 						disabled={correct.isPending}
-						className="sm:col-span-2 sm:justify-self-start"
+						className={cn(paperOnRaised, "sm:col-span-2 sm:justify-self-start")}
 					>
 						{correct.isPending ? "Salvataggio…" : "Salva la correzione"}
 					</Button>

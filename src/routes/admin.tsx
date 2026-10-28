@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 
 import { ProductRow } from "@/components/admin/product-row";
-import { Button } from "@/components/ds/button";
+import { Button, paperOnRaised } from "@/components/ds/button";
 import { NotFoundPage } from "@/components/error/error-pages";
 import { isAdminFn } from "@/lib/admin/api";
 import { useSetProductsStatus } from "@/lib/admin/mutations";
@@ -162,6 +162,7 @@ function AdminPage() {
 							<Button
 								key={status}
 								variant={index === 0 ? "ink" : "paper"}
+								className={index === 0 ? undefined : paperOnRaised}
 								disabled={chosen.length === 0 || setStatus.isPending}
 								onClick={() =>
 									setStatus.mutate(
