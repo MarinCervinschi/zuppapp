@@ -151,6 +151,9 @@
 	--ease-out-snap: cubic-bezier(0.2, 0, 0, 1);
 	--animate-pop: pop 260ms var(--ease-out-snap) both;
 	--animate-rise: rise 300ms var(--ease-out-snap) both;
+	--animate-sheet: sheet 380ms var(--ease-out-snap) both;
+	--animate-zoom: zoom 260ms var(--ease-out-snap) both;
+	--animate-fade: fade 260ms ease-out both;
 }
 
 /* A star filling in. */
@@ -208,7 +211,54 @@
 	}
 }
 
+/* A sheet coming up from the bottom edge: the filters on a phone. */
+@keyframes sheet {
+	from {
+		translate: 0 100%;
+	}
+	to {
+		translate: 0 0;
+	}
+}
+
+/* A picture opening where it was: the pack photo, large. */
+@keyframes zoom {
+	from {
+		opacity: 0;
+		scale: 0.94;
+	}
+	to {
+		opacity: 1;
+		scale: 1;
+	}
+}
+
+@keyframes fade {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
+	@keyframes sheet {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	@keyframes zoom {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
 	@keyframes pop {
 		from {
 			opacity: 0.4;
@@ -474,6 +524,52 @@
 		.star-burst {
 			display: none;
 		}
+	}
+
+	/*
+	 * The children of a list or a page section arrive one after the other, as the page loads and
+	 * whenever new ones are put in (a filter, the next page). CSS, so it runs before the script
+	 * and never leaves anything hidden if the script fails. Past the twelfth they come together.
+	 */
+	.stagger > * {
+		animation: rise 420ms var(--ease-out-snap) both;
+		animation-delay: 540ms;
+	}
+	.stagger > :nth-child(1) {
+		animation-delay: 0ms;
+	}
+	.stagger > :nth-child(2) {
+		animation-delay: 45ms;
+	}
+	.stagger > :nth-child(3) {
+		animation-delay: 90ms;
+	}
+	.stagger > :nth-child(4) {
+		animation-delay: 135ms;
+	}
+	.stagger > :nth-child(5) {
+		animation-delay: 180ms;
+	}
+	.stagger > :nth-child(6) {
+		animation-delay: 225ms;
+	}
+	.stagger > :nth-child(7) {
+		animation-delay: 270ms;
+	}
+	.stagger > :nth-child(8) {
+		animation-delay: 315ms;
+	}
+	.stagger > :nth-child(9) {
+		animation-delay: 360ms;
+	}
+	.stagger > :nth-child(10) {
+		animation-delay: 405ms;
+	}
+	.stagger > :nth-child(11) {
+		animation-delay: 450ms;
+	}
+	.stagger > :nth-child(12) {
+		animation-delay: 495ms;
 	}
 
 	/* Room under the last thing on a page, so the tab bar never covers it. */

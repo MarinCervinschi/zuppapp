@@ -61,7 +61,9 @@ function MyVotes() {
 						</Link>
 					</div>
 				) : (
-					<ol className={cn("flex flex-col", isPlaceholderData && "opacity-60")}>
+					<ol
+						className={cn("stagger flex flex-col", isPlaceholderData && "opacity-60")}
+					>
 						{votes.items.map(vote => (
 							<li key={vote.productId} className="nutrient-row last:border-b-0">
 								<article className="group relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-3">

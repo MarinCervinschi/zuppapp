@@ -48,7 +48,7 @@ export function PageHead({
 			)}
 		>
 			{blob && <SoupField soup={blob} shape={shape} />}
-			<div className="mx-auto flex max-w-xl flex-col items-center gap-4">
+			<div className="stagger mx-auto flex max-w-xl flex-col items-center gap-4">
 				<p
 					className={cn(
 						"wordmark text-wordmark",

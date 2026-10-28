@@ -143,6 +143,19 @@ saturate(180%)`, una luce sul bordo alto, un bordo di luce e un riflesso in alto
     (`shimmer`);
   - l'anello di testo del Nutri-Score gira piano, un giro ogni 24 secondi.
     Sotto `prefers-reduced-motion` restano solo le dissolvenze: niente rimbalzi, gocce, luccichio né rotazione.
+- **Entrate e uscite.** Due strumenti, scelti per costo:
+  - **CSS, per ciò che arriva** (costo zero, gira anche prima del JavaScript e non lascia mai niente nascosto
+    se lo script manca): `.stagger` fa salire i figli di un elenco uno dopo l'altro, 45 ms di scarto, al
+    caricamento e ogni volta che ne entrano di nuovi (un filtro, la pagina dopo). Lo portano l'intestazione,
+    le griglie di card, podio e classifica, «Le mie zuppe» e il foglio della scheda prodotto. Il foglio dei
+    filtri sale dal basso (`animate-sheet`), la foto ingrandita si apre (`animate-zoom`), gli sfondi dei
+    dialoghi sfumano (`animate-fade`).
+  - **Motion** (`motion`, l'ex Framer Motion), **solo dove il CSS non arriva**: le uscite e i valori che
+    cambiano. Le pill dei filtri attivi entrano e si ritirano; i tag si aprono sotto le stelle e si richiudono
+    quando togli il voto; la media nel badge scorre quando cambia; le barre di stelle, % AR e calorie
+    crescono quando entrano in vista. Si carica con `LazyMotion` e `domAnimation` in `__root` (i componenti
+    leggeri `m.*`, `strict`), e `MotionConfig reducedMotion="user"` segue l'impostazione del sistema. Niente
+    animazioni di layout: chiederebbero `domMax`, il doppio del peso.
 - **Spazio per la tab bar**: il piè di pagina porta `.pb-tabbar`, e i toast stanno 104 px sopra il fondo.
 
 ## Componenti
@@ -162,17 +175,24 @@ In `src/components/ds/`, più quelli del catalogo in `src/components/catalog/`.
   volte, non solo dal colore.
 - **`Button`**: pill; `ink` per l'unica azione primaria della vista, `paper` per tutto il resto.
   `buttonClass()` dà lo stesso aspetto a un link.
-- **`NutritionLabel`**: la dichiarazione UE per 100 g, su un foglio sotto la linguetta nera. L'energia è grande,
-  in kcal e kJ. Ogni nutriente ha la sua **% AR** (la quota dell'assunzione di riferimento di un adulto, Reg. UE
-  1169/2011, allegato XIII) in cifre e in una barra. Grassi, saturi, zuccheri e sale hanno anche il **livello**
-  (basso, medio, alto, secondo le soglie FSA per 100 g), scritto in parole con un pallino del colore di una
-  zuppa che lo ripete. Resta una tabella vera, e un lettore di schermo la legge riga per riga.
+- **`NutritionLabel`**: la dichiarazione UE su un foglio sotto la linguetta nera.
+  - **100 g o confezione**: quando il peso è leggibile (`packGrams`, da «620 g», «1 kg», «500 ml»), un
+    interruttore mostra valori e % AR per la confezione intera, perché una zuppa di solito si mangia tutta.
+  - **L'energia** è grande, in kcal e kJ, e sotto c'è **da dove vengono le calorie**: grassi (9 kcal/g),
+    carboidrati e proteine (4 kcal/g) in una barra divisa, con le percentuali scritte.
+  - **% AR** per ogni nutriente (Reg. UE 1169/2011, allegato XIII), in cifre e in una barra; oltre il 100% la
+    cifra va in grassetto e la barra diventa pomodoro.
+  - **Il livello** di grassi, saturi, zuccheri e sale (basso, medio, alto, soglie FSA per 100 g, anche quando
+    si guarda la confezione) è una pill con la parola, tinta del colore di una zuppa.
+  - Resta una tabella vera, e un lettore di schermo la legge riga per riga.
 - **`NutriScore`**: il sigillo smerlato con la lettera grande e ferma al centro e «NUTRI-SCORE» che gira lungo
   il bordo, nei colori ufficiali. Sotto c'è la scala A–E con la lettera del prodotto più grande.
 - **`ZoomablePhoto` / `PackPhoto`**: toccare una foto la ingrandisce in un `<dialog>`, non apre la scheda. La
   foto entra in dissolvenza e il suo piatto luccica finché non arriva.
 - **`BrandPicker`**: un pannello che si apre nel flusso, con un campo con la lente e le marche come pill;
-  l'elenco sfuma in basso per dire che scorre.
+  l'elenco sfuma in basso per dire che scorre. **Il campo non prende mai il fuoco da solo**: su telefono
+  la tastiera coprirebbe l'elenco, che si vede e si scorre per primo. Il pannello scorre in cima al foglio con l'elenco in vista; toccando il campo,
+  il foglio lo porta in cima sopra la tastiera, con uno spazio in fondo che c'è solo con il touch.
 - **`Barcode`**: l'EAN-13 vero, nero su bianco in entrambi i temi; solo in fondo alla scheda e sulla tessera.
 - **`Podium`, `Leaderboard`** (`catalog/ranking.tsx`), **`TasteTile`, `QuickVote`**: vedi sotto.
 

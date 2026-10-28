@@ -1,3 +1,5 @@
+import * as m from "motion/react-m";
+
 import { SCORES, type Score } from "@/lib/ranking/rules";
 
 import { StarIcon } from "./stars";
@@ -29,9 +31,18 @@ export function StarDistribution({ counts }: { counts: Record<Score, number> }) 
 							aria-hidden
 							className="bg-text/10 block h-2 overflow-hidden rounded-full"
 						>
-							<span
-								className="bg-text block h-full rounded-full"
+							{/* Grows to its length as it comes into view, the five rows a beat apart. */}
+							<m.span
+								className="bg-text block h-full origin-left rounded-full"
 								style={{ width: `${(count / max) * 100}%` }}
+								initial={{ scaleX: 0 }}
+								whileInView={{ scaleX: 1 }}
+								viewport={{ once: true }}
+								transition={{
+									duration: 0.6,
+									delay: (5 - score) * 0.06,
+									ease: [0.2, 0, 0, 1],
+								}}
 							/>
 						</span>
 						<dd className="text-small text-text-soft text-right tabular-nums">

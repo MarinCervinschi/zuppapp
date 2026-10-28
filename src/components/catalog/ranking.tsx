@@ -73,7 +73,7 @@ export function Podium({ products }: { products: ProductListItem[] }) {
 	if (products.length === 0) return null;
 
 	return (
-		<ol className="grid gap-8 md:grid-cols-3 md:gap-5">
+		<ol className="stagger grid gap-8 md:grid-cols-3 md:gap-5">
 			{products.map(product => (
 				<li key={product.id}>
 					<article className="group relative flex flex-col gap-3">
@@ -127,7 +127,7 @@ export function Leaderboard({
 }) {
 	if (products.length === 0) return null;
 	return (
-		<ol start={start} className="flex flex-col">
+		<ol start={start} className="stagger flex flex-col">
 			{products.map(product => (
 				<li key={product.id} className="nutrient-row last:border-b-0">
 					<article className="group relative grid grid-cols-[2rem_auto_1fr_auto] items-center gap-3 py-3">

@@ -1,6 +1,8 @@
 import { useRef } from "react";
 
 import { Link } from "@tanstack/react-router";
+import { AnimatePresence } from "motion/react";
+import * as m from "motion/react-m";
 
 import { Button } from "@/components/ds/button";
 import { subtypeLabel, zuppe } from "@/lib/catalog/labels";
@@ -194,41 +196,61 @@ export function ActiveFilters({ params }: { params: BrowseParams }) {
 			search: prev => ({ ...prev, senza: toggled(prev.senza, allergen) }),
 		});
 	}
-	if (items.length === 0) return null;
+	// A chip pops in when its filter is set and shrinks away when it is taken off; the whole row
+	// leaves with the last one.
+	const chipMotion = {
+		initial: { opacity: 0, scale: 0.85 },
+		animate: { opacity: 1, scale: 1 },
+		exit: { opacity: 0, scale: 0.85 },
+		transition: { duration: 0.18, ease: [0.2, 0, 0, 1] as const },
+	};
 
 	return (
-		<ul aria-label="Filtri attivi" className="flex flex-wrap items-center gap-2">
-			{items.map(item => (
-				<li key={item.label}>
-					<Link
-						to="/"
-						activeOptions={EXACT_SEARCH}
-						search={prev => ({ ...item.search(prev), pagina: undefined })}
-						className={cn(chip, on, "hover:bg-text/85")}
-					>
-						{item.label}
-						<span aria-hidden>×</span>
-						<span className="sr-only">: togli il filtro</span>
-					</Link>
-				</li>
-			))}
-			<li>
-				<Link
-					to="/"
-					activeOptions={EXACT_SEARCH}
-					search={{
-						q: params.q,
-						tipo: undefined,
-						marca: undefined,
-						nutri: undefined,
-						senza: undefined,
-					}}
-					className="text-body min-h-11 content-center px-2 underline"
+		<AnimatePresence initial={false}>
+			{items.length > 0 && (
+				<m.ul
+					key="active-filters"
+					aria-label="Filtri attivi"
+					className="flex flex-wrap items-center gap-2"
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					exit={{ opacity: 0 }}
 				>
-					Togli tutti i filtri
-				</Link>
-			</li>
-		</ul>
+					<AnimatePresence initial={false}>
+						{items.map(item => (
+							<m.li key={item.label} {...chipMotion}>
+								<Link
+									to="/"
+									activeOptions={EXACT_SEARCH}
+									search={prev => ({ ...item.search(prev), pagina: undefined })}
+									className={cn(chip, on, "hover:bg-text/85")}
+								>
+									{item.label}
+									<span aria-hidden>×</span>
+									<span className="sr-only">: togli il filtro</span>
+								</Link>
+							</m.li>
+						))}
+					</AnimatePresence>
+					<li>
+						<Link
+							to="/"
+							activeOptions={EXACT_SEARCH}
+							search={{
+								q: params.q,
+								tipo: undefined,
+								marca: undefined,
+								nutri: undefined,
+								senza: undefined,
+							}}
+							className="text-body min-h-11 content-center px-2 underline"
+						>
+							Togli tutti i filtri
+						</Link>
+					</li>
+				</m.ul>
+			)}
+		</AnimatePresence>
 	);
 }
 
@@ -267,7 +289,7 @@ export function FilterSheet({
 			<dialog
 				ref={dialog}
 				aria-labelledby="filter-sheet-title"
-				className="bg-ground-raised text-text m-0 mt-auto max-h-[85dvh] w-full max-w-none overflow-y-auto overscroll-contain rounded-t-[var(--radius-card)] p-0 backdrop:bg-black/50"
+				className="bg-ground-raised text-text open:animate-sheet open:backdrop:animate-fade m-0 mt-auto max-h-[85dvh] w-full max-w-none overflow-y-auto overscroll-contain rounded-t-[var(--radius-card)] p-0 backdrop:bg-black/50"
 				onClick={event => {
 					if (event.target === dialog.current) dialog.current.close();
 				}}

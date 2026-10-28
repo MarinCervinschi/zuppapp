@@ -5,6 +5,7 @@ import {
 	Scripts,
 	createRootRouteWithContext,
 } from "@tanstack/react-router";
+import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 import { Toaster } from "sonner";
 
 import { SiteFooter } from "@/components/ds/site-footer";
@@ -91,21 +92,25 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
 function RootLayout() {
 	return (
-		<>
-			{/* The page takes the free height, so on a short page the footer still sits at the bottom.
+		// Motion's features load once for the whole app (the lighter `m` components need them), and
+		// every animation follows the reader's reduced-motion setting.
+		<LazyMotion features={domAnimation} strict>
+			<MotionConfig reducedMotion="user">
+				{/* The page takes the free height, so on a short page the footer still sits at the bottom.
 			    A plain block, not a flex column: inside one, a centred `mx-auto` bar would shrink to its content. */}
-			<div className="flex-1">
-				<Outlet />
-			</div>
-			<SiteFooter />
-			<TabBar />
-			{/* Above the tab bar, so a toast never hides it or hides under it. */}
-			<Toaster
-				position="bottom-center"
-				richColors
-				offset={{ bottom: 104 }}
-				mobileOffset={{ bottom: 104 }}
-			/>
-		</>
+				<div className="flex-1">
+					<Outlet />
+				</div>
+				<SiteFooter />
+				<TabBar />
+				{/* Above the tab bar, so a toast never hides it or hides under it. */}
+				<Toaster
+					position="bottom-center"
+					richColors
+					offset={{ bottom: 104 }}
+					mobileOffset={{ bottom: 104 }}
+				/>
+			</MotionConfig>
+		</LazyMotion>
 	);
 }

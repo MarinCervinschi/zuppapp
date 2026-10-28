@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+import { AnimatePresence } from "motion/react";
+import * as m from "motion/react-m";
 import { toast } from "sonner";
 
 import { StarPicker } from "@/components/ds/stars";
@@ -139,15 +141,25 @@ export function VotePanel({
 					)}
 				</div>
 			</div>
-			{vote.score && (
-				<div className="motion-safe:animate-rise">
-					<TagPicker
-						options={product.tagOptions}
-						selected={vote.tagIds}
-						onChange={next => vote.submit(vote.score!, next)}
-					/>
-				</div>
-			)}
+			{/* The tags open under the stars with the first vote and fold away when it is taken off. */}
+			<AnimatePresence initial={false}>
+				{vote.score && (
+					<m.div
+						key="tags"
+						className="overflow-hidden"
+						initial={{ height: 0, opacity: 0 }}
+						animate={{ height: "auto", opacity: 1 }}
+						exit={{ height: 0, opacity: 0 }}
+						transition={{ duration: 0.3, ease: [0.2, 0, 0, 1] }}
+					>
+						<TagPicker
+							options={product.tagOptions}
+							selected={vote.tagIds}
+							onChange={next => vote.submit(vote.score!, next)}
+						/>
+					</m.div>
+				)}
+			</AnimatePresence>
 		</section>
 	);
 }

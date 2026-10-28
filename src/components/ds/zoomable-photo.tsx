@@ -76,7 +76,7 @@ export function ZoomablePhoto({
 			<dialog
 				ref={dialog}
 				aria-label={`Foto di ${name}`}
-				className="bg-ground-raised text-text rounded-card m-auto max-h-[92dvh] w-[min(92vw,40rem)] max-w-none overflow-y-auto overscroll-contain p-0 backdrop:bg-black/70"
+				className="bg-ground-raised text-text rounded-card open:animate-zoom open:backdrop:animate-fade m-auto max-h-[92dvh] w-[min(92vw,40rem)] max-w-none overflow-y-auto overscroll-contain p-0 backdrop:bg-black/70"
 				onClick={event => {
 					if (event.target === dialog.current) dialog.current.close();
 				}}

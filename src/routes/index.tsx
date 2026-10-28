@@ -224,7 +224,7 @@ function Grid({
 	return (
 		<ul
 			className={cn(
-				"grid grid-cols-1 gap-x-4 gap-y-10 sm:grid-cols-2 md:grid-cols-3 md:gap-x-5",
+				"stagger grid grid-cols-1 gap-x-4 gap-y-10 sm:grid-cols-2 md:grid-cols-3 md:gap-x-5",
 				dim && "opacity-60"
 			)}
 		>

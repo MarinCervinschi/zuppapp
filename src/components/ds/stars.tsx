@@ -1,5 +1,8 @@
 import { forwardRef, useState } from "react";
 
+import { AnimatePresence } from "motion/react";
+import * as m from "motion/react-m";
+
 import { VOTI, count } from "@/lib/plural";
 import { SCORES, SCORE_LABELS, type Score } from "@/lib/ranking/rules";
 import { cn } from "@/lib/utils";
@@ -78,7 +81,20 @@ export function RatingBadge({
 			)}
 		>
 			<StarIcon className={size === "sm" ? "size-3" : "size-3.5"} />
-			<span aria-hidden>{formatStars(mean)}</span>
+			{/* A new mean rolls in from below, the old one out above: the vote just counted. */}
+			<span aria-hidden className="relative inline-flex overflow-hidden">
+				<AnimatePresence mode="popLayout" initial={false}>
+					<m.span
+						key={mean}
+						initial={{ y: "100%", opacity: 0 }}
+						animate={{ y: 0, opacity: 1 }}
+						exit={{ y: "-100%", opacity: 0 }}
+						transition={{ duration: 0.3, ease: [0.2, 0, 0, 1] }}
+					>
+						{formatStars(mean)}
+					</m.span>
+				</AnimatePresence>
+			</span>
 			<span className="sr-only">
 				{formatStars(mean)} stelle su 5, {count(votesCount, VOTI)}
 			</span>

@@ -82,7 +82,7 @@ function ProductView({ product }: { product: ProductCard }) {
 			</div>
 
 			{/* The sheet over the photo: warm yellow at the top, fading into the paper. */}
-			<div className="sheet-tint relative -mt-8 flex flex-col gap-10 rounded-t-[2rem] px-4 pt-7">
+			<div className="sheet-tint stagger relative -mt-8 flex flex-col gap-10 rounded-t-[2rem] px-4 pt-7">
 				<header className="flex flex-col gap-3">
 					<h1 className="font-display text-title font-semibold tracking-[-0.01em]">
 						{product.name}
@@ -191,7 +191,9 @@ function ProductView({ product }: { product: ProductCard }) {
 					</section>
 				)}
 
-				{product.nutrition && <NutritionLabel nutrition={product.nutrition} />}
+				{product.nutrition && (
+					<NutritionLabel nutrition={product.nutrition} quantity={product.quantity} />
+				)}
 
 				{product.nutriscore && (
 					<NutriScore grade={product.nutriscore} className="self-center" />
