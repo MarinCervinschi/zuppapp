@@ -34,7 +34,9 @@ telefoni da 360 px i tab si stringono a 80 px perché ci stia tutto.
 Le pagine interne (la scheda prodotto) hanno una **barra fissa in alto** (`DetailBar`): il pulsante indietro
 tondo a sinistra (`BackButton`, torna nella cronologia, o alle zuppe se il link è stato aperto da fuori) e
 l'azione della pagina a destra, il cuore. Resta in alto mentre si scorre, così non serve risalire per tornare
-indietro; solo i due pulsanti prendono i tocchi, il contenuto si vede tra di loro.
+indietro; solo i due pulsanti prendono i tocchi. Sopra la foto la barra è trasparente; appena la pagina
+scorre, dietro i pulsanti entra in dissolvenza una fascia di carta smerigliata (`.glass-band`) che sfuma
+in basso, così i pulsanti galleggiano su di lei e non sul testo che passa sotto.
 
 ## Colori
 

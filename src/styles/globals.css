@@ -578,6 +578,24 @@
 		animation-delay: 495ms;
 	}
 
+	/*
+	 * The band behind a fixed bar once the page scrolls under it: the paper, frosted, fading out
+	 * at its foot so the buttons float on it without a hard edge.
+	 */
+	/* prettier-ignore */
+	.glass-band {
+		background: color-mix(in oklab, var(--ground) 72%, transparent);
+		-webkit-backdrop-filter: blur(16px) saturate(160%); /* taste-skill-ignore */
+		backdrop-filter: blur(16px) saturate(160%); /* taste-skill-ignore */
+		mask-image: linear-gradient(to bottom, black 70%, transparent); /* taste-skill-ignore */
+	}
+	@media (prefers-reduced-transparency: reduce) {
+		.glass-band {
+			background: var(--ground);
+			backdrop-filter: none; /* taste-skill-ignore */
+		}
+	}
+
 	/* Room under the last thing on a page, so the tab bar never covers it. */
 	.pb-tabbar {
 		padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
