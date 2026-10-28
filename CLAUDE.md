@@ -6,20 +6,20 @@ TriviaMore: tab + punto e virgola (Prettier), `@/` per `src/`, testi UI in itali
 
 ## Comandi
 
-|                                                    |                                                                                                                                                          |
-| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm db:up` / `pnpm db:down`                      | ParadeDB locale (`compose.yaml`, porta 54330)                                                                                                            |
-| `pnpm db:generate --name x`                        | migrazione dallo schema Drizzle                                                                                                                          |
-| `pnpm db:migrate`                                  | applica le migrazioni                                                                                                                                    |
-| `pnpm dev`                                         | dev server su :3000 con l'ambiente `dev` di Infisical: **il database di produzione**, via Tailscale                                                      |
-| `pnpm dev:local`                                   | dev server su :3000 con `.env` e il ParadeDB locale                                                                                                      |
-| `pnpm infra:plan` · `infra:apply` · `infra:output` | Terraform di produzione (`infra/README.md`): Infisical, Coolify, DNS                                                                                     |
-| `pnpm user:admin <email>`                          | rende admin un account Google già entrato una volta (`--revoke` per togliere)                                                                            |
-| `pnpm db:seed`                                     | 4 prodotti d'esempio (EAN 2…, mai reali); come `db:seed:votes` e `--publish`, rifiuta un database non locale                                             |
-| `pnpm db:seed:votes`                               | 60 votanti finti su 45 prodotti, per vedere podio e classifica in locale                                                                                 |
-| `pnpm catalog:import`                              | zuppe italiane da Open Food Facts come bozze: `--sync` aggiorna quelle già presenti, `--ean a,b`, `--limit n`, `--dry-run`, `--publish` (solo in locale) |
-| `pnpm icons`                                       | rigenera favicon e icone in `public/` (`scripts/make-icons.mjs`)                                                                                         |
-| `pnpm test` · `pnpm typecheck` · `pnpm build`      |                                                                                                                                                          |
+|                                                    |                                                                                                                                                                                                            |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:up` / `pnpm db:down`                      | ParadeDB locale (`compose.yaml`, porta 54330)                                                                                                                                                              |
+| `pnpm db:generate --name x`                        | migrazione dallo schema Drizzle                                                                                                                                                                            |
+| `pnpm db:migrate`                                  | applica le migrazioni                                                                                                                                                                                      |
+| `pnpm dev`                                         | dev server su :3000 con l'ambiente `dev` di Infisical: **il database di produzione**, via Tailscale                                                                                                        |
+| `pnpm dev:local`                                   | dev server su :3000 con `.env` e il ParadeDB locale                                                                                                                                                        |
+| `pnpm infra:plan` · `infra:apply` · `infra:output` | Terraform di produzione (`infra/README.md`): Infisical, Coolify, DNS                                                                                                                                       |
+| `pnpm user:admin <email>`                          | rende admin un account Google già entrato una volta (`--revoke` per togliere)                                                                                                                              |
+| `pnpm db:seed`                                     | 4 prodotti d'esempio (EAN 2…, mai reali); come `db:seed:votes` e `--publish`, rifiuta un database non locale                                                                                               |
+| `pnpm db:seed:votes`                               | 60 votanti finti su 45 prodotti, per vedere podio e classifica in locale                                                                                                                                   |
+| `pnpm catalog:import`                              | zuppe italiane da Open Food Facts come bozze, sull'ambiente `dev` di Infisical (la produzione): `--sync` aggiorna quelle già presenti, `--ean a,b`, `--limit n`, `--dry-run`, `--publish` (solo in locale) |
+| `pnpm icons`                                       | rigenera favicon e icone in `public/` (`scripts/make-icons.mjs`)                                                                                                                                           |
+| `pnpm test` · `pnpm typecheck` · `pnpm build`      |                                                                                                                                                                                                            |
 
 **Mai `drizzle-kit push`**: non conosce l'indice BM25 di `drizzle/0001_search_index.sql` e lo
 cancellerebbe. Ogni modifica passa da `generate` + `migrate`.
