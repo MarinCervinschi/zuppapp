@@ -64,6 +64,15 @@ Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segr
   i badge mostrano la media semplice (`meanStars`).
 - I codici che iniziano per 2 (e 02, 04) sono interni dei negozi e non identificano nulla:
   `isStoreInternalCode` li tiene fuori da import e sync.
+- Scansione: tasto tondo accanto alla `TabBar` → `/scansiona` (fotocamera) e `/scansiona/<codice>` (risultato). `Scanner` usa `createDetector`
+  (`src/lib/barcode/detector.ts`: `BarcodeDetector` nativo o il ponyfill zxing, con il `.wasm` servito da noi, mai da
+  jsDelivr). `lookupEan` (`src/lib/catalog/lookup.ts`) guarda il nostro catalogo e poi l'API prodotto di OFF dal
+  vivo (timeout 4 s, niente retry, 30/ora per IP): una zuppa completa entra subito come `draft`, il resto diventa il
+  modulo di segnalazione. La ricerca funziona per tutti; solo il modulo chiede un account.
+- Segnalazioni: `src/lib/reports/` (tabella `product_reports`). Il modulo viaggia come `FormData`; il browser
+  ricodifica ogni foto in due JPEG (`toJpeg`, 1600 e 400 px), il server toglie di nuovo i metadati
+  (`stripJpegMetadata`) e le salva in `segnalazioni/<uuid>/<n>.400.jpg` e `.full.jpg`. Senza `S3_*` il modulo
+  non chiede foto. In `/admin/segnalazioni` si risolvono tutte quelle di un EAN insieme, e le foto si cancellano.
 - Admin: `/admin` risponde 404 a chiunque non sia admin (`isAdminFn` in `beforeLoad`), e ogni server
   function di `src/lib/admin/` ricontrolla con `adminMiddleware`. Le correzioni di nome, marca e tipo
   finiscono in `overrides`.

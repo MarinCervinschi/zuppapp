@@ -27,6 +27,10 @@ corrente in una pill più chiara.
 | Classifica | `/classifica` | Podio e righe, filtrabili per tipo                                                |
 | Profilo    | `/profilo`    | Nome, faccia e tema. Senza account rimanda ad `/accedi`, che porta alle tue zuppe |
 
+Accanto alla pill, **staccato in un tondo di vetro tutto suo**, c'è lo scanner (`/scansiona`): è un'azione,
+non un posto, come la ricerca nella tab bar di iOS 26. Solo l'icona, con il nome per i lettori di schermo; su
+telefoni da 360 px i tab si stringono a 80 px perché ci stia tutto.
+
 Le pagine interne (la scheda prodotto) hanno solo il **pulsante indietro** tondo che galleggia sulla foto
 (`BackButton`): torna nella cronologia, o alle zuppe se il link è stato aperto da fuori.
 
