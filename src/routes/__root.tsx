@@ -12,16 +12,18 @@ import { SiteFooter } from "@/components/ds/site-footer";
 import { TabBar } from "@/components/ds/tab-bar";
 import { ErrorPage, NotFoundPage } from "@/components/error/error-pages";
 import { analyticsQueries } from "@/lib/analytics/queries";
+import { favoriteQueries } from "@/lib/favorites/queries";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { userQueries } from "@/lib/user/queries";
 import globalsCss from "@/styles/globals.css?url";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-	// Who is looking, for the header of every page, and the Umami script where it is set up; fetched
-	// on the server before render. Declared before head, which reads what it returns.
+	// Who is looking, their hearts (so a card never lights its heart late) and the Umami script
+	// where it is set up; fetched on the server before render. Declared before head, which reads it.
 	loader: async ({ context }) => {
-		const [, umami] = await Promise.all([
+		const [, , umami] = await Promise.all([
 			context.queryClient.ensureQueryData(userQueries.viewer()),
+			context.queryClient.ensureQueryData(favoriteQueries.ids()),
 			context.queryClient.ensureQueryData(analyticsQueries.umami()),
 		]);
 		return { umami };

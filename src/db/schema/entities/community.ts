@@ -5,6 +5,7 @@ import {
 	integer,
 	pgEnum,
 	pgTable,
+	primaryKey,
 	text,
 	timestamp,
 	uniqueIndex,
@@ -77,4 +78,19 @@ export const productReports = pgTable(
 			.on(table.userId, table.ean)
 			.where(sql`${table.status} = 'open'`),
 	]
+);
+
+/** The soups someone keeps a heart on, to find them again. Private: no count is shown to others. */
+export const favorites = pgTable(
+	"favorites",
+	{
+		userId: uuid()
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		productId: uuid()
+			.notNull()
+			.references(() => products.id, { onDelete: "cascade" }),
+		createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
+	},
+	table => [primaryKey({ columns: [table.userId, table.productId] })]
 );

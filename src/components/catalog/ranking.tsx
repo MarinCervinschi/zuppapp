@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
+import { HeartButton } from "@/components/ds/heart-button";
 import { RatingBadge, formatStars } from "@/components/ds/stars";
 import { ZoomablePhoto } from "@/components/ds/zoomable-photo";
 import { productDetails } from "@/lib/catalog/details";
@@ -90,6 +91,11 @@ export function Podium({ products }: { products: ProductListItem[] }) {
 							<RankDisc
 								rank={product.rank ?? 0}
 								className="absolute top-3 left-3 z-20"
+							/>
+							<HeartButton
+								productId={product.id}
+								name={product.name}
+								className="absolute top-3 right-3 z-20"
 							/>
 							<RatingBadge
 								mean={product.mean}

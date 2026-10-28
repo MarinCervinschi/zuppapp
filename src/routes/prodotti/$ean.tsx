@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { BackButton } from "@/components/ds/app-bar";
+import { DetailBar } from "@/components/ds/app-bar";
 import { Barcode } from "@/components/ds/barcode";
+import { HeartButton } from "@/components/ds/heart-button";
 import { NutriScore } from "@/components/ds/nutri-score";
 import { NutritionLabel } from "@/components/ds/nutrition-label";
 import { Pill } from "@/components/ds/pill";
@@ -64,9 +65,11 @@ function ProductView({ product }: { product: ProductCard }) {
 
 	return (
 		<main className="mx-auto max-w-xl">
-			{/* The pack, full width on its white plate; the way back floats over its corner. */}
+			<DetailBar
+				action={<HeartButton productId={product.id} name={product.name} size="lg" />}
+			/>
+			{/* The pack, full width on its white plate, under the fixed bar. */}
 			<div className="plate relative flex h-80 items-center justify-center bg-white px-4 pt-4 pb-10 sm:h-96">
-				<BackButton className="absolute top-4 left-4 z-20" />
 				{product.imageUrl ? (
 					<ZoomablePhoto
 						src={product.imageUrl}

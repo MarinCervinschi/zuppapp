@@ -31,8 +31,10 @@ Accanto alla pill, **staccato in un tondo di vetro tutto suo**, c'è lo scanner 
 non un posto, come la ricerca nella tab bar di iOS 26. Solo l'icona, con il nome per i lettori di schermo; su
 telefoni da 360 px i tab si stringono a 80 px perché ci stia tutto.
 
-Le pagine interne (la scheda prodotto) hanno solo il **pulsante indietro** tondo che galleggia sulla foto
-(`BackButton`): torna nella cronologia, o alle zuppe se il link è stato aperto da fuori.
+Le pagine interne (la scheda prodotto) hanno una **barra fissa in alto** (`DetailBar`): il pulsante indietro
+tondo a sinistra (`BackButton`, torna nella cronologia, o alle zuppe se il link è stato aperto da fuori) e
+l'azione della pagina a destra, il cuore. Resta in alto mentre si scorre, così non serve risalire per tornare
+indietro; solo i due pulsanti prendono i tocchi, il contenuto si vede tra di loro.
 
 ## Colori
 
@@ -95,6 +97,7 @@ e segue il cambio di tema.
 | Le mie zuppe   | zucca                             | gocce |
 | Profilo        | barbabietola                      | onda  |
 | Accesso        | piselli, dietro la tessera gialla | gocce |
+| Preferiti      | barbabietola                      | gocce |
 | Errori         | pomodoro                          | gocce |
 
 La scheda prodotto non ne ha: lì il colore lo dà la foto della confezione.
@@ -167,6 +170,14 @@ saturate(180%)`, una luce sul bordo alto, un bordo di luce e un riflesso in alto
 In `src/components/ds/`, più quelli del catalogo in `src/components/catalog/`.
 
 - **`PageHead`**: il marchio, `h1` e una riga, centrati; con `blob` (e `shape`) la macchia viva.
+- **`HeartButton`**: il cuore dei preferiti, un tondo di vetro. Contorno d'inchiostro; acceso, pieno pomodoro
+  dentro lo stesso contorno (che lo tiene leggibile sul vetro scuro sopra una foto bianca), con un battito (`animate-pop`) solo quando lo accendi tu. Sta nella barra della scheda e in alto a
+  destra sulla foto delle card e del podio (in alto a sinistra c'è il posto). Il nome accessibile resta
+  uguale («Gazpacho tra i preferiti») e `aria-pressed` dice lo stato. Togliere un cuore si annulla con
+  «Rimettila». **I preferiti sono di chi
+  ha un account**: senza, il cuore non salva niente e un toast propone «Accedi». Aggiungendo, un toast
+  «Nei preferiti» offre «Vedili». Tutti i cuori leggono un solo elenco di id (`favoriteQueries.ids`),
+  precaricato in `__root` e cambiato subito, prima della risposta del server.
 - **`SoupField`**: la macchia viva da sola, dietro qualunque contenitore `relative isolate overflow-hidden`.
 - **`TabBar`**: i tre tab in vetro, link con `aria-current="page"`, così funzionano anche prima del
   JavaScript; la scheda corrente è una goccia chiara che scivola.

@@ -23,6 +23,7 @@ export const Route = createFileRoute("/accedi")({
 const REASONS = [
 	"I tuoi voti ti seguono su ogni telefono e computer.",
 	"Scegli il tuo nome e la tua faccia.",
+	"Metti un cuore sulle zuppe da ritrovare.",
 	"Ci mandi le zuppe che ancora non abbiamo.",
 ];
 

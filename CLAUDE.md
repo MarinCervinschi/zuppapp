@@ -78,7 +78,10 @@ Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segr
   finiscono in `overrides`.
 - Utente: `src/lib/user/` (`viewerFn` legge dal database, non dalla cache di 5 minuti della sessione, così
   nome e avatar cambiano subito; `myVotesFn` per «Le mie zuppe»). Il visitatore è precaricato nel loader di
-  `__root`. Pagine `/accedi`, `/profilo`, `/le-mie-zuppe`.
+  `__root`. Pagine `/accedi`, `/profilo`, `/le-mie-zuppe`, `/preferiti`.
+- Preferiti: `src/lib/favorites/` (tabella `favorites`), solo con un account Google (`accountMiddleware`). Tutti i
+  cuori leggono `favoriteQueries.ids`, precaricata in `__root`; `useSetFavorite` la cambia subito (ottimistico).
+  La pagina usa `getFavoritesPage` in `catalog/browse.ts`, così le card sono le stesse del catalogo.
 - Design system: `DESIGN.md` (leggi «Regole per ogni schermata» prima di toccare la UI) e la pagina `/design`.
   Clash Display arriva dal CDN di Fontshare (la licenza ITF non permette di ridistribuirne i file), Poppins da
   `@fontsource`;

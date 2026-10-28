@@ -1,6 +1,7 @@
 import { type SQL, sql } from "drizzle-orm";
 
 import { getDb } from "@/db";
+import { FAVORITES_PAGE_SIZE } from "@/lib/favorites/schemas";
 import {
 	MIN_VOTES_TO_RANK,
 	PRIOR_VOTES,
@@ -210,6 +211,31 @@ export async function searchCatalog(
 	const rows = await query(
 		filtersOf(params),
 		params.q ? sql`${relevance} DESC, products.name` : sql`products.name`,
+		size,
+		(page - 1) * size,
+		userId
+	);
+	return pageOf(
+		rows.map(row => toItem(row, null)),
+		rows,
+		page,
+		size
+	);
+}
+
+/**
+ * «I tuoi preferiti»: the products the reader keeps a heart on, newest heart first, as cards.
+ * Archived ones stay (they were kept on purpose); drafts never show.
+ */
+export async function getFavoritesPage(
+	userId: string,
+	page: number
+): Promise<ListPage> {
+	const size = FAVORITES_PAGE_SIZE;
+	const kept = sql`(SELECT f.created_at FROM favorites f WHERE f.product_id = products.id AND f.user_id = ${userId})`;
+	const rows = await query(
+		sql`products.status <> 'draft' AND ${kept} IS NOT NULL`,
+		sql`${kept} DESC`,
 		size,
 		(page - 1) * size,
 		userId

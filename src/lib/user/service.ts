@@ -19,6 +19,7 @@ export type Viewer = {
 	/** What the Critters avatar is drawn from: the chosen seed, else the user id. */
 	avatarSeed: string;
 	votesCount: number;
+	favoritesCount: number;
 };
 
 /**
@@ -35,6 +36,7 @@ export async function getViewer(userId: string): Promise<Viewer | null> {
 			avatarSeed: users.avatarSeed,
 			role: users.role,
 			votesCount: sql<number>`(select count(*)::int from votes where votes.user_id = ${users.id})`,
+			favoritesCount: sql<number>`(select count(*)::int from favorites where favorites.user_id = ${users.id})`,
 		})
 		.from(users)
 		.where(eq(users.id, userId));
@@ -50,6 +52,7 @@ export async function getViewer(userId: string): Promise<Viewer | null> {
 		hasNickname: Boolean(row.nickname),
 		avatarSeed: row.avatarSeed || row.id,
 		votesCount: row.votesCount,
+		favoritesCount: row.favoritesCount,
 	};
 }
 

@@ -16,6 +16,7 @@ import { Route as ClassificaRouteImport } from './routes/classifica'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as LeMieZuppeRouteImport } from './routes/le-mie-zuppe'
+import { Route as PreferitiRouteImport } from './routes/preferiti'
 import { Route as ProfiloRouteImport } from './routes/profilo'
 import { Route as AdminSegnalazioniRouteImport } from './routes/admin_.segnalazioni'
 import { Route as ProdottiEanRouteImport } from './routes/prodotti/$ean'
@@ -58,6 +59,11 @@ const LeMieZuppeRoute = LeMieZuppeRouteImport.update({
   path: '/le-mie-zuppe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PreferitiRoute = PreferitiRouteImport.update({
+  id: '/preferiti',
+  path: '/preferiti',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfiloRoute = ProfiloRouteImport.update({
   id: '/profilo',
   path: '/profilo',
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
+  '/preferiti': typeof PreferitiRoute
   '/profilo': typeof ProfiloRoute
   '/admin/segnalazioni': typeof AdminSegnalazioniRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
+  '/preferiti': typeof PreferitiRoute
   '/profilo': typeof ProfiloRoute
   '/admin/segnalazioni': typeof AdminSegnalazioniRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
+  '/preferiti': typeof PreferitiRoute
   '/profilo': typeof ProfiloRoute
   '/admin_/segnalazioni': typeof AdminSegnalazioniRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
+    | '/preferiti'
     | '/profilo'
     | '/admin/segnalazioni'
     | '/prodotti/$ean'
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
+    | '/preferiti'
     | '/profilo'
     | '/admin/segnalazioni'
     | '/prodotti/$ean'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
+    | '/preferiti'
     | '/profilo'
     | '/admin_/segnalazioni'
     | '/prodotti/$ean'
@@ -191,6 +203,7 @@ export interface RootRouteChildren {
   DesignRoute: typeof DesignRoute
   HealthRoute: typeof HealthRoute
   LeMieZuppeRoute: typeof LeMieZuppeRoute
+  PreferitiRoute: typeof PreferitiRoute
   ProfiloRoute: typeof ProfiloRoute
   AdminSegnalazioniRoute: typeof AdminSegnalazioniRoute
   ProdottiEanRoute: typeof ProdottiEanRoute
@@ -250,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeMieZuppeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/preferiti': {
+      id: '/preferiti'
+      path: '/preferiti'
+      fullPath: '/preferiti'
+      preLoaderRoute: typeof PreferitiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profilo': {
       id: '/profilo'
       path: '/profilo'
@@ -303,6 +323,7 @@ const rootRouteChildren: RootRouteChildren = {
   DesignRoute: DesignRoute,
   HealthRoute: HealthRoute,
   LeMieZuppeRoute: LeMieZuppeRoute,
+  PreferitiRoute: PreferitiRoute,
   ProfiloRoute: ProfiloRoute,
   AdminSegnalazioniRoute: AdminSegnalazioniRoute,
   ProdottiEanRoute: ProdottiEanRoute,

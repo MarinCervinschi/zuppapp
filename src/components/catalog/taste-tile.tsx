@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { Link } from "@tanstack/react-router";
 
+import { HeartButton } from "@/components/ds/heart-button";
 import { RatingBadge } from "@/components/ds/stars";
 import { ZoomablePhoto } from "@/components/ds/zoomable-photo";
 import { productDetails } from "@/lib/catalog/details";
@@ -44,6 +45,11 @@ export function TasteTile({
 				) : (
 					<span className="font-display text-lead text-[#6a5f53]">Senza foto</span>
 				)}
+				<HeartButton
+					productId={product.id}
+					name={product.name}
+					className="absolute top-3 right-3 z-20"
+				/>
 				{product.mean !== null && votes >= MIN_VOTES_TO_RANK && (
 					<RatingBadge
 						mean={product.mean}

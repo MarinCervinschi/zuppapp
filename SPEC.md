@@ -43,7 +43,7 @@ Tutti (anche anonimi):
 2. **Scheda prodotto**: voto a facce, tag, statistiche, dati nutrizionali, link.
 3. **Le mie zuppe**: storico dei propri voti.
 
-Solo loggati: 4. **Duello**. 5. **Segnala prodotto mancante** (per EAN, da `/scansiona`, decisione 16). 6. **Profilo**: nickname, avatar DiceBear personalizzabile, badge.
+Solo loggati: 4. **Duello**. 5. **Segnala prodotto mancante** (per EAN, da `/scansiona`, decisione 16). 6. **Profilo**: nickname, avatar DiceBear personalizzabile, badge. 7. **Preferiti**: un cuore sulle zuppe da ritrovare (`/preferiti`, dal profilo); privati, nessun conteggio pubblico.
 
 Admin: 7. Coda segnalazioni e `draft`, modifica/override prodotti, gestione tag.
 

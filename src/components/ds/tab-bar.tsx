@@ -21,7 +21,9 @@ const TABS = [
 		to: "/profilo",
 		label: "Profilo",
 		match: (path: string) =>
-			["/profilo", "/accedi", "/le-mie-zuppe"].some(p => path.startsWith(p)),
+			["/profilo", "/accedi", "/le-mie-zuppe", "/preferiti"].some(p =>
+				path.startsWith(p)
+			),
 		icon: PersonIcon,
 	},
 ] as const;
