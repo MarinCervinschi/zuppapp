@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { Link } from "@tanstack/react-router";
 
@@ -28,10 +28,28 @@ export function BrandPicker({
 	const [open, setOpen] = useState(false);
 	const [text, setText] = useState("");
 	const button = useRef<HTMLButtonElement>(null);
+	const panel = useRef<HTMLDivElement>(null);
+	const search = useRef<HTMLInputElement>(null);
 	const panelId = useId();
 	const shown = text
 		? brands.filter(brand => fold(brand.value).includes(fold(text)))
 		: brands;
+
+	// Opening shows the list, ready to scroll; the search field waits until it is tapped, so a
+	// phone's keyboard never comes up over the list. The panel scrolls to the top of the sheet.
+	useEffect(() => {
+		if (!open) return;
+		panel.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+	}, [open]);
+
+	/** Once the keyboard is up, the field goes to the top of what is left, the list under it. */
+	function keepFieldInView() {
+		if (window.matchMedia("(pointer: fine)").matches) return;
+		setTimeout(
+			() => search.current?.scrollIntoView({ block: "start", behavior: "smooth" }),
+			300
+		);
+	}
 
 	function close() {
 		setOpen(false);
@@ -83,8 +101,9 @@ export function BrandPicker({
 
 			{open && (
 				<div
+					ref={panel}
 					id={panelId}
-					className="bg-text/[0.06] rounded-panel motion-safe:animate-rise flex flex-col gap-1 p-1.5"
+					className="bg-text/[0.06] rounded-panel motion-safe:animate-rise flex scroll-mt-24 flex-col gap-1 p-1.5"
 				>
 					<label className="sr-only" htmlFor={`${panelId}-search`}>
 						Cerca una marca
@@ -103,20 +122,21 @@ export function BrandPicker({
 							<path d="M16 16l4.5 4.5" />
 						</svg>
 						<input
+							ref={search}
 							id={`${panelId}-search`}
 							type="search"
-							autoFocus
 							value={text}
+							onFocus={keepFieldInView}
 							onChange={event => setText(event.target.value)}
 							placeholder="Esselunga, Knorr…"
 							autoComplete="off"
-							className="bg-ground-raised text-body placeholder:text-text-soft min-h-11 w-full rounded-full pr-4 pl-10 focus-visible:outline-offset-0"
+							className="bg-ground-raised text-body placeholder:text-text-soft min-h-11 w-full scroll-mt-24 rounded-full pr-4 pl-10 focus-visible:outline-offset-0"
 						/>
 					</span>
 					<p className="sr-only" aria-live="polite">
 						{count(shown.length, MARCHE)}
 					</p>
-					<ul className="fade-bottom flex max-h-72 [scrollbar-width:thin] flex-col gap-0.5 overflow-y-auto overscroll-contain pb-6">
+					<ul className="fade-bottom flex max-h-[min(18rem,38svh)] [scrollbar-width:thin] flex-col gap-0.5 overflow-y-auto overscroll-contain pb-6">
 						{!text && (
 							<li>
 								<Link
@@ -175,6 +195,8 @@ export function BrandPicker({
 					</ul>
 				</div>
 			)}
+			{/* With a touch keyboard up, the sheet needs room below to lift the field to its top. */}
+			{open && <div aria-hidden className="h-[45svh] pointer-fine:hidden" />}
 		</div>
 	);
 }
