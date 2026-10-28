@@ -36,3 +36,21 @@ export async function putObject(key: string, body: ArrayBuffer, contentType: str
 	});
 	if (!response.ok) throw new Error(`S3 PUT ${key}: ${response.status}`);
 }
+
+export async function getObject(key: string): Promise<ArrayBuffer> {
+	const s3 = config();
+	if (!s3) throw new Error("S3 storage is not configured");
+	const response = await s3.client.fetch(`${s3.bucketUrl}/${key}`);
+	if (!response.ok) throw new Error(`S3 GET ${key}: ${response.status}`);
+	return response.arrayBuffer();
+}
+
+export async function deleteObject(key: string) {
+	const s3 = config();
+	if (!s3) throw new Error("S3 storage is not configured");
+	const response = await s3.client.fetch(`${s3.bucketUrl}/${key}`, {
+		method: "DELETE",
+	});
+	// S3 answers 204 for a key that was never there too.
+	if (!response.ok) throw new Error(`S3 DELETE ${key}: ${response.status}`);
+}

@@ -3,6 +3,7 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { products } from "@/db/schema";
 import { productImageUrl } from "@/lib/catalog/image";
+import { openReportsCount } from "@/lib/reports/service";
 import { matchesText } from "@/lib/search/service";
 import { NotFound } from "@/lib/server/errors";
 
@@ -29,14 +30,30 @@ export type AdminProduct = {
 	votesCount: number;
 };
 
+/** What each tab of the admin holds: products by status, and EANs with open reports. */
+export type AdminCounts = Record<Status | "reports", number>;
+
 export type AdminPage = {
 	items: AdminProduct[];
-	counts: Record<Status, number>;
+	counts: AdminCounts;
 	status: Status;
 	total: number;
 	page: number;
 	pageCount: number;
 };
+
+export async function adminCounts(): Promise<AdminCounts> {
+	const [rows, reports] = await Promise.all([
+		getDb()
+			.select({ status: products.status, count: sql<number>`count(*)::int` })
+			.from(products)
+			.groupBy(products.status),
+		openReportsCount(),
+	]);
+	const counts: AdminCounts = { draft: 0, published: 0, archived: 0, reports };
+	for (const row of rows) counts[row.status] = row.count;
+	return counts;
+}
 
 /** The products of one status, drafts first by default: the queue an admin works through. */
 export async function listForAdmin(params: AdminListParams): Promise<AdminPage> {
@@ -46,7 +63,7 @@ export async function listForAdmin(params: AdminListParams): Promise<AdminPage> 
 	const conditions = [sql`products.status = ${status}`];
 	if (params.q) conditions.push(matchesText(params.q));
 
-	const [rows, countRows] = await Promise.all([
+	const [rows, counts] = await Promise.all([
 		db.execute<{
 			id: string;
 			ean: string;
@@ -75,14 +92,8 @@ export async function listForAdmin(params: AdminListParams): Promise<AdminPage> 
 			ORDER BY products.subtype NULLS FIRST, products.name
 			LIMIT ${ADMIN_PAGE_SIZE} OFFSET ${(page - 1) * ADMIN_PAGE_SIZE}
 		`),
-		db
-			.select({ status: products.status, count: sql<number>`count(*)::int` })
-			.from(products)
-			.groupBy(products.status),
+		adminCounts(),
 	]);
-
-	const counts: Record<Status, number> = { draft: 0, published: 0, archived: 0 };
-	for (const row of countRows) counts[row.status] = row.count;
 	const total = rows.rows[0]?.total ?? 0;
 
 	return {

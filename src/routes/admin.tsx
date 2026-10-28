@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 
+import { AdminTabs } from "@/components/admin/admin-tabs";
 import { ProductRow } from "@/components/admin/product-row";
 import { Button, paperOnRaised } from "@/components/ds/button";
 import { NotFoundPage } from "@/components/error/error-pages";
@@ -27,12 +28,6 @@ export const Route = createFileRoute("/admin")({
 	component: AdminPage,
 });
 
-const TABS = [
-	["draft", "Bozze"],
-	["published", "Pubblicati"],
-	["archived", "Archiviati"],
-] as const;
-
 // What can be done to a selection, by the tab it was made in. The first is the one to do.
 const ACTIONS = {
 	draft: [
@@ -56,9 +51,6 @@ const EMPTY = {
 	published: "Nessun prodotto pubblicato. Approva le bozze per metterle in classifica.",
 	archived: "Nessun prodotto archiviato.",
 } as const;
-
-const tab =
-	"text-body inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-medium no-underline";
 
 function AdminPage() {
 	const params = Route.useSearch();
@@ -85,39 +77,11 @@ function AdminPage() {
 			<main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 pt-14">
 				<h1 className="font-display text-display font-semibold">Gestione prodotti</h1>
 
-				<nav aria-label="Stato dei prodotti">
-					<ul className="flex flex-wrap gap-2">
-						{TABS.map(([status, label]) => {
-							const active = page.status === status;
-							return (
-								<li key={status}>
-									<Link
-										to="/admin"
-										search={{ stato: status === "draft" ? undefined : status }}
-										aria-current={active ? "page" : undefined}
-										onClick={() => setSelected(new Set())}
-										className={cn(
-											tab,
-											active
-												? "bg-text text-ground"
-												: "bg-ground-raised hover:bg-text/10"
-										)}
-									>
-										{label}
-										<span
-											className={cn(
-												"text-small tabular-nums",
-												active ? "text-ground/80" : "text-text-soft"
-											)}
-										>
-											{page.counts[status]}
-										</span>
-									</Link>
-								</li>
-							);
-						})}
-					</ul>
-				</nav>
+				<AdminTabs
+					counts={page.counts}
+					current={page.status}
+					onChange={() => setSelected(new Set())}
+				/>
 
 				{/* A plain GET form: the search is in the URL like everything else. */}
 				<form

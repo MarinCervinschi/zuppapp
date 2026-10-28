@@ -1,6 +1,13 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
-import { facetsFn, getProductCardFn, rankingFn, searchFn, toTasteFn } from "./api";
+import {
+	facetsFn,
+	getProductCardFn,
+	lookupEanFn,
+	rankingFn,
+	searchFn,
+	toTasteFn,
+} from "./api";
 import type { BrowseParams } from "./schemas";
 
 // Filters without the page numbers: each list adds only its own page to its key.
@@ -8,6 +15,13 @@ type Filters = Omit<BrowseParams, "pagina" | "posti" | "mostra" | "righe">;
 type Paging = { page: number; size?: number };
 
 export const catalogQueries = {
+	/** A scanned or typed code: may import the product from Open Food Facts, so fetched once. */
+	lookup: (ean: string) =>
+		queryOptions({
+			queryKey: ["catalog", "lookup", ean],
+			queryFn: () => lookupEanFn({ data: { ean } }),
+			staleTime: Infinity,
+		}),
 	card: (ean: string) =>
 		queryOptions({
 			queryKey: ["catalog", "card", ean],

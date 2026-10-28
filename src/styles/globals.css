@@ -393,6 +393,12 @@
 	}
 
 	/* The only depth in the system: what floats over the content (tab bar, menus, the back button). */
+	/* The scanner's slot: everything around it dimmed, so the eye goes to the barcode. A mask,
+	   not a shadow: it draws nothing outside the camera frame, which clips it. */
+	.viewfinder {
+		box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.35); /* taste-skill-ignore */
+	}
+
 	.float-shadow {
 		/* prettier-ignore */
 		box-shadow: /* taste-skill-ignore */

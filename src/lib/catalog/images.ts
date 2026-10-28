@@ -3,13 +3,15 @@ import { createHash } from "node:crypto";
 
 import type { DbOrTx } from "@/db";
 import { products } from "@/db/schema";
-import { isStorageConfigured, putObject } from "@/lib/storage/s3";
+import { getObject, isStorageConfigured, putObject } from "@/lib/storage/s3";
 
 import { sizedImage } from "./image";
 
 const SIZES = [100, 200, 400, "full"] as const;
 
-async function download(url: string) {
+type Photo = { body: ArrayBuffer; contentType: string };
+
+async function download(url: string): Promise<Photo> {
 	const response = await fetch(url);
 	if (!response.ok) throw new Error(`Image ${url}: ${response.status}`);
 	return {
@@ -26,8 +28,31 @@ async function download(url: string) {
  */
 export async function copyProductImage(db: DbOrTx, ean: string, sourceUrl: string) {
 	if (!isStorageConfigured()) return null;
+	return storeProductImage(db, ean, size =>
+		download(sizedImage(sourceUrl, size) ?? sourceUrl)
+	);
+}
 
-	const medium = await download(sizedImage(sourceUrl, 400) ?? sourceUrl);
+/**
+ * The photo of a report, as the product's: the browser sent it at 400 px and at full size,
+ * and the 400 one stands in for 100 and 200 too.
+ */
+export async function copyReportPhoto(db: DbOrTx, ean: string, photoKey: string) {
+	if (!isStorageConfigured()) return null;
+	return storeProductImage(db, ean, async size => ({
+		body: await getObject(
+			size === "full" ? (sizedImage(photoKey, "full") ?? photoKey) : photoKey
+		),
+		contentType: "image/jpeg",
+	}));
+}
+
+async function storeProductImage(
+	db: DbOrTx,
+	ean: string,
+	read: (size: (typeof SIZES)[number]) => Promise<Photo>
+) {
+	const medium = await read(400);
 	const hash = createHash("sha256")
 		.update(Buffer.from(medium.body))
 		.digest("hex")
@@ -43,8 +68,7 @@ export async function copyProductImage(db: DbOrTx, ean: string, sourceUrl: strin
 	if (product?.imageKey === key) return key;
 
 	for (const size of SIZES) {
-		const image =
-			size === 400 ? medium : await download(sizedImage(sourceUrl, size) ?? sourceUrl);
+		const image = size === 400 ? medium : await read(size);
 		await putObject(keyFor(size), image.body, image.contentType);
 	}
 	await db.update(products).set({ imageKey: key }).where(eq(products.ean, ean));

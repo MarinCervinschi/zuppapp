@@ -36,3 +36,27 @@ export const correctProductSchema = z.object({
 export type ProductCorrection = z.infer<typeof correctProductSchema>;
 /** What the form sends: empty strings, which the schema turns into nulls. */
 export type ProductCorrectionInput = z.input<typeof correctProductSchema>;
+
+const ean = z.string().regex(/^\d{8,14}$/);
+
+/**
+ * What an admin does with the open reports of one EAN: import it from Open Food Facts, create
+ * the draft from what the reports say, close them because the product is already here, or
+ * reject them.
+ */
+export const resolveReportsSchema = z.discriminatedUnion("action", [
+	z.object({ action: z.literal("off"), ean }),
+	z.object({
+		action: z.literal("create"),
+		ean,
+		name: z.string().trim().min(1, "Scrivi il nome del prodotto.").max(160),
+		brand: optionalText(80),
+		quantity: optionalText(40),
+		/** The report photo that becomes the product's, by its 400 px key. */
+		photoKey: z.string().startsWith("segnalazioni/").nullable(),
+	}),
+	z.object({ action: z.literal("close"), ean }),
+	z.object({ action: z.literal("reject"), ean }),
+]);
+export type ResolveReports = z.infer<typeof resolveReportsSchema>;
+export type ResolveReportsInput = z.input<typeof resolveReportsSchema>;

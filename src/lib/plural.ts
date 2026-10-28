@@ -16,3 +16,4 @@ export const ZUPPE: Forms = { one: "zuppa", other: "zuppe" };
 export const MARCHE: Forms = { one: "marca", other: "marche" };
 export const PRODOTTI: Forms = { one: "prodotto", other: "prodotti" };
 export const SELEZIONATI: Forms = { one: "selezionato", other: "selezionati" };
+export const SEGNALAZIONI: Forms = { one: "segnalazione", other: "segnalazioni" };

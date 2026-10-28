@@ -3,8 +3,8 @@ import { toast } from "sonner";
 
 import { PRODOTTI, count } from "@/lib/plural";
 
-import { correctProductFn, setProductsStatusFn } from "./api";
-import type { ProductCorrectionInput } from "./schemas";
+import { correctProductFn, resolveReportsFn, setProductsStatusFn } from "./api";
+import type { ProductCorrectionInput, ResolveReportsInput } from "./schemas";
 
 const STATUS_DONE = {
 	draft: "rimessi in bozza",
@@ -61,6 +61,25 @@ export function useCorrectProduct() {
 		onSuccess: () => {
 			refresh();
 			toast.success("Correzione salvata");
+		},
+		onError: (error: Error) => toast.error(error.message),
+	});
+}
+
+const RESOLVED = {
+	off: "Importata da Open Food Facts: la trovi tra le bozze",
+	create: "Bozza creata: la trovi tra le bozze",
+	close: "Segnalazioni chiuse",
+	reject: "Segnalazioni rifiutate",
+};
+
+export function useResolveReports() {
+	const refresh = useRefresh();
+	return useMutation({
+		mutationFn: (input: ResolveReportsInput) => resolveReportsFn({ data: input }),
+		onSuccess: (_, { action }) => {
+			refresh();
+			toast.success(RESOLVED[action]);
 		},
 		onError: (error: Error) => toast.error(error.message),
 	});

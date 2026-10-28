@@ -17,7 +17,10 @@ import { Route as DesignRouteImport } from './routes/design'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as LeMieZuppeRouteImport } from './routes/le-mie-zuppe'
 import { Route as ProfiloRouteImport } from './routes/profilo'
+import { Route as AdminSegnalazioniRouteImport } from './routes/admin_.segnalazioni'
 import { Route as ProdottiEanRouteImport } from './routes/prodotti/$ean'
+import { Route as ScansionaIndexRouteImport } from './routes/scansiona/index'
+import { Route as ScansionaCodiceRouteImport } from './routes/scansiona/$codice'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -60,9 +63,24 @@ const ProfiloRoute = ProfiloRouteImport.update({
   path: '/profilo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSegnalazioniRoute = AdminSegnalazioniRouteImport.update({
+  id: '/admin_/segnalazioni',
+  path: '/admin/segnalazioni',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProdottiEanRoute = ProdottiEanRouteImport.update({
   id: '/prodotti/$ean',
   path: '/prodotti/$ean',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScansionaIndexRoute = ScansionaIndexRouteImport.update({
+  id: '/scansiona/',
+  path: '/scansiona/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScansionaCodiceRoute = ScansionaCodiceRouteImport.update({
+  id: '/scansiona/$codice',
+  path: '/scansiona/$codice',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -80,7 +98,10 @@ export interface FileRoutesByFullPath {
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
   '/profilo': typeof ProfiloRoute
+  '/admin/segnalazioni': typeof AdminSegnalazioniRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
+  '/scansiona/$codice': typeof ScansionaCodiceRoute
+  '/scansiona/': typeof ScansionaIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -92,7 +113,10 @@ export interface FileRoutesByTo {
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
   '/profilo': typeof ProfiloRoute
+  '/admin/segnalazioni': typeof AdminSegnalazioniRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
+  '/scansiona/$codice': typeof ScansionaCodiceRoute
+  '/scansiona': typeof ScansionaIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -105,7 +129,10 @@ export interface FileRoutesById {
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
   '/profilo': typeof ProfiloRoute
+  '/admin_/segnalazioni': typeof AdminSegnalazioniRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
+  '/scansiona/$codice': typeof ScansionaCodiceRoute
+  '/scansiona/': typeof ScansionaIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -119,7 +146,10 @@ export interface FileRouteTypes {
     | '/health'
     | '/le-mie-zuppe'
     | '/profilo'
+    | '/admin/segnalazioni'
     | '/prodotti/$ean'
+    | '/scansiona/$codice'
+    | '/scansiona/'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -131,7 +161,10 @@ export interface FileRouteTypes {
     | '/health'
     | '/le-mie-zuppe'
     | '/profilo'
+    | '/admin/segnalazioni'
     | '/prodotti/$ean'
+    | '/scansiona/$codice'
+    | '/scansiona'
     | '/api/auth/$'
   id:
     | '__root__'
@@ -143,7 +176,10 @@ export interface FileRouteTypes {
     | '/health'
     | '/le-mie-zuppe'
     | '/profilo'
+    | '/admin_/segnalazioni'
     | '/prodotti/$ean'
+    | '/scansiona/$codice'
+    | '/scansiona/'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -156,7 +192,10 @@ export interface RootRouteChildren {
   HealthRoute: typeof HealthRoute
   LeMieZuppeRoute: typeof LeMieZuppeRoute
   ProfiloRoute: typeof ProfiloRoute
+  AdminSegnalazioniRoute: typeof AdminSegnalazioniRoute
   ProdottiEanRoute: typeof ProdottiEanRoute
+  ScansionaCodiceRoute: typeof ScansionaCodiceRoute
+  ScansionaIndexRoute: typeof ScansionaIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -218,11 +257,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfiloRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin_/segnalazioni': {
+      id: '/admin_/segnalazioni'
+      path: '/admin/segnalazioni'
+      fullPath: '/admin/segnalazioni'
+      preLoaderRoute: typeof AdminSegnalazioniRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/prodotti/$ean': {
       id: '/prodotti/$ean'
       path: '/prodotti/$ean'
       fullPath: '/prodotti/$ean'
       preLoaderRoute: typeof ProdottiEanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scansiona/': {
+      id: '/scansiona/'
+      path: '/scansiona'
+      fullPath: '/scansiona/'
+      preLoaderRoute: typeof ScansionaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scansiona/$codice': {
+      id: '/scansiona/$codice'
+      path: '/scansiona/$codice'
+      fullPath: '/scansiona/$codice'
+      preLoaderRoute: typeof ScansionaCodiceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -244,7 +304,10 @@ const rootRouteChildren: RootRouteChildren = {
   HealthRoute: HealthRoute,
   LeMieZuppeRoute: LeMieZuppeRoute,
   ProfiloRoute: ProfiloRoute,
+  AdminSegnalazioniRoute: AdminSegnalazioniRoute,
   ProdottiEanRoute: ProdottiEanRoute,
+  ScansionaCodiceRoute: ScansionaCodiceRoute,
+  ScansionaIndexRoute: ScansionaIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

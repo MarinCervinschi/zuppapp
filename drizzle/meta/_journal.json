@@ -43,6 +43,13 @@
       "when": 1793110566499,
       "tag": "0005_five_stars",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793186048302,
+      "tag": "0006_product_requests",
+      "breakpoints": true
     }
   ]
 }

@@ -26,13 +26,23 @@ export const PRODUCT_FIELDS = [
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function getJson<T>(url: string): Promise<T | null> {
+type ReadOptions = {
+	/** Give up on one request after this long; none by default, as a script can wait. */
+	timeoutMs?: number;
+	retries?: number;
+};
+
+async function getJson<T>(url: string, options: ReadOptions = {}): Promise<T | null> {
+	const retries = options.retries ?? RETRIES;
 	for (let attempt = 0; ; attempt++) {
-		const response = await fetch(url, { headers: { "User-Agent": USER_AGENT } });
+		const response = await fetch(url, {
+			headers: { "User-Agent": USER_AGENT },
+			signal: options.timeoutMs ? AbortSignal.timeout(options.timeoutMs) : undefined,
+		});
 		if (response.status === 404) return null;
 		if (response.ok) return (await response.json()) as T;
 		// 429 and 503 are Open Food Facts asking us to slow down: back off and try again.
-		if (attempt < RETRIES && (response.status === 429 || response.status >= 500)) {
+		if (attempt < retries && (response.status === 429 || response.status >= 500)) {
 			await sleep(2000 * 2 ** attempt);
 			continue;
 		}
@@ -61,13 +71,21 @@ export async function* discoverSoupCodes(pageSize = 100): AsyncGenerator<string>
 
 let lastProductRead = 0;
 
-export async function fetchProduct(ean: string): Promise<OffProduct | null> {
+/**
+ * One product by code, through the product API. A scan in the app passes a short timeout and
+ * no retries: the person holding the phone should not wait for Open Food Facts to recover.
+ */
+export async function fetchProduct(
+	ean: string,
+	options: ReadOptions = {}
+): Promise<OffProduct | null> {
 	const wait = lastProductRead + PRODUCT_INTERVAL_MS - Date.now();
 	if (wait > 0) await sleep(wait);
 	lastProductRead = Date.now();
 
 	const result = await getJson<{ status: number; product?: OffProduct }>(
-		`https://world.openfoodfacts.org/api/v2/product/${ean}?fields=${PRODUCT_FIELDS}`
+		`https://world.openfoodfacts.org/api/v2/product/${ean}?fields=${PRODUCT_FIELDS}`,
+		options
 	);
 	return result?.status === 1 && result.product ? result.product : null;
 }

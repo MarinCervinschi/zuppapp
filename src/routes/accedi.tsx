@@ -19,10 +19,11 @@ export const Route = createFileRoute("/accedi")({
 	component: SignIn,
 });
 
-// Only what an account really gives today; the duel and the reports join when they exist.
+// Only what an account really gives today; the duel joins when it exists.
 const REASONS = [
 	"I tuoi voti ti seguono su ogni telefono e computer.",
 	"Scegli il tuo nome e la tua faccia.",
+	"Ci mandi le zuppe che ancora non abbiamo.",
 ];
 
 function SignIn() {

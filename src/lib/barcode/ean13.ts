@@ -58,6 +58,20 @@ export function ean13CheckDigit(first12: string): number {
 	return (10 - (sum % 10)) % 10;
 }
 
+/**
+ * Whether an EAN-8, UPC-A, EAN-13 or GTIN-14 ends with the right check digit: a camera that
+ * misreads one bar gets caught here. Weights are 3 and 1 from the right, whatever the length.
+ */
+export function isValidGtin(code: string): boolean {
+	if (!/^(\d{8}|\d{12,14})$/.test(code)) return false;
+	const digits = [...code].map(Number);
+	const check = digits.pop()!;
+	const sum = digits
+		.reverse()
+		.reduce((total, digit, index) => total + digit * (index % 2 === 0 ? 3 : 1), 0);
+	return (10 - (sum % 10)) % 10 === check;
+}
+
 /** The 95 modules of an EAN-13, as "1" for a bar and "0" for a space; null for anything else. */
 export function ean13Modules(ean: string): string | null {
 	if (!/^\d{13}$/.test(ean)) return null;
