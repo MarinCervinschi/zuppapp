@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
@@ -12,6 +14,7 @@ import { SearchBox } from "@/components/catalog/search-box";
 import { TasteTile } from "@/components/catalog/taste-tile";
 import { buttonClass } from "@/components/ds/button";
 import { PageHead } from "@/components/ds/page-head";
+import { track } from "@/lib/analytics/track";
 import { zuppe } from "@/lib/catalog/labels";
 import { catalogQueries } from "@/lib/catalog/queries";
 import {
@@ -123,6 +126,20 @@ function Results({ params, page, size }: ListProps) {
 		...filters
 	} = params;
 	const { data, isFetching } = useQuery(catalogQueries.search(filters, { page, size }));
+
+	// A search that finds nothing, counted once the reader stops typing: not the words, which
+	// could be anything, only that it happened.
+	const empty = Boolean(params.q) && data?.total === 0;
+	const filterCount = activeFilterCount(params);
+	useEffect(() => {
+		if (!empty) return;
+		const timer = setTimeout(
+			() => track("ricerca_vuota", { filtri: filterCount }),
+			2000
+		);
+		return () => clearTimeout(timer);
+	}, [empty, params.q, filterCount]);
+
 	if (!data) return null;
 
 	const heading = params.q

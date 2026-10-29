@@ -5,6 +5,7 @@ import * as m from "motion/react-m";
 import { toast } from "sonner";
 
 import { StarPicker } from "@/components/ds/stars";
+import { track } from "@/lib/analytics/track";
 import type { ProductCard } from "@/lib/catalog/types";
 import type { Score } from "@/lib/ranking/rules";
 import { SCORE_LABELS } from "@/lib/ranking/rules";
@@ -39,8 +40,14 @@ export function useVote(product: ProductCard) {
 			castVote.mutate(
 				{ productId: product.id, score: nextScore, tagIds: nextTags },
 				{
-					onSuccess: () => {
+					onSuccess: ({ firstVote }) => {
 						saved.current = { score: nextScore, tagIds: nextTags };
+						track("voto", {
+							stelle: nextScore,
+							nuovo: previous.score === null,
+							primo: firstVote,
+							tag: nextTags.length,
+						});
 					},
 					onError: () => {
 						setScore(previous.score);

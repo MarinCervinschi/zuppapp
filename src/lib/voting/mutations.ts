@@ -6,10 +6,10 @@ import { turnstileToken } from "@/lib/auth/turnstile";
 
 import { castVoteFn, removeVoteFn } from "./api";
 
-/** The first vote of someone with no session creates their anonymous voter. */
+/** The first vote of someone with no session creates their anonymous voter: true when it did. */
 async function ensureVoter() {
 	const { data: session } = await authClient.getSession();
-	if (session) return;
+	if (session) return false;
 
 	const token = await turnstileToken();
 	const { error } = await authClient.signIn.anonymous({
@@ -19,6 +19,7 @@ async function ensureVoter() {
 		throw new Error(
 			"Il voto non è partito. Controlla la connessione e tocca di nuovo le stelle."
 		);
+	return true;
 }
 
 export function useCastVote(ean?: string) {
@@ -30,8 +31,9 @@ export function useCastVote(ean?: string) {
 			score: number;
 			tagIds?: string[];
 		}) => {
-			await ensureVoter();
+			const firstVote = await ensureVoter();
 			await castVoteFn({ data: input });
+			return { firstVote };
 		},
 		// From a list tile the ranking may change, but the shelf under the reader's thumb stays
 		// put: refetching it would move the tile they just tapped.

@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { track } from "@/lib/analytics/track";
+
 import { setFavoriteFn } from "./api";
 import { favoriteQueries } from "./queries";
 
@@ -23,6 +25,8 @@ export function useSetFavorite() {
 			);
 			return { previous };
 		},
+		onSuccess: (_result, { on }) =>
+			track("preferito", { azione: on ? "aggiunto" : "tolto" }),
 		onError: (_error, _input, context) => {
 			queryClient.setQueryData(key, context?.previous);
 			toast.error("Il cuore non è stato salvato. Controlla la connessione e riprova.");

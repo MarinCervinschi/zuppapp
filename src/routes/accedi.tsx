@@ -6,6 +6,7 @@ import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { SoupField } from "@/components/ds/soup-field";
 import { GoogleButton } from "@/components/user/google-button";
 import { LoyaltyCard } from "@/components/user/loyalty-card";
+import { track } from "@/lib/analytics/track";
 import { authClient } from "@/lib/auth/client";
 import { VOTI, count } from "@/lib/plural";
 import { userQueries } from "@/lib/user/queries";
@@ -37,6 +38,7 @@ function SignIn() {
 	async function signIn() {
 		setPending(true);
 		setError(null);
+		track("accesso", { anonimo: Boolean(viewer?.isAnonymous), voti: votes });
 		const { error } = await authClient.signIn.social({
 			provider: "google",
 			callbackURL: "/profilo",

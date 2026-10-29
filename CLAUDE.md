@@ -55,6 +55,8 @@ Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segr
   di Open Food Facts.
 - Analytics: Umami self-hosted su cervinschi-hub, senza cookie. Lo script entra nel `head` di `__root` solo se
   `UMAMI_SCRIPT_URL` e `UMAMI_WEBSITE_ID` sono impostate (solo in `prod`), lette all'avvio da `umamiFn`.
+  Eventi personalizzati con `track` (`src/lib/analytics/track.ts`, nomi e proprietà tipizzati): mai id, email
+  o testo scritto da chi usa l'app.
 - `src/lib/catalog/import.ts`: i prodotti nuovi entrano come `draft`; le correzioni a mano stanno in
   `products.overrides` (con la stessa chiave della colonna) e il sync non le tocca; si salva uno snapshot
   nuovo solo se l'etichetta cambia, e ingredienti diversi segnano `recipeChangedAt`.
