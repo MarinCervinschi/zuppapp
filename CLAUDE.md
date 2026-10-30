@@ -3,6 +3,8 @@
 Vota le zuppe pronte con le stelle (1–5) e dei tag. Prodotto e decisioni: `SPEC.md`.
 TanStack Start (React 19, Vite, Nitro) · Drizzle · Better Auth · ParadeDB. Stesse convenzioni di
 TriviaMore: tab + punto e virgola (Prettier), `@/` per `src/`, testi UI in italiano.
+Stack: web-ts 3 (plugin `stack-web-ts`), più ParadeDB per la ricerca; le migrazioni si applicano all'avvio
+(vedi «Produzione»).
 
 ## Comandi
 
@@ -93,3 +95,51 @@ Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segr
   dalla media globale.
 - Un `AppError` (`src/lib/server/errors.ts`) arriva all'utente col suo messaggio; ogni altro errore
   viene sostituito da uno generico.
+
+## Controllo di una feature
+
+Il giro dopo una feature o una modifica alla UI è `method:feature-review`. In Zuppapp si fa così:
+
+- Server: `preview_start` con `zuppapp-local-3002` (`.claude/launch.json`: `.env` e il ParadeDB locale, con
+  `BETTER_AUTH_URL` sulla 3002 così l'accesso funziona). Se manca, si aggiunge con
+  `"env": {"BETTER_AUTH_URL": "http://localhost:3002"}`, `--strictPort` e `"autoPort": false`. **Mai `pnpm dev`
+  né la configurazione `zuppapp`**: leggono Infisical `dev`, cioè il database di produzione. Prima `pnpm db:up`,
+  poi `pnpm db:migrate` se ci sono migrazioni nuove.
+- taste-skill (`taste-skill:design-taste-frontend`, solo revisione: niente draw, niente redesign): i comandi di
+  `DESIGN.md` § «Controlli», con `--out .taste-skill/inspect-<rotta>`, una rotta per volta, comprese quelle con
+  parametri (`/scansiona/8009999999991`). La rotta di riferimento è `/classifica`. Le eccezioni volute sono
+  utility con un nome in `src/styles/globals.css` con `taste-skill-ignore` sulla riga, mai stili inline nei
+  componenti.
+- ui-ux-pro-max: nessun design system da generare, c'è già `DESIGN.md`. I testi seguono la sua «Voce».
+- Le correzioni usano il codice del progetto (token, `buttonClass`, `paperOnRaised`, `cn`), poi
+  `pnpm exec prettier --write` sui file toccati. Verifica: `pnpm typecheck` e `pnpm test`; `pnpm build` se
+  cambiano dipendenze, import di asset o configurazione.
+- Flussi con login o admin: un utente di prova, promosso solo nel database locale e solo per la prova, poi
+  rimesso com'era, cancellando i dati di prova:
+
+  ```sql
+  update users set is_anonymous=false, role='admin' where id='<id>';  -- prima
+  update users set is_anonymous=true,  role='user'  where id='<id>';  -- dopo
+  ```
+
+  Dopo ogni cambio, `/api/auth/get-session?disableCookieCache=true` dal browser, se no la sessione resta in cache
+  per 5 minuti. `docker exec zuppapp-db-1 psql …` conferma che l'host è quello locale.
+- Il resoconto è in italiano. Di solito restano da provare la fotocamera vera e le foto senza bucket S3.
+
+## Skill
+
+Le skill arrivano dai plugin abilitati in `.claude/settings.json` e si chiamano `plugin:skill`. Su una macchina
+nuova ogni plugin si installa una volta: `claude plugin install <plugin>@<marketplace> --scope project`.
+
+- Tabelle, colonne, enum, indici, relazioni, migrazioni → `stack-web-ts:drizzle-schema` (e mai `drizzle-kit push`)
+- Server function, servizi, query, middleware, errori → `stack-web-ts:server-functions`
+- Una migrazione o un input che non deve rompere la versione in produzione → `method:safe-changes`
+- Commenti → `method:code-comments`
+- Testi che legge qualcun altro (UI, errori, commit, documenti) → `method:plain-writing`, con la «Voce» di
+  `DESIGN.md`
+- Struttura del codice, «dove va questo?», «è troppo?» → `method:design-principles`
+- Una feature grande da decidere prima di scriverla → `method:spec-interview`
+- Giro di controllo dopo una feature o una modifica alla UI («il solito giro di check») → `method:feature-review`,
+  con le regole di «Controllo di una feature» qui sopra
+- Prima di un commit → `method:pre-pr-checklist`
+- Un segreto nuovo → `platform:add-secret`; un bucket nuovo → `platform:garage-bucket`
