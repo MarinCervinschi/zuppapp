@@ -141,3 +141,11 @@ nuova ogni plugin si installa una volta: `claude plugin install <plugin>@<market
 - Giro di controllo dopo una feature o una modifica alla UI («il solito giro di check») → `method:feature-review`,
   con le regole di «Controllo di una feature» qui sopra
 - Prima di un commit → `method:pre-pr-checklist`
+
+## Scansione pubblica
+
+Ogni push passa `scripts/check-public.sh` da `.githooks/pre-push` (da abilitare una volta per clone:
+`git config core.hooksPath .githooks`). Blocca segreti, indirizzi, id e nomi privati in ogni file che il push
+porta, e si ferma con exit code 2 se `CLAUDE_KIT_DENYLIST` non punta alla deny list privata. Le impostazioni sono
+in `.check-public`, dove una riga `allow` copre un valore pubblicato apposta; lo script è una copia di quello di
+`claude-kit`, e le modifiche si fanno lì.

@@ -1,0 +1,12 @@
+# Settings for scripts/check-public.sh, a copy of the scan in MarinCervinschi/claude-kit (edit it there).
+# The pre-push hook in .githooks/ runs it on every file a push carries.
+ignore drizzle/meta/*.json
+ignore pnpm-lock.yaml
+warn em dash
+# The site's own domain, public on purpose.
+allow-name cervinschi\.site
+# The Infisical project id the CLI reads; Infisical documents the file as safe to commit.
+allow ^dd8fcfb6-66ce-4051-8590-022ea2e9a45c$ in .infisical.json
+# A made-up user id in two tests, and the usage example of user-admin.
+allow ^de71e6a1-0329-4f37-b576-33c4783e20f2$ in src/lib/*/*.test.ts
+allow ^persona@gmail\.com$ in scripts/user-admin.ts
