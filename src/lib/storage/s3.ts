@@ -1,6 +1,6 @@
 import { AwsClient } from "aws4fetch";
 
-// Any S3 API with path-style addresses: Garage on savvy today. Server and scripts only: it
+// Any S3 API with path-style addresses: Garage today. Server and scripts only: it
 // needs the secret key.
 
 function config() {

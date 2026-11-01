@@ -16,12 +16,11 @@ qualche tag, senza recensioni lunghe. Si vota anche senza account.
 
 ## Documenti
 
-|                                    |                                                                     |
-| ---------------------------------- | ------------------------------------------------------------------- |
-| [SPEC.md](SPEC.md)                 | decisioni di prodotto e modello dati                                |
-| [DESIGN.md](DESIGN.md)             | design system e regole per ogni schermata; dal vivo sulla `/design` |
-| [CLAUDE.md](CLAUDE.md)             | comandi e architettura del codice                                   |
-| [infra/README.md](infra/README.md) | produzione: Terraform, Coolify, Infisical                           |
+|                        |                                                                     |
+| ---------------------- | ------------------------------------------------------------------- |
+| [SPEC.md](SPEC.md)     | decisioni di prodotto e modello dati                                |
+| [DESIGN.md](DESIGN.md) | design system e regole per ogni schermata; dal vivo sulla `/design` |
+| [CLAUDE.md](CLAUDE.md) | comandi e architettura del codice                                   |
 
 ## Avvio in locale
 

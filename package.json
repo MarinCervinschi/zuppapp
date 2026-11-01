@@ -23,10 +23,7 @@
 		"catalog:import": "infisical run --silent -- tsx --tsconfig tsconfig.json scripts/catalog-import.ts",
 		"icons": "node scripts/make-icons.mjs",
 		"user:admin": "infisical run --silent -- tsx --tsconfig tsconfig.json scripts/user-admin.ts",
-		"db:seed:votes": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/seed-dev-votes.ts",
-		"infra:plan": "bash infra/run.sh prod plan",
-		"infra:apply": "bash infra/run.sh prod apply",
-		"infra:output": "bash infra/run.sh prod output"
+		"db:seed:votes": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/seed-dev-votes.ts"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [

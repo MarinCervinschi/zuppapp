@@ -15,7 +15,6 @@ Stack: web-ts 3 (plugin `stack-web-ts`), più ParadeDB per la ricerca; le migraz
 | `pnpm db:migrate`                                  | applica le migrazioni                                                                                                                                                                                      |
 | `pnpm dev`                                         | dev server su :3000 con l'ambiente `dev` di Infisical: **il database di produzione**, via Tailscale                                                                                                        |
 | `pnpm dev:local`                                   | dev server su :3000 con `.env` e il ParadeDB locale                                                                                                                                                        |
-| `pnpm infra:plan` · `infra:apply` · `infra:output` | Terraform di produzione (`infra/README.md`): Infisical, Coolify, DNS                                                                                                                                       |
 | `pnpm user:admin <email>`                          | rende admin un account Google già entrato una volta (`--revoke` per togliere)                                                                                                                              |
 | `pnpm db:seed`                                     | 4 prodotti d'esempio (EAN 2…, mai reali); come `db:seed:votes` e `--publish`, rifiuta un database non locale                                                                                               |
 | `pnpm db:seed:votes`                               | 60 votanti finti su 45 prodotti, per vedere podio e classifica in locale                                                                                                                                   |
@@ -28,7 +27,7 @@ cancellerebbe. Ogni modifica passa da `generate` + `migrate`.
 
 ## Produzione
 
-Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segreti al build; all'avvio
+Coolify, con il deploy in Terraform in una repo privata. L'immagine (`Dockerfile`) non legge segreti al build; all'avvio
 `docker-entrypoint.sh` entra in Infisical con l'identità `zuppapp-app`, applica le migrazioni
 (`scripts/migrate.mjs`) e poi avvia il server. Una sola istanza.
 
@@ -51,11 +50,11 @@ Coolify su savvy (`infra/`, Terraform). L'immagine (`Dockerfile`) non legge segr
 - `src/lib/off/` legge Open Food Facts: Search-a-licious solo per scoprire i codici (la ricerca classica
   risponde 503 e le sue copie sono vecchie), l'API prodotto per i dati, al massimo 100 letture al minuto,
   con uno User-Agent che identifica l'app. `map.ts` è puro e testato.
-- Foto: `copyProductImage` (`src/lib/catalog/images.ts`) le copia nel bucket S3 di Garage (repo `cervinschi-infra`,
-  variabili `S3_*` in Infisical) nei 4 formati di Open Food Facts, `<hash>.400.jpg`, così `sizedImage` vale per
+- Foto: `copyProductImage` (`src/lib/catalog/images.ts`) le copia nel bucket S3 di Garage (variabili
+  `S3_*` in Infisical) nei 4 formati di Open Food Facts, `<hash>.400.jpg`, così `sizedImage` vale per
   entrambi gli URL. `pnpm catalog:import --images` copia quelle dei prodotti già presenti; senza `S3_*` si usa l'URL
   di Open Food Facts.
-- Analytics: Umami self-hosted su cervinschi-hub, senza cookie. Lo script entra nel `head` di `__root` solo se
+- Analytics: Umami self-hosted, senza cookie. Lo script entra nel `head` di `__root` solo se
   `UMAMI_SCRIPT_URL` e `UMAMI_WEBSITE_ID` sono impostate (solo in `prod`), lette all'avvio da `umamiFn`.
   Eventi personalizzati con `track` (`src/lib/analytics/track.ts`, nomi e proprietà tipizzati): mai id, email
   o testo scritto da chi usa l'app.
@@ -142,4 +141,3 @@ nuova ogni plugin si installa una volta: `claude plugin install <plugin>@<market
 - Giro di controllo dopo una feature o una modifica alla UI («il solito giro di check») → `method:feature-review`,
   con le regole di «Controllo di una feature» qui sopra
 - Prima di un commit → `method:pre-pr-checklist`
-- Un segreto nuovo → `platform:add-secret`; un bucket nuovo → `platform:garage-bucket`
