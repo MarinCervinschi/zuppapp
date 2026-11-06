@@ -18,8 +18,9 @@ export const Route = createFileRoute("/preferiti")({
 	},
 	validateSearch: favoritesPageSchema,
 	loaderDeps: ({ search }) => search,
+	// Fetched again when stale, like "Le mie zuppe": a heart taken off elsewhere is gone here.
 	loader: ({ context, deps }) =>
-		context.queryClient.ensureQueryData(favoriteQueries.page(deps.pagina ?? 1)),
+		context.queryClient.fetchQuery(favoriteQueries.page(deps.pagina ?? 1)),
 	head: () => ({ meta: [{ title: "Preferiti · Zuppapp" }] }),
 	component: Favorites,
 });
@@ -58,7 +59,8 @@ function Favorites() {
 					>
 						{data.items.map(product => (
 							<li key={product.id}>
-								<TasteTile product={product} />
+								{/* Keyed by the reader's vote: when a fresh list brings a vote cast elsewhere, the tile starts from it. */}
+								<TasteTile key={product.myScore ?? 0} product={product} />
 							</li>
 						))}
 					</ul>

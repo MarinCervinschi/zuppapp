@@ -247,7 +247,8 @@ function Grid({
 		>
 			{items.map(product => (
 				<li key={product.id}>
-					<TasteTile product={product} />
+					{/* Keyed by the reader's vote: when a fresh list brings a vote cast elsewhere, the tile starts from it. */}
+					<TasteTile key={product.myScore ?? 0} product={product} />
 				</li>
 			))}
 		</ul>

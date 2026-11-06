@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { type QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth/client";
@@ -22,6 +22,26 @@ async function ensureVoter() {
 	return true;
 }
 
+/**
+ * After a vote is cast or removed, everything that shows stars or the reader's votes is stale:
+ * the product's card, every list, "Le mie zuppe" and the counts in the profile. The lists are
+ * only marked, not refetched now: the shelf under the reader's thumb would move the tile they
+ * just tapped. They load fresh the next time they are opened. The ranking, which a vote can
+ * reorder, and the product's own page refetch at once. The scanner's lookup is left alone:
+ * refetching it would ask Open Food Facts again.
+ */
+function refreshAfterVote(queryClient: QueryClient, ean?: string) {
+	queryClient.invalidateQueries({
+		predicate: query =>
+			query.queryKey[0] === "catalog" && query.queryKey[1] !== "lookup",
+		refetchType: "none",
+	});
+	queryClient.invalidateQueries({
+		queryKey: ean ? ["catalog", "card", ean] : ["catalog", "ranking"],
+	});
+	queryClient.invalidateQueries({ queryKey: ["viewer"] });
+}
+
 export function useCastVote(ean?: string) {
 	const queryClient = useQueryClient();
 
@@ -35,15 +55,8 @@ export function useCastVote(ean?: string) {
 			await castVoteFn({ data: input });
 			return { firstVote };
 		},
-		// From a list tile the ranking may change, but the shelf under the reader's thumb stays
-		// put: refetching it would move the tile they just tapped.
-		onSuccess: () => {
-			queryClient.invalidateQueries({
-				queryKey: ean ? ["catalog", "card", ean] : ["catalog", "ranking"],
-			});
-			// The first vote creates the voter, and every vote changes "Le mie zuppe".
-			queryClient.invalidateQueries({ queryKey: ["viewer"] });
-		},
+		// The first vote also creates the voter: the viewer is in what gets refreshed.
+		onSuccess: () => refreshAfterVote(queryClient, ean),
 		onError: (error: Error) => toast.error(error.message),
 	});
 }
@@ -53,8 +66,7 @@ export function useRemoveVote(ean: string) {
 
 	return useMutation({
 		mutationFn: (productId: string) => removeVoteFn({ data: { productId } }),
-		onSuccess: () =>
-			queryClient.invalidateQueries({ queryKey: ["catalog", "card", ean] }),
+		onSuccess: () => refreshAfterVote(queryClient, ean),
 		onError: (error: Error) => toast.error(error.message),
 	});
 }

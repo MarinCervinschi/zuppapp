@@ -19,10 +19,16 @@ const DONE_ONE = {
 
 function useRefresh() {
 	const queryClient = useQueryClient();
-	// The public catalogue changes too when a product is published or corrected.
+	// The public catalogue changes too when a product is published or corrected, and so do the
+	// reader's own lists ("Le mie zuppe", "Preferiti"), which show the same names and photos.
+	// The scanner's lookup is left alone: refetching it would ask Open Food Facts again.
 	return () => {
 		queryClient.invalidateQueries({ queryKey: ["admin"] });
-		queryClient.invalidateQueries({ queryKey: ["catalog"] });
+		queryClient.invalidateQueries({
+			predicate: query =>
+				query.queryKey[0] === "catalog" && query.queryKey[1] !== "lookup",
+		});
+		queryClient.invalidateQueries({ queryKey: ["viewer"] });
 	};
 }
 
