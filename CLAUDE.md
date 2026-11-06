@@ -8,19 +8,19 @@ Stack: web-ts 3 (plugin `stack-web-ts`), più ParadeDB per la ricerca; le migraz
 
 ## Comandi
 
-|                                                    |                                                                                                                                                                                                            |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm db:up` / `pnpm db:down`                      | ParadeDB locale (`compose.yaml`, porta 54330)                                                                                                                                                              |
-| `pnpm db:generate --name x`                        | migrazione dallo schema Drizzle                                                                                                                                                                            |
-| `pnpm db:migrate`                                  | applica le migrazioni                                                                                                                                                                                      |
-| `pnpm dev`                                         | dev server su :3000 con l'ambiente `dev` di Infisical: **il database di produzione**, via Tailscale                                                                                                        |
-| `pnpm dev:local`                                   | dev server su :3000 con `.env` e il ParadeDB locale                                                                                                                                                        |
-| `pnpm user:admin <email>`                          | rende admin un account Google già entrato una volta (`--revoke` per togliere)                                                                                                                              |
-| `pnpm db:seed`                                     | 4 prodotti d'esempio (EAN 2…, mai reali); come `db:seed:votes` e `--publish`, rifiuta un database non locale                                                                                               |
-| `pnpm db:seed:votes`                               | 60 votanti finti su 45 prodotti, per vedere podio e classifica in locale                                                                                                                                   |
-| `pnpm catalog:import`                              | zuppe italiane da Open Food Facts come bozze, sull'ambiente `dev` di Infisical (la produzione): `--sync` aggiorna quelle già presenti, `--ean a,b`, `--limit n`, `--dry-run`, `--publish` (solo in locale) |
-| `pnpm icons`                                       | rigenera favicon e icone in `public/` (`scripts/make-icons.mjs`)                                                                                                                                           |
-| `pnpm test` · `pnpm typecheck` · `pnpm build`      |                                                                                                                                                                                                            |
+|                                               |                                                                                                                                                                                                            |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:up` / `pnpm db:down`                 | ParadeDB locale (`compose.yaml`, porta 54330)                                                                                                                                                              |
+| `pnpm db:generate --name x`                   | migrazione dallo schema Drizzle                                                                                                                                                                            |
+| `pnpm db:migrate`                             | applica le migrazioni                                                                                                                                                                                      |
+| `pnpm dev`                                    | dev server su :3000 con l'ambiente `dev` di Infisical: **il database di produzione**, via Tailscale                                                                                                        |
+| `pnpm dev:local`                              | dev server su :3000 con `.env` e il ParadeDB locale                                                                                                                                                        |
+| `pnpm user:admin <email>`                     | rende admin un account Google già entrato una volta (`--revoke` per togliere)                                                                                                                              |
+| `pnpm db:seed`                                | 4 prodotti d'esempio (EAN 2…, mai reali); come `db:seed:votes` e `--publish`, rifiuta un database non locale                                                                                               |
+| `pnpm db:seed:votes`                          | 60 votanti finti su 45 prodotti, per vedere podio e classifica in locale                                                                                                                                   |
+| `pnpm catalog:import`                         | zuppe italiane da Open Food Facts come bozze, sull'ambiente `dev` di Infisical (la produzione): `--sync` aggiorna quelle già presenti, `--ean a,b`, `--limit n`, `--dry-run`, `--publish` (solo in locale) |
+| `pnpm icons`                                  | rigenera favicon e icone in `public/` (`scripts/make-icons.mjs`)                                                                                                                                           |
+| `pnpm test` · `pnpm typecheck` · `pnpm build` |                                                                                                                                                                                                            |
 
 **Mai `drizzle-kit push`**: non conosce l'indice BM25 di `drizzle/0001_search_index.sql` e lo
 cancellerebbe. Ogni modifica passa da `generate` + `migrate`.
@@ -78,7 +78,11 @@ Coolify, con il deploy in Terraform in una repo privata. L'immagine (`Dockerfile
   non chiede foto. In `/admin/segnalazioni` si risolvono tutte quelle di un EAN insieme, e le foto si cancellano.
 - Admin: `/admin` risponde 404 a chiunque non sia admin (`isAdminFn` in `beforeLoad`), e ogni server
   function di `src/lib/admin/` ricontrolla con `adminMiddleware`. Le correzioni di nome, marca e tipo
-  finiscono in `overrides`.
+  finiscono in `overrides`. Ricerca (testo o inizio dell'EAN) e filtri (`tipo`, `foto`, `voti`, `corretti`,
+  `ordine`) stanno nell'URL (`adminListSchema`).
+- Cache: dopo un voto o un voto tolto, `refreshAfterVote` (`src/lib/voting/mutations.ts`) segna vecchie tutte le
+  query `catalog` (non `lookup`) e `viewer`. Le pagine personali e la scheda caricano con `fetchQuery`, non
+  `ensureQueryData`, così una query vecchia si riprende prima di mostrarla.
 - Utente: `src/lib/user/` (`viewerFn` legge dal database, non dalla cache di 5 minuti della sessione, così
   nome e avatar cambiano subito; `myVotesFn` per «Le mie zuppe»). Il visitatore è precaricato nel loader di
   `__root`. Pagine `/accedi`, `/profilo`, `/le-mie-zuppe`, `/preferiti`.
@@ -123,6 +127,7 @@ Il giro dopo una feature o una modifica alla UI è `method:feature-review`. In Z
 
   Dopo ogni cambio, `/api/auth/get-session?disableCookieCache=true` dal browser, se no la sessione resta in cache
   per 5 minuti. `docker exec zuppapp-db-1 psql …` conferma che l'host è quello locale.
+
 - Il resoconto è in italiano. Di solito restano da provare la fotocamera vera e le foto senza bucket S3.
 
 ## Skill

@@ -1,11 +1,20 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ds/button";
+import { CheckIcon } from "@/components/ds/icons";
 import { useSetNickname } from "@/lib/user/mutations";
 import { NICKNAME_MAX, NICKNAME_MIN, nicknameSchema } from "@/lib/user/schemas";
+import { cn } from "@/lib/utils";
 
 /** The public name. Checked here with the server's own rule, so the message sits by the field. */
-export function NicknameForm({ current }: { current: string | null }) {
+export function NicknameForm({
+	current,
+	onRaised = false,
+}: {
+	current: string | null;
+	/** On a raised panel the field steps down to the ground, or it would vanish into it. */
+	onRaised?: boolean;
+}) {
 	const save = useSetNickname();
 	const [error, setError] = useState<string | null>(null);
 
@@ -44,9 +53,13 @@ export function NicknameForm({ current }: { current: string | null }) {
 					autoComplete="nickname"
 					aria-invalid={error ? true : undefined}
 					aria-describedby={error ? "nickname-help nickname-error" : "nickname-help"}
-					className="bg-ground-raised text-body placeholder:text-text-soft min-h-12 w-full rounded-full px-5"
+					className={cn(
+						"text-body placeholder:text-text-soft min-h-12 w-full rounded-full px-5",
+						onRaised ? "bg-ground" : "bg-ground-raised"
+					)}
 				/>
 				<Button type="submit" variant="ink" disabled={save.isPending}>
+					<CheckIcon className="size-5" />
 					{save.isPending ? "Salvo…" : "Salva"}
 				</Button>
 			</div>

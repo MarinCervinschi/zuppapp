@@ -4,6 +4,7 @@ import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { toast } from "sonner";
 
+import { CloseIcon } from "@/components/ds/icons";
 import { StarPicker } from "@/components/ds/stars";
 import { track } from "@/lib/analytics/track";
 import type { ProductCard } from "@/lib/catalog/types";
@@ -136,8 +137,9 @@ export function VotePanel({
 										)
 									)
 								}
-								className="min-h-11 rounded-full px-2 underline disabled:opacity-50"
+								className="inline-flex min-h-11 items-center gap-1 rounded-full px-2 underline disabled:opacity-50"
 							>
+								<CloseIcon className="size-4" />
 								Togli il voto
 							</button>
 						</>

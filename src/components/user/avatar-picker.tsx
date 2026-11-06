@@ -11,7 +11,16 @@ const CHOICES = 12;
  * Twelve Critters to choose from, seeded from the user id so the same faces come back; «Altre
  * facce» deals the next twelve. A radio group: picking one saves it.
  */
-export function AvatarPicker({ userId, current }: { userId: string; current: string }) {
+export function AvatarPicker({
+	userId,
+	current,
+	onRaised = false,
+}: {
+	userId: string;
+	current: string;
+	/** On a raised panel the unchosen faces step down to the ground. */
+	onRaised?: boolean;
+}) {
 	const [round, setRound] = useState(0);
 	const save = useSetAvatarSeed();
 	const seeds = Array.from(
@@ -40,7 +49,9 @@ export function AvatarPicker({ userId, current }: { userId: string; current: str
 							onClick={() => save.mutate(seed)}
 							className={cn(
 								"flex aspect-square items-center justify-center rounded-full p-1 transition-[background-color,scale] duration-150 ease-out motion-safe:active:scale-[0.96]",
-								chosen ? "bg-text" : "bg-ground-raised hover:bg-text/10"
+								chosen
+									? "bg-text"
+									: cn(onRaised ? "bg-ground" : "bg-ground-raised", "hover:bg-text/10")
 							)}
 						>
 							<UserAvatar seed={seed} className="size-full bg-transparent" />

@@ -27,6 +27,9 @@ corrente in una pill più chiara.
 | Classifica | `/classifica` | Podio e righe, filtrabili per tipo                                                |
 | Profilo    | `/profilo`    | Nome, faccia e tema. Senza account rimanda ad `/accedi`, che porta alle tue zuppe |
 
+Chi è admin ha un quarto tab, **Admin** (`/admin`, la chiave), e nella scheda prodotto un tondo con la chiave
+accanto al cuore, che apre quel prodotto nella gestione (`?stato=…&q=<ean>`).
+
 Accanto alla pill, **staccato in un tondo di vetro tutto suo**, c'è lo scanner (`/scansiona`): è un'azione,
 non un posto, come la ricerca nella tab bar di iOS 26. Solo l'icona, con il nome per i lettori di schermo; su
 telefoni da 360 px i tab si stringono a 80 px perché ci stia tutto.
@@ -41,7 +44,7 @@ in basso, così i pulsanti galleggiano su di lei e non sul testo che passa sotto
 ## Colori
 
 Carta, inchiostro e le zuppe. I componenti usano solo i token semantici (`bg-ground`, `text-text-soft`, …), mai
-i primitivi. Il tema si sceglie tra **Sistema, Chiaro e Scuro** (`ThemeSwitch`, nel piè di pagina e nel profilo),
+i primitivi. Il tema si sceglie tra **Sistema, Chiaro e Scuro** (`ThemeSwitch`, nel piè di pagina e tra le impostazioni del profilo, dove il piè di pagina non lo ripete),
 finisce in `<html data-theme>` e resta in quel browser. Ogni regola scura usa lo stesso doppio selettore:
 `[data-theme="dark"]`, oppure il sistema scuro quando non è `[data-theme="light"]`.
 
@@ -248,7 +251,8 @@ Niente prezzi: non li abbiamo, e la SPEC li tiene fuori dalla v1.
 
 ### La scheda prodotto
 
-Foto a tutta larghezza sul bianco, poi un **foglio** con gli angoli arrotondati che le sale sopra, sfumato dal
+**Da 1024 px due colonne**: la confezione sul suo piatto a sinistra, ferma (`sticky`) mentre a destra scorre tutto
+il resto, nello stesso ordine. Su telefono: foto a tutta larghezza sul bianco, poi un **foglio** con gli angoli arrotondati che le sale sopra, sfumato dal
 giallo mais alla carta. Nell'ordine: nome, dettagli, badge e posto in classifica; avvisi (fuori produzione,
 ricetta cambiata); il voto; come l'hanno votata e cosa ne dicono; **«Senza:»**; ingredienti; valori
 nutrizionali; Nutri-Score; NOVA, link, codice a barre e crediti.
@@ -278,6 +282,10 @@ gli allergeni dei filtri che l'etichetta non dichiara, e ricorda di leggere semp
 
 - **Il nome pubblico è sempre il nickname**; finché non lo scegli sei un nome da zuppa (`soupNameFor`).
 - **L'avatar è Critters**, in un tondo.
+- **Nome e faccia si cambiano su richiesta**: «Modifica profilo» apre un pannello con i due campi, «Fatto» lo
+  chiude. Sotto, «Impostazioni»: tema, gestione prodotti per l'admin, «Esci dall'account».
+- **Le icone stanno accanto a una parola**, mai da sole tranne nei tondi della barra (con il nome per i lettori
+  di schermo): `src/components/ds/icons.tsx`, griglia 24, tratto 1,6.
 - **Accedere è «prendere la tua tessera»** (`/accedi`, `LoyaltyCard`): la carta fedeltà gialla e sgranata, con
   un codice a barre interno di negozio. Chi ha già votato senza account trova lì il link alle sue zuppe.
 - **Il pulsante di Google segue le sue linee guida** (`GoogleButton`), con i suoi colori e il suo bordo.

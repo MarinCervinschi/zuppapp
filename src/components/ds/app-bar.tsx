@@ -64,7 +64,7 @@ export function DetailBar({ action }: { action?: React.ReactNode }) {
 					scrolled ? "opacity-100" : "opacity-0"
 				)}
 			/>
-			<div className="mx-auto flex max-w-xl items-center justify-between px-4">
+			<div className="mx-auto flex max-w-xl items-center justify-between px-4 lg:max-w-6xl lg:px-6">
 				<BackButton className="pointer-events-auto" />
 				{action && <div className="pointer-events-auto">{action}</div>}
 			</div>

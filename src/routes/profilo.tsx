@@ -1,7 +1,17 @@
+import { useEffect, useRef, useState } from "react";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
-import { Button } from "@/components/ds/button";
+import { Button, buttonClass, paperOnRaised } from "@/components/ds/button";
+import {
+	CheckIcon,
+	KeyIcon,
+	LogoutIcon,
+	PencilIcon,
+	SettingsIcon,
+	StarLineIcon,
+} from "@/components/ds/icons";
 import { pillClass } from "@/components/ds/pill";
 import { SoupField } from "@/components/ds/soup-field";
 import { ThemeSwitch } from "@/components/ds/theme-switch";
@@ -28,10 +38,22 @@ function Profile() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const viewer = data?.viewer;
+	// Name and face change rarely: they open on request, not under the reader's thumb all the time.
+	const [editing, setEditing] = useState(false);
+	// The button that opens the editor goes away with it: focus follows to where the reader is.
+	const editorHeading = useRef<HTMLHeadingElement>(null);
+	const editButton = useRef<HTMLButtonElement>(null);
+	const opened = useRef(false);
+	useEffect(() => {
+		if (editing) editorHeading.current?.focus();
+		else if (opened.current) editButton.current?.focus();
+		opened.current = editing;
+	}, [editing]);
 	if (!viewer) return null;
 
 	async function signOut() {
 		await authClient.signOut();
+		// Everything cached belonged to that account: votes, hearts, the stars on every card.
 		await queryClient.invalidateQueries();
 		navigate({ to: "/" });
 	}
@@ -43,16 +65,31 @@ function Profile() {
 				<SoupField soup="beet" shape="onda" />
 				<header className="mx-auto flex max-w-xl flex-col gap-5 px-4 pt-14 pb-10">
 					<div className="flex items-center gap-4">
-						<UserAvatar seed={viewer.avatarSeed} className="size-24 rounded-full" />
-						<div className="flex min-w-0 flex-col gap-1">
+						<UserAvatar
+							seed={viewer.avatarSeed}
+							className="size-20 shrink-0 rounded-full sm:size-24"
+						/>
+						<div className="flex min-w-0 flex-col items-start gap-2">
 							<h1 className="font-display text-title font-semibold">
 								{viewer.displayName}
 							</h1>
+							{!editing && (
+								<Button
+									ref={editButton}
+									onClick={() => setEditing(true)}
+									className="min-h-11 px-4 whitespace-nowrap"
+									aria-controls="profile-editor"
+								>
+									<PencilIcon className="size-5" />
+									Modifica profilo
+								</Button>
+							)}
 						</div>
 					</div>
 					{/* Under the avatar row, full width: on a narrow phone each pill keeps one line. */}
 					<nav aria-label="Le tue zuppe" className="flex flex-wrap gap-2">
 						<Link to="/le-mie-zuppe" className={cn(pillClass(), "whitespace-nowrap")}>
+							<StarLineIcon className="size-4" />
 							Le mie zuppe
 							<span className="text-text-soft tabular-nums">
 								{count(viewer.votesCount, VOTI)}
@@ -76,19 +113,57 @@ function Profile() {
 				</header>
 			</div>
 			<main className="mx-auto flex max-w-xl flex-col gap-10 px-4 pt-2">
-				{!viewer.hasNickname && (
-					<p className="bg-field on-field text-body rounded-card p-5">
-						Scegli come ti chiami: per ora gli altri ti vedono come «
-						{viewer.displayName}».
-					</p>
+				{!viewer.hasNickname && !editing && (
+					<div className="bg-field text-on-field rounded-card flex flex-col items-start gap-3 p-5">
+						<p className="text-body">
+							Scegli come ti chiami: per ora gli altri ti vedono come «
+							{viewer.displayName}».
+						</p>
+						<Button variant="ink" onClick={() => setEditing(true)}>
+							<PencilIcon className="size-5" />
+							Scegli il tuo nome
+						</Button>
+					</div>
 				)}
 
-				<NicknameForm current={viewer.hasNickname ? viewer.displayName : null} />
-				<AvatarPicker userId={viewer.id} current={viewer.avatarSeed} />
+				{editing && (
+					<section
+						id="profile-editor"
+						aria-labelledby="editor-heading"
+						className="bg-ground-raised rounded-card motion-safe:animate-rise flex flex-col gap-8 p-5"
+					>
+						<div className="flex items-center justify-between gap-3">
+							<h2
+								id="editor-heading"
+								ref={editorHeading}
+								tabIndex={-1}
+								className="font-display text-lead font-medium outline-none"
+							>
+								Modifica profilo
+							</h2>
+							<Button
+								onClick={() => setEditing(false)}
+								className={cn(paperOnRaised, "min-h-11 px-4")}
+							>
+								<CheckIcon className="size-5" />
+								Fatto
+							</Button>
+						</div>
+						<NicknameForm
+							current={viewer.hasNickname ? viewer.displayName : null}
+							onRaised
+						/>
+						<AvatarPicker userId={viewer.id} current={viewer.avatarSeed} onRaised />
+					</section>
+				)}
 
-				<section aria-labelledby="account-heading" className="flex flex-col gap-3">
-					<h2 id="account-heading" className="font-display text-lead font-medium">
-						Account
+				<section aria-labelledby="settings-heading" className="flex flex-col gap-5">
+					<h2
+						id="settings-heading"
+						className="font-display text-lead inline-flex items-center gap-2 font-medium"
+					>
+						<SettingsIcon className="size-6" />
+						Impostazioni
 					</h2>
 					<div className="flex flex-col gap-2">
 						<span aria-hidden className="text-body font-semibold">
@@ -97,19 +172,21 @@ function Profile() {
 						<ThemeSwitch className="self-start" />
 					</div>
 					{viewer.isAdmin && (
-						<Link
-							to="/admin"
-							className="text-body min-h-11 content-center self-start underline"
-						>
+						<Link to="/admin" className={cn(buttonClass(), "self-start")}>
+							<KeyIcon className="size-5" />
 							Gestione prodotti
 						</Link>
 					)}
-					<Button onClick={signOut} className="self-start">
-						Esci dall’account
-					</Button>
-					<p className="text-small text-text-soft">
-						Uscendo, i tuoi voti restano nell’account e li ritrovi al prossimo accesso.
-					</p>
+					<div className="flex flex-col items-start gap-2 pt-4">
+						<Button onClick={signOut}>
+							<LogoutIcon className="size-5" />
+							Esci dall’account
+						</Button>
+						<p className="text-small text-text-soft">
+							Uscendo, i tuoi voti restano nell’account e li ritrovi al prossimo
+							accesso.
+						</p>
+					</div>
 				</section>
 			</main>
 		</>

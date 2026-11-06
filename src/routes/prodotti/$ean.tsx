@@ -1,9 +1,10 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { DetailBar } from "@/components/ds/app-bar";
 import { Barcode } from "@/components/ds/barcode";
 import { HeartButton } from "@/components/ds/heart-button";
+import { ExternalIcon, KeyIcon } from "@/components/ds/icons";
 import { NutriScore } from "@/components/ds/nutri-score";
 import { NutritionLabel } from "@/components/ds/nutrition-label";
 import { Pill } from "@/components/ds/pill";
@@ -17,10 +18,13 @@ import { catalogQueries } from "@/lib/catalog/queries";
 import { ALLERGEN_FILTERS } from "@/lib/catalog/schemas";
 import type { ProductCard } from "@/lib/catalog/types";
 import { VOTI, count } from "@/lib/plural";
+import { userQueries } from "@/lib/user/queries";
 
 export const Route = createFileRoute("/prodotti/$ean")({
 	loader: async ({ context, params }) => {
-		const product = await context.queryClient.ensureQueryData(
+		// fetchQuery, not ensureQueryData: a card made stale by a vote elsewhere is fetched again
+		// before the page shows, so the vote panel never starts from the old vote.
+		const product = await context.queryClient.fetchQuery(
 			catalogQueries.card(params.ean)
 		);
 		return {
@@ -52,6 +56,22 @@ function ProductPage() {
 	return <ProductView key={product.id} product={product} />;
 }
 
+/** For an admin only: the product in the admin, found by its EAN in its own tab. */
+function AdminShortcut({ product }: { product: ProductCard }) {
+	const { data } = useQuery(userQueries.viewer());
+	if (!data?.viewer?.isAdmin) return null;
+	return (
+		<Link
+			to="/admin"
+			search={{ stato: product.archived ? "archived" : "published", q: product.ean }}
+			className="glass flex size-12 items-center justify-center rounded-full transition-[scale] duration-150 ease-out motion-safe:active:scale-[0.96]"
+		>
+			<KeyIcon className="size-6" />
+			<span className="sr-only">Apri {product.name} nella gestione prodotti</span>
+		</Link>
+	);
+}
+
 const section = "flex flex-col gap-4";
 const heading = "font-display text-lead font-medium";
 
@@ -64,12 +84,19 @@ function ProductView({ product }: { product: ProductCard }) {
 		: [];
 
 	return (
-		<main className="mx-auto max-w-xl">
+		// Phone: the photo full width and a sheet sliding over it. Desktop (≥ 1024 px): two columns,
+		// the pack held still on the left while everything else scrolls on the right.
+		<main className="mx-auto max-w-xl lg:grid lg:max-w-6xl lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start lg:gap-12 lg:px-6 lg:pt-24">
 			<DetailBar
-				action={<HeartButton productId={product.id} name={product.name} size="lg" />}
+				action={
+					<div className="flex items-center gap-2">
+						<AdminShortcut product={product} />
+						<HeartButton productId={product.id} name={product.name} size="lg" />
+					</div>
+				}
 			/>
 			{/* The pack, full width on its white plate, under the fixed bar. */}
-			<div className="plate relative flex h-80 items-center justify-center bg-white px-4 pt-4 pb-10 sm:h-96">
+			<div className="plate rounded-card relative flex h-80 items-center justify-center bg-white px-4 pt-4 pb-10 max-lg:rounded-none sm:h-96 lg:sticky lg:top-24 lg:h-[min(34rem,calc(100dvh-8rem))] lg:p-8">
 				{product.imageUrl ? (
 					<ZoomablePhoto
 						src={product.imageUrl}
@@ -85,9 +112,9 @@ function ProductView({ product }: { product: ProductCard }) {
 			</div>
 
 			{/* The sheet over the photo: warm yellow at the top, fading into the paper. */}
-			<div className="sheet-tint stagger relative -mt-8 flex flex-col gap-10 rounded-t-[2rem] px-4 pt-7">
+			<div className="sheet-tint stagger relative -mt-8 flex flex-col gap-10 rounded-t-[2rem] px-4 pt-7 lg:mt-0 lg:rounded-[2rem] lg:px-8 lg:pt-8">
 				<header className="flex flex-col gap-3">
-					<h1 className="font-display text-title font-semibold tracking-[-0.01em]">
+					<h1 className="font-display text-title lg:text-display font-semibold tracking-[-0.01em]">
 						{product.name}
 					</h1>
 					<p className="text-body text-text-soft">{productDetails(product)}</p>
@@ -217,9 +244,10 @@ function ProductView({ product }: { product: ProductCard }) {
 										href={product.producerUrl}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="underline"
+										className="inline-flex min-h-11 items-center gap-1.5 underline"
 									>
 										Sito del produttore
+										<ExternalIcon className="size-4" />
 									</a>
 								</li>
 							)}
@@ -229,9 +257,10 @@ function ProductView({ product }: { product: ProductCard }) {
 										href={link.url}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="underline"
+										className="inline-flex min-h-11 items-center gap-1.5 underline"
 									>
 										Su {link.retailer}
+										<ExternalIcon className="size-4" />
 									</a>
 								</li>
 							))}

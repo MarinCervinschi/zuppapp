@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { buttonClass } from "@/components/ds/button";
+import { ArrowRightIcon } from "@/components/ds/icons";
 import { PageHead } from "@/components/ds/page-head";
 import { StarIcon } from "@/components/ds/stars";
 import { ZoomablePhoto } from "@/components/ds/zoomable-photo";
@@ -14,8 +15,10 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/le-mie-zuppe")({
 	validateSearch: myVotesSchema,
 	loaderDeps: ({ search }) => search,
+	// fetchQuery, not ensureQueryData: after a vote changed elsewhere the list is stale, and it
+	// is fetched again before the page shows instead of flashing the old votes first.
 	loader: ({ context, deps }) =>
-		context.queryClient.ensureQueryData(userQueries.myVotes(deps.pagina ?? 1)),
+		context.queryClient.fetchQuery(userQueries.myVotes(deps.pagina ?? 1)),
 	head: () => ({ meta: [{ title: "Le mie zuppe · Zuppapp" }] }),
 	component: MyVotes,
 });
@@ -58,6 +61,7 @@ function MyVotes() {
 						</p>
 						<Link to="/" hash="da-assaggiare" className={buttonClass("ink")}>
 							Vota la prima zuppa
+							<ArrowRightIcon className="size-5" />
 						</Link>
 					</div>
 				) : (
@@ -123,6 +127,7 @@ function MyVotes() {
 					// The next soup to taste is one tap away, so a short list never ends on nothing.
 					<Link to="/" hash="da-assaggiare" className={cn(buttonClass(), "self-start")}>
 						Vota un’altra zuppa
+						<ArrowRightIcon className="size-5" />
 					</Link>
 				)}
 
