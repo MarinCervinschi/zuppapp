@@ -3,9 +3,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
 
+import { AdminFilters } from "@/components/admin/admin-filters";
 import { AdminTabs } from "@/components/admin/admin-tabs";
 import { ProductRow } from "@/components/admin/product-row";
 import { Button, paperOnRaised } from "@/components/ds/button";
+import { ArchiveIcon, CheckIcon, UndoIcon } from "@/components/ds/icons";
 import { NotFoundPage } from "@/components/error/error-pages";
 import { isAdminFn } from "@/lib/admin/api";
 import { useSetProductsStatus } from "@/lib/admin/mutations";
@@ -31,16 +33,16 @@ export const Route = createFileRoute("/admin")({
 // What can be done to a selection, by the tab it was made in. The first is the one to do.
 const ACTIONS = {
 	draft: [
-		["published", "Pubblica"],
-		["archived", "Archivia"],
+		["published", "Pubblica", CheckIcon],
+		["archived", "Archivia", ArchiveIcon],
 	],
 	published: [
-		["archived", "Archivia"],
-		["draft", "Rimetti in bozza"],
+		["archived", "Archivia", ArchiveIcon],
+		["draft", "Rimetti in bozza", UndoIcon],
 	],
 	archived: [
-		["published", "Ripubblica"],
-		["draft", "Rimetti in bozza"],
+		["published", "Ripubblica", CheckIcon],
+		["draft", "Rimetti in bozza", UndoIcon],
 	],
 } as const;
 
@@ -59,6 +61,9 @@ function AdminPage() {
 	const [selected, setSelected] = useState<Set<string>>(new Set());
 
 	if (!page) return null;
+	const filtered = Boolean(
+		params.tipo || params.foto || params.voti || params.corretti
+	);
 	const ids = page.items.map(item => item.id);
 	const chosen = ids.filter(id => selected.has(id));
 	const allChosen = ids.length > 0 && chosen.length === ids.length;
@@ -80,31 +85,11 @@ function AdminPage() {
 				<AdminTabs
 					counts={page.counts}
 					current={page.status}
+					q={params.q}
 					onChange={() => setSelected(new Set())}
 				/>
 
-				{/* A plain GET form: the search is in the URL like everything else. */}
-				<form
-					role="search"
-					method="get"
-					action="/admin"
-					className="flex flex-col gap-2"
-				>
-					{params.stato && <input type="hidden" name="stato" value={params.stato} />}
-					<label htmlFor="admin-search" className="text-body font-semibold">
-						Cerca tra questi prodotti
-					</label>
-					<div className="flex gap-2">
-						<input
-							id="admin-search"
-							type="search"
-							name="q"
-							defaultValue={params.q ?? ""}
-							className="bg-ground-raised text-body min-h-12 w-full rounded-full px-5"
-						/>
-						<Button type="submit">Cerca</Button>
-					</div>
-				</form>
+				<AdminFilters params={params} subtypes={page.subtypes} />
 
 				<div className="bg-ground-raised rounded-panel sticky top-2 z-10 flex flex-wrap items-center gap-3 p-3">
 					<label className="text-body flex min-h-11 items-center gap-2 font-semibold">
@@ -122,7 +107,7 @@ function AdminPage() {
 						{count(chosen.length, SELEZIONATI)}
 					</span>
 					<span className="flex flex-wrap gap-2 sm:ml-auto">
-						{ACTIONS[page.status].map(([status, label], index) => (
+						{ACTIONS[page.status].map(([status, label, Icon], index) => (
 							<Button
 								key={status}
 								variant={index === 0 ? "ink" : "paper"}
@@ -135,6 +120,7 @@ function AdminPage() {
 									)
 								}
 							>
+								<Icon className="size-5" />
 								{label}
 							</Button>
 						))}
@@ -150,7 +136,9 @@ function AdminPage() {
 					<p className="text-body">
 						{params.q
 							? `Nessun prodotto per «${params.q}» in questa scheda. Prova nelle altre o cambia parola.`
-							: EMPTY[page.status]}
+							: filtered
+								? "Nessun prodotto con questi filtri in questa scheda."
+								: EMPTY[page.status]}
 					</p>
 				) : (
 					<ul className={cn("flex flex-col gap-3", isFetching && "opacity-60")}>

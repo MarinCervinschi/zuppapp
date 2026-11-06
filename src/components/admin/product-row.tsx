@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 
 import { Button, paperOnRaised } from "@/components/ds/button";
+import { EyeIcon, PencilIcon } from "@/components/ds/icons";
 import { PackPhoto } from "@/components/ds/pack-photo";
 import { useCorrectProduct } from "@/lib/admin/mutations";
 import type { AdminProduct } from "@/lib/admin/service";
@@ -59,12 +60,13 @@ export function ProductRow({
 						{product.corrected.length > 0 &&
 							` · corretto a mano: ${product.corrected.map(key => FIELD_NAMES[key] ?? key).join(", ")}`}
 					</p>
-					{product.status === "published" && (
+					{product.status !== "draft" && (
 						<Link
 							to="/prodotti/$ean"
 							params={{ ean: product.ean }}
-							className="text-small min-h-11 content-center underline"
+							className="text-small inline-flex min-h-11 items-center gap-1.5 self-start underline"
 						>
+							<EyeIcon className="size-4" />
 							Vedi la scheda<span className="sr-only"> di {product.name}</span>
 						</Link>
 					)}
@@ -73,7 +75,8 @@ export function ProductRow({
 
 			{/* Native disclosure: keyboard and screen readers get it for free. */}
 			<details className="group">
-				<summary className="text-body min-h-11 cursor-pointer content-center font-semibold underline">
+				<summary className="text-body inline-flex min-h-11 cursor-pointer list-none items-center gap-2 font-semibold underline [&::-webkit-details-marker]:hidden">
+					<PencilIcon className="size-5" />
 					Correggi
 				</summary>
 				<form

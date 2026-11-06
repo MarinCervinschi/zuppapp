@@ -4,9 +4,28 @@ export const ADMIN_PAGE_SIZE = 30;
 
 export const STATUSES = ["draft", "published", "archived"] as const;
 
+/** Without `ordine`, the queue order: products with no type first, then by name. */
+export const ADMIN_SORTS = ["nome", "voti", "recenti", "modificati"] as const;
+/** `tipo=nessuno` is the products still waiting for a type. */
+export const NO_SUBTYPE = "nessuno";
+
+const yesNo = z.enum(["si", "no"]).optional().catch(undefined);
+
 export const adminListSchema = z.object({
 	stato: z.enum(STATUSES).optional().catch(undefined),
-	q: z.string().trim().max(80).optional().catch(undefined),
+	// The router reads a search of digits only (an EAN) as a number: back to text.
+	q: z
+		.preprocess(
+			value => (typeof value === "number" ? String(value) : value),
+			z.string().trim().max(80)
+		)
+		.optional()
+		.catch(undefined),
+	tipo: z.string().trim().max(40).optional().catch(undefined),
+	foto: yesNo,
+	voti: yesNo,
+	corretti: yesNo,
+	ordine: z.enum(ADMIN_SORTS).optional().catch(undefined),
 	pagina: z.coerce.number().int().min(1).max(1000).optional().catch(undefined),
 });
 export type AdminListParams = z.infer<typeof adminListSchema>;

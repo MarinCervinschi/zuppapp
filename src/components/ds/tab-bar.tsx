@@ -1,9 +1,13 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link, useRouterState } from "@tanstack/react-router";
 
+import { userQueries } from "@/lib/user/queries";
 import { cn } from "@/lib/utils";
 
+import { BowlIcon, KeyIcon, PersonIcon, ScanIcon, TrophyIcon } from "./icons";
+
 // Three places, always in reach of the thumb: the search, the ranking, and you. The scanner
-// floats beside them in its own drop: an action, not a place.
+// floats beside them in its own drop: an action, not a place. An admin gets a fourth, the admin.
 const TABS = [
 	{
 		to: "/",
@@ -26,7 +30,14 @@ const TABS = [
 			),
 		icon: PersonIcon,
 	},
-] as const;
+];
+
+const ADMIN_TAB = {
+	to: "/admin",
+	label: "Admin",
+	match: (path: string) => path.startsWith("/admin"),
+	icon: KeyIcon,
+};
 
 /**
  * The floating bar at the bottom of every screen: a pill of liquid glass, the current place
@@ -35,7 +46,10 @@ const TABS = [
  */
 export function TabBar() {
 	const path = useRouterState({ select: state => state.location.pathname });
-	const current = TABS.findIndex(tab => tab.match(path));
+	const { data } = useQuery(userQueries.viewer());
+	const tabs = data?.viewer?.isAdmin ? [...TABS, ADMIN_TAB] : TABS;
+	const admin = tabs.length > 3;
+	const current = tabs.findIndex(tab => tab.match(path));
 	const scanning = path.startsWith("/scansiona");
 
 	return (
@@ -43,21 +57,42 @@ export function TabBar() {
 			aria-label="Sezioni"
 			className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex items-center justify-center gap-2 px-3 pb-[max(1rem,env(safe-area-inset-bottom))]"
 		>
-			<ul className="glass pointer-events-auto relative grid grid-cols-3 rounded-full p-1.5">
+			<ul
+				className={cn(
+					"glass pointer-events-auto relative grid rounded-full p-1.5",
+					// Four tabs and the scanner need 352 px: below 360 the admin tab steps out (the
+					// profile and the product page still lead there).
+					admin ? "grid-cols-3 min-[360px]:grid-cols-4" : "grid-cols-3"
+				)}
+			>
 				{current >= 0 && (
 					<li
 						aria-hidden
 						style={{ translate: `${current * 100}% 0` }}
-						className="bg-ground/80 dark:bg-ground-raised glass-drop absolute top-1.5 bottom-1.5 left-1.5 w-[calc((100%-0.75rem)/3)] rounded-full transition-[translate] duration-500 ease-[cubic-bezier(0.34,1.45,0.5,1)] motion-reduce:transition-none"
+						className={cn(
+							"bg-ground/80 dark:bg-ground-raised glass-drop absolute top-1.5 bottom-1.5 left-1.5 rounded-full transition-[translate] duration-500 ease-[cubic-bezier(0.34,1.45,0.5,1)] motion-reduce:transition-none",
+							admin
+								? "w-[calc((100%-0.75rem)/3)] min-[360px]:w-[calc((100%-0.75rem)/4)]"
+								: "w-[calc((100%-0.75rem)/3)]",
+							admin && current === 3 && "max-[359px]:hidden"
+						)}
 					/>
 				)}
-				{TABS.map((tab, index) => (
-					<li key={tab.to} className="relative">
+				{tabs.map((tab, index) => (
+					<li
+						key={tab.to}
+						className={cn("relative", index === 3 && "max-[359px]:hidden")}
+					>
 						<Link
 							to={tab.to}
 							aria-current={index === current ? "page" : undefined}
 							className={cn(
-								"text-small flex min-h-14 w-[4.25rem] flex-col items-center justify-center gap-0.5 rounded-full font-medium no-underline transition-[scale,opacity] duration-150 ease-out motion-safe:active:scale-[0.94] min-[360px]:w-20 sm:w-24",
+								"text-small flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-full font-medium no-underline transition-[scale,opacity] duration-150 ease-out motion-safe:active:scale-[0.94] sm:w-24",
+								// With four tabs, from 360 to 399 px the labels step down a size, or
+								// «Classifica» would touch its neighbours.
+								admin
+									? "w-[4.25rem] min-[360px]:w-[3.75rem] min-[360px]:max-[399px]:text-[0.75rem] min-[360px]:max-[399px]:tracking-[-0.01em] min-[400px]:w-[4.5rem]"
+									: "w-[4.25rem] min-[360px]:w-20",
 								index === current ? "opacity-100" : "opacity-75 hover:opacity-100"
 							)}
 						>
@@ -85,81 +120,5 @@ export function TabBar() {
 				</Link>
 			</div>
 		</nav>
-	);
-}
-
-type IconProps = { className?: string };
-
-function BowlIcon({ className }: IconProps) {
-	return (
-		<svg
-			aria-hidden
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="1.6"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<path d="M3 12h18a9 9 0 0 1-18 0Z" />
-			<path d="M8 20h8" />
-			<path d="M8 4c-.6.8-.6 1.7 0 2.5s.6 1.7 0 2.5M12 3c-.6.8-.6 1.7 0 2.5s.6 1.7 0 2.5M16 4c-.6.8-.6 1.7 0 2.5s.6 1.7 0 2.5" />
-		</svg>
-	);
-}
-
-function TrophyIcon({ className }: IconProps) {
-	return (
-		<svg
-			aria-hidden
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="1.6"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" />
-			<path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3.4M17 6h2.5a2.5 2.5 0 0 1-2.6 3.4" />
-			<path d="M12 14v4M8.5 20h7" />
-		</svg>
-	);
-}
-
-function PersonIcon({ className }: IconProps) {
-	return (
-		<svg
-			aria-hidden
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="1.6"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<circle cx="12" cy="8" r="4" />
-			<path d="M4.5 21a7.5 7.5 0 0 1 15 0" />
-		</svg>
-	);
-}
-
-function ScanIcon({ className }: IconProps) {
-	return (
-		<svg
-			aria-hidden
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="1.6"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			className={className}
-		>
-			<path d="M3 8V5.5A2.5 2.5 0 0 1 5.5 3H8M16 3h2.5A2.5 2.5 0 0 1 21 5.5V8M21 16v2.5a2.5 2.5 0 0 1-2.5 2.5H16M8 21H5.5A2.5 2.5 0 0 1 3 18.5V16" />
-			<path d="M7.5 8v8M10.5 8v8M13.5 8v8M16.5 8v8" />
-		</svg>
 	);
 }

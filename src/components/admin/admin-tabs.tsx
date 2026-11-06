@@ -19,10 +19,13 @@ const tab =
 export function AdminTabs({
 	counts,
 	current,
+	q,
 	onChange,
 }: {
 	counts: AdminCounts;
 	current: Tab;
+	/** The search, kept from tab to tab: a product not found here may be in another. */
+	q?: string;
 	onChange?: () => void;
 }) {
 	return (
@@ -60,7 +63,7 @@ export function AdminTabs({
 							) : (
 								<Link
 									to="/admin"
-									search={{ stato: key === "draft" ? undefined : key }}
+									search={{ stato: key === "draft" ? undefined : key, q }}
 									aria-current={active ? "page" : undefined}
 									onClick={onChange}
 									className={className}
