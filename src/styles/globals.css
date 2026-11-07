@@ -163,7 +163,6 @@
 	--ease-out-snap: cubic-bezier(0.2, 0, 0, 1);
 	--animate-pop: pop 260ms var(--ease-out-snap) both;
 	--animate-rise: rise 300ms var(--ease-out-snap) both;
-	--animate-sheet: sheet 380ms var(--ease-out-snap) both;
 	--animate-zoom: zoom 260ms var(--ease-out-snap) both;
 	--animate-fade: fade 260ms ease-out both;
 }
@@ -223,16 +222,6 @@
 	}
 }
 
-/* A sheet coming up from the bottom edge: the filters on a phone. */
-@keyframes sheet {
-	from {
-		translate: 0 100%;
-	}
-	to {
-		translate: 0 0;
-	}
-}
-
 /* A picture opening where it was: the pack photo, large. */
 @keyframes zoom {
 	from {
@@ -255,14 +244,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	@keyframes sheet {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
 	@keyframes zoom {
 		from {
 			opacity: 0;

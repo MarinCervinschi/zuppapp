@@ -146,14 +146,6 @@ export function ArrowRightIcon({ className }: IconProps) {
 	);
 }
 
-export function StarLineIcon({ className }: IconProps) {
-	return (
-		<Line className={className}>
-			<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9L12 3.5Z" />
-		</Line>
-	);
-}
-
 export function SettingsIcon({ className }: IconProps) {
 	return (
 		<Line className={className}>
@@ -195,14 +187,6 @@ export function SunIcon({ className }: IconProps) {
 		<Line className={className}>
 			<circle cx="12" cy="12" r="4" />
 			<path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" />
-		</Line>
-	);
-}
-
-export function HeartIcon({ className }: IconProps) {
-	return (
-		<Line className={className}>
-			<path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z" />
 		</Line>
 	);
 }

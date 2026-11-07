@@ -47,8 +47,8 @@ export function Pill({ children, pressed, disabled, onClick, className }: Props)
 	);
 }
 
-/** The pill's look, for links that are pills (filters). */
-export function pillClass(pressed?: boolean) {
+/** The pill's look, pressed or not. */
+function pillClass(pressed?: boolean) {
 	return cn(
 		"text-body inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 no-underline",
 		"transition-[scale,background-color,color] duration-150 ease-out motion-safe:not-disabled:active:scale-[0.96]",

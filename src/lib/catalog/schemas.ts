@@ -42,7 +42,7 @@ export const browseSchema = z.object({
 	marca: z.string().trim().max(80).optional().catch(undefined),
 	nutri: csv(NUTRISCORES),
 	senza: csv(ALLERGEN_FILTERS),
-	/** «Vedi tutte»: the whole catalogue on the search screen, before any text. */
+	/** The «Tutte le zuppe» tab: the whole catalogue on the search screen, before any text. */
 	vedi: z.literal("tutte").optional().catch(undefined),
 	/** Page of the shelf still to taste, or of the search results. */
 	pagina: z.coerce.number().int().min(1).max(1000).optional().catch(undefined),

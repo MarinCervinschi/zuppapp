@@ -28,7 +28,7 @@ import {
 import type { Facets } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils";
 
-// «Zuppe», the first tab: a search first. With text, a filter or «Vedi tutte» it lists the
+// «Zuppe», the first tab: a search first. With text, a filter or «Tutte le zuppe» it lists the
 // catalogue; before any of those it offers the soups still waiting for votes.
 
 export const Route = createFileRoute("/")({
