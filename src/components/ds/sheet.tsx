@@ -131,6 +131,10 @@ export function Sheet({
 		const modal = dialog.current;
 		const element = panel.current;
 		if (!modal || !element) return;
+		// Out of sight before anything is measured: a measurement fixes the style the transition
+		// starts from, and the sheet would slide in from fully open (from the top) instead.
+		if (mode() === "right") element.style.setProperty("--x", "calc(100% + 24px)");
+		else element.style.setProperty("--y", "100%");
 		// Whoever opened the sheet gets the focus back when it goes, however it goes (a button, the
 		// back button, a drag): the dialog is unmounted, not closed, so the browser would not do it.
 		const opener = document.activeElement as HTMLElement | null;
