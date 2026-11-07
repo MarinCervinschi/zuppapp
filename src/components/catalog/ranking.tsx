@@ -1,10 +1,11 @@
 import { HeartButton } from "@/components/ds/heart-button";
-import { PackPhoto } from "@/components/ds/pack-photo";
-import { RatingBadge, formatStars } from "@/components/ds/stars";
+import { PackPhoto, PackThumb } from "@/components/ds/pack-photo";
+import { rowCard, rowCardGround, rowCardLink } from "@/components/ds/row-card";
+import { RatingBadge } from "@/components/ds/stars";
 import { SoupLink } from "@/components/product/soup-sheet";
 import { productDetails } from "@/lib/catalog/details";
-import { sizedImage } from "@/lib/catalog/image";
 import type { ProductListItem } from "@/lib/catalog/types";
+import { formatStars } from "@/lib/format";
 import { VOTI, count } from "@/lib/plural";
 import { cn } from "@/lib/utils";
 
@@ -142,29 +143,25 @@ export function Leaderboard({
 		<ol start={start} className="stagger grid gap-2 md:grid-cols-2 md:gap-x-5">
 			{products.map(product => (
 				<li key={product.id}>
-					<article className="group bg-ground-raised hover:bg-text/[0.06] relative grid grid-cols-[2.25rem_auto_minmax(0,1fr)_auto] items-center gap-3 rounded-[1.5rem] p-2 pr-3 transition-[scale,background-color] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.98]">
+					<article
+						className={cn(
+							rowCard,
+							rowCardGround,
+							"grid-cols-[2.25rem_auto_minmax(0,1fr)_auto]"
+						)}
+					>
 						<span
 							aria-hidden
 							className="font-display text-lead text-text-soft text-center font-semibold tabular-nums"
 						>
 							{product.rank}
 						</span>
-						{product.imageUrl ? (
-							<img
-								src={sizedImage(product.imageUrl, 100) ?? product.imageUrl}
-								alt=""
-								loading="lazy"
-								decoding="async"
-								className="size-14 rounded-full bg-white object-cover"
-							/>
-						) : (
-							<span aria-hidden className="bg-ground size-14 rounded-full" />
-						)}
+						<PackThumb src={product.imageUrl} className="size-14 rounded-full" />
 						<div className="flex min-w-0 flex-col gap-0.5">
 							<SoupLink
 								ean={product.ean}
 								label={accessibleName(product)}
-								className="font-display text-body font-medium no-underline group-hover:underline after:absolute after:inset-0 after:rounded-[1.5rem]"
+								className={rowCardLink}
 							>
 								{product.name}
 							</SoupLink>

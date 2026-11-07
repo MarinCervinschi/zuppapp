@@ -13,6 +13,13 @@ const fold = (text: string) =>
 		.replace(/\p{Diacritic}/gu, "")
 		.toLowerCase();
 
+/** Smooth, unless the reader asked for less motion. */
+function scrollBehavior(): ScrollBehavior {
+	return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+		? "auto"
+		: "smooth";
+}
+
 /**
  * The brand filter: a disclosure that opens in the flow of the panel, not over it, with a
  * search field above the brands, most stocked first. Every brand is a link, like every other
@@ -39,14 +46,15 @@ export function BrandPicker({
 	// phone's keyboard never comes up over the list. The panel scrolls to the top of the sheet.
 	useEffect(() => {
 		if (!open) return;
-		panel.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+		panel.current?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
 	}, [open]);
 
 	/** Once the keyboard is up, the field goes to the top of what is left, the list under it. */
 	function keepFieldInView() {
 		if (window.matchMedia("(pointer: fine)").matches) return;
 		setTimeout(
-			() => search.current?.scrollIntoView({ block: "start", behavior: "smooth" }),
+			() =>
+				search.current?.scrollIntoView({ block: "start", behavior: scrollBehavior() }),
 			300
 		);
 	}

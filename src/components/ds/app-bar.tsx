@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils";
 
 /**
  * The way back on an inner page: a round button floating over the top left corner. It goes
- * back in history when there is one, to `fallback` otherwise (a shared link opened cold).
+ * back when the previous page is the app's own, to `fallback` otherwise (a link opened from another
+ * site or in a new tab: going back would leave the app).
  */
 export function BackButton({
 	fallback = "/",
@@ -20,7 +21,7 @@ export function BackButton({
 		<button
 			type="button"
 			onClick={() =>
-				window.history.length > 1
+				router.history.canGoBack()
 					? router.history.back()
 					: router.navigate({ to: fallback })
 			}

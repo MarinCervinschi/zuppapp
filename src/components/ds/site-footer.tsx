@@ -1,5 +1,6 @@
 import { useRouterState } from "@tanstack/react-router";
 
+import { CreditsLine } from "./credits";
 import { ThemeSwitch } from "./theme-switch";
 
 /**
@@ -19,36 +20,7 @@ export function SiteFooter() {
 			<div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-8 pb-6 md:flex-row md:items-end md:justify-between">
 				<div className="flex flex-col gap-2">
 					<p className="wordmark text-wordmark text-text-soft">Zuppapp</p>
-					<p className="text-small text-text-soft max-w-[60ch]">
-						Dati dei prodotti da{" "}
-						<a
-							href="https://world.openfoodfacts.org"
-							className="underline"
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Open Food Facts
-						</a>
-						, licenza ODbL. Avatar{" "}
-						<a
-							href="https://www.dicebear.com/styles/critters/"
-							className="underline"
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Critters di DiceBear
-						</a>
-						, CC0.{" "}
-						<a
-							href="https://github.com/MarinCervinschi/zuppapp"
-							className="underline"
-							rel="noopener noreferrer"
-							target="_blank"
-						>
-							Il codice è aperto su GitHub
-						</a>
-						.
-					</p>
+					<CreditsLine className="max-w-[60ch]" />
 				</div>
 				{!onProfile && (
 					<div className="flex flex-col gap-2 md:items-end">

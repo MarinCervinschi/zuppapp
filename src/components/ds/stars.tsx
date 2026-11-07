@@ -3,19 +3,15 @@ import { forwardRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 
+import { formatStars } from "@/lib/format";
 import { VOTI, count } from "@/lib/plural";
-import { SCORES, SCORE_LABELS, type Score } from "@/lib/ranking/rules";
+import {
+	SCORES,
+	SCORE_LABELS,
+	type Score,
+	missingVotesLabel,
+} from "@/lib/ranking/rules";
 import { cn } from "@/lib/utils";
-
-const decimal = new Intl.NumberFormat("it-IT", {
-	minimumFractionDigits: 1,
-	maximumFractionDigits: 1,
-});
-
-/** «4,7»: a mean of stars as Italians write it. */
-export function formatStars(mean: number) {
-	return decimal.format(mean);
-}
 
 /** One rounded star: filled, or drawn as an outline. */
 export function StarIcon({
@@ -42,6 +38,52 @@ export function StarIcon({
 				strokeLinejoin="round"
 			/>
 		</svg>
+	);
+}
+
+/** The reader's own vote, an ink pill with a gold star: «★ 4». */
+export function MyScoreBadge({
+	score,
+	className,
+}: {
+	score: number;
+	className?: string;
+}) {
+	return (
+		<span
+			className={cn(
+				"bg-ink text-on-ink text-small inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-semibold tabular-nums",
+				className
+			)}
+		>
+			<StarIcon className="text-star size-3.5" />
+			{score}
+			<span className="sr-only">
+				{score === 1 ? " stella, il tuo voto" : " stelle, il tuo voto"}
+			</span>
+		</span>
+	);
+}
+
+/** A soup still short of the ranking, a corn pill: «Manca 1 voto alla classifica». */
+export function MissingVotesBadge({
+	votesCount,
+	className,
+}: {
+	votesCount: number;
+	className?: string;
+}) {
+	const label = missingVotesLabel(votesCount);
+	if (!label) return null;
+	return (
+		<span
+			className={cn(
+				"text-small bg-field text-on-field inline-flex rounded-full px-2.5 py-0.5 font-semibold",
+				className
+			)}
+		>
+			{label}
+		</span>
 	);
 }
 

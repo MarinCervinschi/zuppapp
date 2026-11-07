@@ -15,10 +15,11 @@ import { TypeRail } from "@/components/catalog/type-rail";
 import { buttonClass } from "@/components/ds/button";
 import { SettingsIcon } from "@/components/ds/icons";
 import { PageHead } from "@/components/ds/page-head";
+import { segment, segmentedBar } from "@/components/ds/segmented";
 import { Sheet } from "@/components/ds/sheet";
 import { track } from "@/lib/analytics/track";
 import { zuppe } from "@/lib/catalog/labels";
-import { catalogQueries } from "@/lib/catalog/queries";
+import { catalogQueries, listFilters } from "@/lib/catalog/queries";
 import {
 	type BrowseParams,
 	EXACT_SEARCH,
@@ -35,8 +36,8 @@ export const Route = createFileRoute("/")({
 	validateSearch: browseSchema,
 	loaderDeps: ({ search }) => search,
 	loader: async ({ context: { queryClient }, deps }) => {
-		const { pagina, posti: _posti, mostra, righe: _righe, ...filters } = deps;
-		const paging = { page: pagina ?? 1, size: mostra };
+		const filters = listFilters(deps);
+		const paging = { page: deps.pagina ?? 1, size: deps.mostra };
 		await Promise.all([
 			queryClient.ensureQueryData(catalogQueries.facets(filters)),
 			isBrowsing(deps)
@@ -47,19 +48,14 @@ export const Route = createFileRoute("/")({
 	component: Home,
 });
 
-const tab = (active: boolean) =>
-	cn(
-		"text-body flex min-h-11 items-center justify-center gap-1.5 rounded-full px-5 font-medium whitespace-nowrap no-underline transition-[background-color,color] duration-200 max-[359px]:px-3 max-[359px]:text-[0.9375rem]",
-		active ? "bg-text text-ground" : "hover:bg-text/[0.06]"
-	);
-
 function isBrowsing(params: BrowseParams) {
 	return Boolean(params.q || params.vedi || activeFilterCount(params) > 0);
 }
 
 function Home() {
 	const params = Route.useSearch();
-	const { pagina, posti: _posti, mostra, righe: _righe, ...filters } = params;
+	const { pagina, mostra } = params;
+	const filters = listFilters(params);
 	const { data: facets } = useQuery(catalogQueries.facets(filters));
 	const browsing = isBrowsing(params);
 	// The filters behind the button and in the column: the type has its own discs in sight.
@@ -127,7 +123,7 @@ function Home() {
 					{!params.q && activeFilterCount(params) === 0 && (
 						<nav
 							aria-label="Quali zuppe"
-							className="bg-ground-raised grid grid-cols-2 gap-1 self-center rounded-full p-1 lg:self-start"
+							className={cn(segmentedBar, "grid grid-cols-2 self-center lg:self-start")}
 						>
 							<Link
 								to="/"
@@ -135,7 +131,7 @@ function Home() {
 								activeOptions={EXACT_SEARCH}
 								resetScroll={false}
 								aria-current={!params.vedi ? "page" : undefined}
-								className={tab(!params.vedi)}
+								className={segment(!params.vedi)}
 							>
 								Da assaggiare
 							</Link>
@@ -145,7 +141,7 @@ function Home() {
 								activeOptions={EXACT_SEARCH}
 								resetScroll={false}
 								aria-current={params.vedi ? "page" : undefined}
-								className={tab(Boolean(params.vedi))}
+								className={segment(Boolean(params.vedi))}
 							>
 								{/* Not «Tutte»: that is the first disc above, all the types. */}
 								Tutte le zuppe
@@ -231,14 +227,11 @@ function FilterSheet({
 type ListProps = { params: BrowseParams; page: number; size?: number };
 
 function Results({ params, page, size }: ListProps) {
-	const {
-		pagina: _page,
-		posti: _posti,
-		mostra: _mostra,
-		righe: _righe,
-		...filters
-	} = params;
-	const { data, isFetching } = useQuery(catalogQueries.search(filters, { page, size }));
+	const filters = listFilters(params);
+	// Dimmed only while another page or filter loads, not on a background refresh.
+	const { data, isPlaceholderData } = useQuery(
+		catalogQueries.search(filters, { page, size })
+	);
 
 	// A search that finds nothing, counted once the reader stops typing: not the words, which
 	// could be anything, only that it happened.
@@ -265,7 +258,7 @@ function Results({ params, page, size }: ListProps) {
 		<section
 			id="risultati"
 			aria-labelledby="results-heading"
-			aria-busy={isFetching}
+			aria-busy={isPlaceholderData}
 			className="flex scroll-mt-6 flex-col gap-5"
 		>
 			{/* A live region, so a screen reader hears the count each time the text changes. */}
@@ -282,7 +275,7 @@ function Results({ params, page, size }: ListProps) {
 					dei filtri attivi, prova a toglierli.
 				</p>
 			) : (
-				<Grid items={data.items} dim={isFetching} />
+				<Grid items={data.items} dim={isPlaceholderData} />
 			)}
 			<Pagination
 				page={page}
@@ -301,17 +294,28 @@ function Results({ params, page, size }: ListProps) {
 }
 
 function ToTaste({ params, page, size }: ListProps) {
-	const {
-		pagina: _page,
-		posti: _posti,
-		mostra: _mostra,
-		righe: _righe,
-		...filters
-	} = params;
+	const filters = listFilters(params);
 	const { data, isPlaceholderData } = useQuery(
 		catalogQueries.toTaste(filters, { page, size })
 	);
-	if (!data || data.total === 0) return null;
+	if (!data) return null;
+	if (data.total === 0)
+		return (
+			<div className="bg-ground-raised text-body rounded-card flex flex-col items-start gap-3 p-6">
+				<p>
+					<span className="font-semibold">Qui non c’è niente da assaggiare.</span>{" "}
+					Queste zuppe le hai già votate, o hanno già abbastanza voti per la classifica.
+				</p>
+				<Link
+					to="/"
+					search={{ ...params, vedi: "tutte", pagina: undefined }}
+					resetScroll={false}
+					className={buttonClass()}
+				>
+					Vedi tutte le zuppe
+				</Link>
+			</div>
+		);
 
 	return (
 		<section

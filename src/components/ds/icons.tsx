@@ -3,6 +3,10 @@
 
 type IconProps = { className?: string };
 
+/** The heart's outline, filled or stroked by whoever draws it (the heart button, the profile). */
+export const HEART_PATH =
+	"M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z";
+
 function Line({ className, children }: IconProps & { children: React.ReactNode }) {
 	return (
 		<svg

@@ -12,8 +12,30 @@ import {
 import type { BrowseParams } from "./schemas";
 
 // Filters without the page numbers: each list adds only its own page to its key.
-type Filters = Omit<BrowseParams, "pagina" | "posti" | "mostra" | "righe">;
+export type Filters = Omit<BrowseParams, "pagina" | "posti" | "mostra" | "righe">;
+
+/** The filters of an address, without its page numbers: the key every list's cache shares. */
+export function listFilters(params: BrowseParams): Filters {
+	const {
+		pagina: _pagina,
+		posti: _posti,
+		mostra: _mostra,
+		righe: _righe,
+		...filters
+	} = params;
+	return filters;
+}
 type Paging = { page: number; size?: number };
+
+/**
+ * Every catalogue query that a vote or an admin change can make stale: all of them except the
+ * scanner's lookup, which would ask Open Food Facts again.
+ */
+export const isRefreshableCatalogQuery = ({
+	queryKey,
+}: {
+	queryKey: readonly unknown[];
+}) => queryKey[0] === "catalog" && queryKey[1] !== "lookup";
 
 export const catalogQueries = {
 	/** A scanned or typed code: may import the product from Open Food Facts, so fetched once. */

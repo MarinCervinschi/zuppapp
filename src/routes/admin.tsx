@@ -7,6 +7,7 @@ import { AdminFilters } from "@/components/admin/admin-filters";
 import { AdminHeader } from "@/components/admin/admin-tabs";
 import { ACTIONS, AdminProductSheet, ProductRow } from "@/components/admin/product-row";
 import { CloseIcon } from "@/components/ds/icons";
+import { SimplePager } from "@/components/ds/simple-pager";
 import { NotFoundPage } from "@/components/error/error-pages";
 import { isAdminFn } from "@/lib/admin/api";
 import { useSetProductsStatus } from "@/lib/admin/mutations";
@@ -39,7 +40,7 @@ const EMPTY = {
 
 function AdminPage() {
 	const params = Route.useSearch();
-	const { data: page, isFetching } = useQuery(adminQueries.list(params));
+	const { data: page, isPlaceholderData } = useQuery(adminQueries.list(params));
 	const setStatus = useSetProductsStatus();
 	const [selected, setSelected] = useState<Set<string>>(new Set());
 	const [openId, setOpenId] = useState<string | null>(null);
@@ -107,7 +108,12 @@ function AdminPage() {
 							: EMPTY[page.status]}
 				</p>
 			) : (
-				<ul className={cn("stagger flex flex-col gap-2", isFetching && "opacity-60")}>
+				<ul
+					className={cn(
+						"stagger flex flex-col gap-2",
+						isPlaceholderData && "opacity-60"
+					)}
+				>
 					{page.items.map(product => (
 						<ProductRow
 							key={product.id}
@@ -120,35 +126,15 @@ function AdminPage() {
 				</ul>
 			)}
 
-			{page.pageCount > 1 && (
-				<nav aria-label="Pagine" className="flex items-center justify-between gap-3">
-					{page.page > 1 ? (
-						<Link
-							to="/admin"
-							search={{ ...params, pagina: page.page - 1 }}
-							className="text-body min-h-11 content-center font-medium underline"
-						>
-							‹ Precedente
-						</Link>
-					) : (
-						<span />
-					)}
-					<p className="text-small text-text-soft tabular-nums">
-						Pagina {page.page} di {page.pageCount}
-					</p>
-					{page.page < page.pageCount ? (
-						<Link
-							to="/admin"
-							search={{ ...params, pagina: page.page + 1 }}
-							className="text-body min-h-11 content-center font-medium underline"
-						>
-							Successiva ›
-						</Link>
-					) : (
-						<span />
-					)}
-				</nav>
-			)}
+			<SimplePager
+				page={page.page}
+				pageCount={page.pageCount}
+				link={(to, children, className) => (
+					<Link to="/admin" search={{ ...params, pagina: to }} className={className}>
+						{children}
+					</Link>
+				)}
+			/>
 
 			{/* The actions on many at once float above the tab bar, only while something is chosen. */}
 			{chosen.length > 0 && (

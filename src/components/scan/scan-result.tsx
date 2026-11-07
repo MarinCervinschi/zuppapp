@@ -88,7 +88,7 @@ export function ScanResult({ ean }: { ean: string }) {
 								Ci vuole un attimo, con Google.
 							</p>
 							<Link to="/accedi" className={buttonClass("ink")}>
-								Prendi la tua tessera
+								Accedi con Google
 							</Link>
 						</>
 					)}

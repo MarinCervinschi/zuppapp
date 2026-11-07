@@ -12,11 +12,11 @@ import {
 	EyeIcon,
 	UndoIcon,
 } from "@/components/ds/icons";
-import { PackPhoto } from "@/components/ds/pack-photo";
+import { PackThumb } from "@/components/ds/pack-photo";
+import { rowCard, rowCardGround, rowCardLink } from "@/components/ds/row-card";
 import { Sheet } from "@/components/ds/sheet";
 import { useCorrectProduct, useSetProductsStatus } from "@/lib/admin/mutations";
 import type { AdminProduct } from "@/lib/admin/service";
-import { sizedImage } from "@/lib/catalog/image";
 import { subtypeLabel } from "@/lib/catalog/labels";
 import { VOTI, count } from "@/lib/plural";
 import { cn } from "@/lib/utils";
@@ -84,8 +84,9 @@ export function ProductRow({
 		<li>
 			<article
 				className={cn(
-					"group relative grid grid-cols-[auto_auto_minmax(0,1fr)_auto] items-center gap-3 rounded-[1.5rem] py-2 pr-3 pl-1 transition-[scale,background-color] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.99]",
-					selected ? "bg-text/[0.1]" : "bg-ground-raised hover:bg-text/[0.06]"
+					rowCard,
+					"grid-cols-[auto_auto_minmax(0,1fr)_auto] pl-1",
+					selected ? "bg-text/[0.1]" : rowCardGround
 				)}
 			>
 				{/* Above the stretched button: the box is its own control. */}
@@ -98,22 +99,12 @@ export function ProductRow({
 					/>
 					<span className="sr-only">Seleziona {product.name}</span>
 				</label>
-				{product.imageUrl ? (
-					<img
-						src={sizedImage(product.imageUrl, 100) ?? product.imageUrl}
-						alt=""
-						loading="lazy"
-						decoding="async"
-						className="size-14 rounded-[0.875rem] bg-white object-cover"
-					/>
-				) : (
-					<span aria-hidden className="bg-ground size-14 rounded-[0.875rem]" />
-				)}
+				<PackThumb src={product.imageUrl} className="size-14 rounded-[0.875rem]" />
 				<div className="flex min-w-0 flex-col gap-1">
 					<button
 						type="button"
 						onClick={onOpen}
-						className="font-display text-body text-left font-medium group-hover:underline after:absolute after:inset-0 after:rounded-[1.5rem]"
+						className={cn(rowCardLink, "text-left")}
 					>
 						{product.name}
 					</button>
@@ -173,16 +164,7 @@ export function AdminProductSheet({
 					</p>
 				</div>
 			}
-			media={
-				<span className="plate grid size-24 shrink-0 place-items-center overflow-hidden rounded-[1.25rem] bg-white">
-					<PackPhoto
-						src={product.imageUrl}
-						alt=""
-						size="thumb"
-						className="size-full rounded-none object-cover"
-					/>
-				</span>
-			}
+			media={<PackThumb src={product.imageUrl} className="size-24 rounded-[1.25rem]" />}
 			onClosed={onClosed}
 			wide="panel"
 		>
@@ -329,7 +311,7 @@ export function AdminProductSheet({
 							className={cn(buttonClass(), "w-full")}
 						>
 							<CheckIcon className="size-5" />
-							{correct.isPending ? "Salvataggio…" : "Salva la correzione"}
+							{correct.isPending ? "Salvo…" : "Salva la correzione"}
 						</button>
 					</form>
 				</div>

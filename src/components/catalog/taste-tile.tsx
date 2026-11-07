@@ -1,6 +1,6 @@
 import { HeartButton } from "@/components/ds/heart-button";
 import { PackPhoto } from "@/components/ds/pack-photo";
-import { RatingBadge, StarIcon } from "@/components/ds/stars";
+import { MissingVotesBadge, MyScoreBadge, RatingBadge } from "@/components/ds/stars";
 import { SoupLink } from "@/components/product/soup-sheet";
 import { productDetails } from "@/lib/catalog/details";
 import type { ProductListItem } from "@/lib/catalog/types";
@@ -29,23 +29,14 @@ export function TasteTile({ product }: { product: ProductListItem }) {
 					<span className="font-display text-lead text-[#6a5f53]">Senza foto</span>
 				)}
 				{product.myScore && (
-					<span className="bg-ink text-on-ink text-small absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold tabular-nums">
-						<StarIcon className="text-star size-3.5" />
-						{product.myScore}
-						<span className="sr-only">
-							{product.myScore === 1 ? " stella, il tuo voto" : " stelle, il tuo voto"}
-						</span>
-					</span>
+					<MyScoreBadge
+						score={product.myScore}
+						className="absolute top-3 left-3 py-1"
+					/>
 				)}
 				<span className="absolute bottom-3 left-3">
 					{missing > 0 ? (
-						<span className="text-small bg-field text-on-field inline-flex rounded-full px-2.5 py-1 font-semibold">
-							{product.votesCount === 0
-								? "Nessun voto: il primo è tuo"
-								: missing === 1
-									? "Manca 1 voto alla classifica"
-									: `Mancano ${missing} voti alla classifica`}
-						</span>
+						<MissingVotesBadge votesCount={product.votesCount} className="py-1" />
 					) : (
 						<RatingBadge
 							mean={product.mean}

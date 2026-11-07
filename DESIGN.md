@@ -229,7 +229,13 @@ saturate(180%)`, una luce sul bordo alto, un bordo di luce e un riflesso in alto
   `actions` («Azzera») prima della X. Maniglia e intestazione trascinano il foglio; con `detents` (anteprima e
   foglio intero) un tocco sull'intestazione lo apre tutto. Nessun foglio si fa un'intestazione o una X da sé. Lo
   usano il foglio della zuppa (`product/soup-sheet.tsx`, vedi «Votare deve costare un tap»), i filtri, «Come si
-  ordina», il profilo e l'admin.
+  ordina», il profilo e l'admin. Il trascinamento è `useSheetDrag` (`ds/use-sheet-drag.ts`), lo stesso della
+  pagina della zuppa.
+- **I pezzi ripetuti hanno un posto solo**: `PackThumb` (la miniatura da 100 px, in righe, suggerimenti e
+  intestazioni), `rowCard`/`rowCardLink` (`ds/row-card.ts`, la riga-card con il nome steso sopra),
+  `segment`/`SegmentCount` (`ds/segmented.tsx`, le schede a pillola), `SimplePager` («‹ Indietro · Avanti ›»),
+  `MyScoreBadge` e `MissingVotesBadge` (in `ds/stars.tsx`, con le parole di `missingVotesLabel`), i chip dei
+  filtri e la X della ricerca (`ds/chip.tsx`), i crediti (`ds/credits.tsx`), numeri e date (`lib/format.ts`).
 
 ## Regole per ogni schermata
 

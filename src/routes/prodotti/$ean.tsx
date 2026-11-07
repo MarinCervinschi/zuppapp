@@ -1,20 +1,19 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 
 import { DetailBar } from "@/components/ds/app-bar";
 import { HeartButton } from "@/components/ds/heart-button";
-import { RatingBadge } from "@/components/ds/stars";
+import { useSheetDrag } from "@/components/ds/use-sheet-drag";
 import { ZoomablePhoto } from "@/components/ds/zoomable-photo";
 import { NotFoundPage } from "@/components/error/error-pages";
 import { AdminShortcut } from "@/components/product/admin-shortcut";
-import { SoupSections, SoupWarnings } from "@/components/product/soup-detail";
+import { RankLine, SoupSections, SoupWarnings } from "@/components/product/soup-detail";
 import { VotePanel, useVote } from "@/components/product/vote-panel";
 import { productDetails } from "@/lib/catalog/details";
 import { catalogQueries } from "@/lib/catalog/queries";
 import type { ProductCard } from "@/lib/catalog/types";
-import { VOTI, count } from "@/lib/plural";
 
 export const Route = createFileRoute("/prodotti/$ean")({
 	loader: async ({ context, params }) => {
@@ -42,7 +41,6 @@ function ProductPage() {
 
 function ProductView({ product }: { product: ProductCard }) {
 	const vote = useVote(product);
-	const { stats } = product;
 	const sheet = useRef<HTMLDivElement>(null);
 	useDragToLeave(sheet);
 
@@ -92,19 +90,7 @@ function ProductView({ product }: { product: ProductCard }) {
 						{product.name}
 					</h1>
 					<p className="text-body text-text-soft">{productDetails(product)}</p>
-					<p className="flex flex-wrap items-center gap-2">
-						<RatingBadge mean={stats.mean} votesCount={stats.votesCount} />
-						{stats.votesCount > 0 && (
-							<span aria-hidden className="text-body text-text-soft tabular-nums">
-								({count(stats.votesCount, VOTI)})
-							</span>
-						)}
-						{stats.rank && (
-							<span className="text-body text-text-soft">
-								· {stats.rank}° in classifica
-							</span>
-						)}
-					</p>
+					<RankLine product={product} large />
 				</header>
 
 				<SoupWarnings product={product} />
@@ -117,69 +103,34 @@ function ProductView({ product }: { product: ProductCard }) {
 	);
 }
 
-// How far the sheet must be pulled down, or how fast, to go back.
-const LEAVE_PX = 120;
-const LEAVE_SPEED = 0.7;
+// How far down the sheet must land (where the pull, flick included, would carry it) to go back.
+const LEAVE_PX = 140;
 
 /**
- * On a phone, the page's sheet drags down by its handle or its header, like the soup's sheet: let go
- * far or fast enough and it slides away and goes back (to the soups, for a link opened cold); a
- * short pull springs back. With reduced motion it does not slide away, it just goes.
+ * On a phone, the page's sheet drags down by its handle or its header, with the soup's sheet's own
+ * drag (`useSheetDrag`): let go where it would land past LEAVE_PX and it slides away and goes back
+ * (to the soups, for a link opened cold); a short pull springs back. With reduced motion it does
+ * not slide away, it just goes.
  */
 function useDragToLeave(sheet: React.RefObject<HTMLDivElement | null>) {
 	const router = useRouter();
+	const place = (offset: number) =>
+		sheet.current?.style.setProperty("--y", `${offset}px`);
 
-	useEffect(() => {
-		const element = sheet.current;
-		if (!element) return;
-		const wide = window.matchMedia("(min-width: 64rem)");
-		const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-		let start: { y: number; t: number } | null = null;
-		let dy = 0;
-
-		function leave() {
-			if (window.history.length > 1) router.history.back();
-			else router.navigate({ to: "/" });
-		}
-		function down(event: PointerEvent) {
-			if (wide.matches || event.button !== 0) return;
-			const target = event.target as HTMLElement;
-			if (!target.closest("[data-drag]") || target.closest("button, a")) return;
-			start = { y: event.clientY, t: event.timeStamp };
-			dy = 0;
-			try {
-				element!.setPointerCapture(event.pointerId);
-			} catch {}
-		}
-		function move(event: PointerEvent) {
-			if (!start) return;
-			dy = event.clientY - start.y;
-			if (!element!.dataset.dragging && Math.abs(dy) < 4) return;
-			element!.dataset.dragging = "true";
-			// Upwards it barely moves: the page is already as open as it gets.
-			element!.style.setProperty("--y", `${dy < 0 ? dy / 4 : dy}px`);
-		}
-		function up(event: PointerEvent) {
-			if (!start) return;
-			const speed = dy / Math.max(1, event.timeStamp - start.t);
-			start = null;
-			delete element!.dataset.dragging;
-			if (dy > LEAVE_PX || (dy > 24 && speed > LEAVE_SPEED)) {
-				if (reduced.matches) return leave();
-				element!.style.setProperty("--y", `${window.innerHeight}px`);
-				setTimeout(leave, 300);
-			} else element!.style.setProperty("--y", "0px");
-		}
-
-		element.addEventListener("pointerdown", down);
-		element.addEventListener("pointermove", move);
-		element.addEventListener("pointerup", up);
-		element.addEventListener("pointercancel", up);
-		return () => {
-			element.removeEventListener("pointerdown", down);
-			element.removeEventListener("pointermove", move);
-			element.removeEventListener("pointerup", up);
-			element.removeEventListener("pointercancel", up);
-		};
-	}, [sheet, router]);
+	useSheetDrag(sheet, {
+		enabled: () => !window.matchMedia("(min-width: 64rem)").matches,
+		anywhere: () => false,
+		rest: () => 0,
+		place,
+		release: projected => {
+			if (projected <= LEAVE_PX) return place(0);
+			const leave = () =>
+				router.history.canGoBack()
+					? router.history.back()
+					: router.navigate({ to: "/" });
+			if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return leave();
+			place(window.innerHeight);
+			setTimeout(leave, 300);
+		},
+	});
 }

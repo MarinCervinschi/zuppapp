@@ -3,6 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 
 import { buttonClass } from "@/components/ds/button";
+import {
+	ClearSearchButton,
+	chip,
+	chipOff,
+	chipOn,
+	searchInput,
+} from "@/components/ds/chip";
 import { CloseIcon, SearchIcon, SettingsIcon } from "@/components/ds/icons";
 import { Sheet } from "@/components/ds/sheet";
 import { type AdminListParams, NO_SUBTYPE } from "@/lib/admin/schemas";
@@ -26,11 +33,6 @@ const YES_NO = [
 ] as const;
 
 type Patch = Partial<AdminListParams>;
-
-const chip =
-	"text-body inline-flex min-h-11 items-center gap-2 rounded-full px-4 no-underline transition-[background-color,color] duration-150";
-const on = "bg-text text-ground";
-const off = "bg-text/[0.06] hover:bg-text/10";
 
 /**
  * The admin's search, the «Filtri» button and the chips of what is filtered, all in the URL like
@@ -107,21 +109,16 @@ export function AdminFilters({
 							placeholder="Nome, marca o EAN"
 							autoComplete="off"
 							enterKeyHint="search"
-							className="text-body placeholder:text-text-soft min-h-12 w-full min-w-0 bg-transparent outline-none [&::-webkit-search-cancel-button]:hidden"
+							className={searchInput}
 						/>
 						{text && (
-							<button
-								type="button"
+							<ClearSearchButton
 								onClick={() => {
 									setText("");
 									setQuery("");
 									input.current?.focus();
 								}}
-								className="hover:bg-text/10 grid size-11 shrink-0 place-items-center rounded-full"
-							>
-								<CloseIcon className="size-5" />
-								<span className="sr-only">Svuota la ricerca</span>
-							</button>
+							/>
 						)}
 					</div>
 				</form>
@@ -148,7 +145,7 @@ export function AdminFilters({
 							<Link
 								to="/admin"
 								search={current => ({ ...current, ...patch, pagina: undefined })}
-								className={cn(chip, on, "min-h-10 pr-3 text-[0.9375rem]")}
+								className={cn(chip, chipOn, "min-h-10 pr-3 text-[0.9375rem]")}
 							>
 								{label}
 								<CloseIcon className="size-4" />
@@ -213,7 +210,7 @@ function FilterSheet({
 				replace
 				resetScroll={false}
 				aria-current={active ? "true" : undefined}
-				className={cn(chip, active ? on : off)}
+				className={cn(chip, active ? chipOn : chipOff)}
 			>
 				{label}
 			</Link>

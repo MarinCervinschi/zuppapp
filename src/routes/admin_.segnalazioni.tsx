@@ -7,7 +7,6 @@ import { NotFoundPage } from "@/components/error/error-pages";
 import { isAdminFn } from "@/lib/admin/api";
 import { adminQueries } from "@/lib/admin/queries";
 import { PRODOTTI, count } from "@/lib/plural";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin_/segnalazioni")({
 	// Like /admin: to anyone but an admin this page does not exist.
@@ -21,7 +20,7 @@ export const Route = createFileRoute("/admin_/segnalazioni")({
 });
 
 function ReportsPage() {
-	const { data, isFetching } = useQuery(adminQueries.reports());
+	const { data } = useQuery(adminQueries.reports());
 	if (!data) return null;
 
 	return (
@@ -38,7 +37,7 @@ function ReportsPage() {
 						{count(data.groups.length, PRODOTTI)} da guardare, prima i più richiesti.
 						Ogni scelta vale per tutte le segnalazioni dello stesso EAN.
 					</p>
-					<ul className={cn("flex flex-col gap-3", isFetching && "opacity-60")}>
+					<ul className="flex flex-col gap-3">
 						{data.groups.map(group => (
 							<ReportGroupCard key={group.ean} group={group} />
 						))}

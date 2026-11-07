@@ -5,17 +5,14 @@ import { Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-ro
 
 import { Button } from "@/components/ds/button";
 import { HeartButton } from "@/components/ds/heart-button";
-import { PackPhoto } from "@/components/ds/pack-photo";
+import { PackPhoto, PackThumb } from "@/components/ds/pack-photo";
 import { Sheet } from "@/components/ds/sheet";
-import { RatingBadge } from "@/components/ds/stars";
 import { productDetails } from "@/lib/catalog/details";
 import { catalogQueries } from "@/lib/catalog/queries";
 import type { ProductCard } from "@/lib/catalog/types";
-import { VOTI, count } from "@/lib/plural";
-import { MIN_VOTES_TO_RANK } from "@/lib/ranking/rules";
 
 import { AdminShortcut } from "./admin-shortcut";
-import { SoupSections, SoupWarnings } from "./soup-detail";
+import { RankLine, SoupSections, SoupWarnings } from "./soup-detail";
 import { VotePanel, useVote } from "./vote-panel";
 
 // The soup's sheet: tapping a soup in a list opens it over the page instead of leaving it. It
@@ -125,16 +122,10 @@ function SoupSheet({ ean }: { ean: string }) {
 	}
 
 	const thumb = (
-		<span className="plate rounded-thumb grid size-16 shrink-0 place-items-center overflow-hidden bg-white lg:hidden">
-			{product && (
-				<PackPhoto
-					src={product.imageUrl}
-					alt=""
-					size="thumb"
-					className="size-full rounded-none object-cover"
-				/>
-			)}
-		</span>
+		<PackThumb
+			src={product?.imageUrl ?? null}
+			className="rounded-thumb size-16 lg:hidden"
+		/>
 	);
 
 	return (
@@ -225,30 +216,6 @@ function SheetBody({ product }: { product: ProductCard }) {
 			<SoupSections product={product} />
 			<AdminShortcut product={product} variant="row" />
 		</div>
-	);
-}
-
-/** The soup's standing in one quiet line: its mean and place, or how far it is from the ranking. */
-function RankLine({ product }: { product: ProductCard }) {
-	const { stats } = product;
-	const missing = MIN_VOTES_TO_RANK - stats.votesCount;
-	if (stats.votesCount === 0)
-		return <p className="text-small text-text-soft">Ancora nessun voto</p>;
-	if (missing > 0)
-		return (
-			<p className="text-small text-text-soft tabular-nums">
-				{count(stats.votesCount, VOTI)} ·{" "}
-				{missing === 1 ? "ne manca 1" : `ne mancano ${missing}`} per la classifica
-			</p>
-		);
-	return (
-		<p className="flex flex-wrap items-center gap-2">
-			<RatingBadge mean={stats.mean} votesCount={stats.votesCount} size="sm" />
-			<span className="text-small text-text-soft tabular-nums">
-				{count(stats.votesCount, VOTI)}
-				{stats.rank && ` · ${stats.rank}° in classifica`}
-			</span>
-		</p>
 	);
 }
 

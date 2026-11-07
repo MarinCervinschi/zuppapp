@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import { sizedImage } from "@/lib/catalog/image";
 import { cn } from "@/lib/utils";
 
 /**
@@ -42,5 +43,38 @@ export function PackPhoto({
 				className
 			)}
 		/>
+	);
+}
+
+/**
+ * A pack's photo small, in a list row, a suggestion or a sheet's header: the 100 px version of the
+ * image on its white plate, shimmering until it arrives; with no photo, a plain paper square.
+ * `className` sets its size and corners.
+ */
+export function PackThumb({
+	src,
+	className,
+}: {
+	src: string | null;
+	className?: string;
+}) {
+	return (
+		<span
+			aria-hidden
+			className={cn(
+				"grid shrink-0 place-items-center overflow-hidden",
+				src ? "plate bg-white" : "bg-ground",
+				className
+			)}
+		>
+			{src && (
+				<PackPhoto
+					src={sizedImage(src, 100) ?? src}
+					alt=""
+					size="thumb"
+					className="size-full rounded-none object-cover"
+				/>
+			)}
+		</span>
 	);
 }

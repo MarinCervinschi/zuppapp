@@ -4,6 +4,7 @@ import * as m from "motion/react-m";
 
 import { packGrams } from "@/lib/catalog/pack";
 import type { Nutrition } from "@/lib/catalog/types";
+import { formatAmount, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 /** A nutrient's level per 100 g, by the UK FSA front-of-pack thresholds for foods. */
@@ -45,9 +46,6 @@ const ROWS: Row[] = [
 
 const ENERGY_INTAKE_KCAL = 2000;
 const KJ_PER_KCAL = 4.184;
-
-const number = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 1 });
-const whole = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0 });
 
 function levelOf(value: number, [low, medium]: [number, number]): Level {
 	if (value <= low) return "basso";
@@ -107,7 +105,7 @@ function IntakeCell({ percent }: { percent: number }) {
 		<td className="w-24 py-3 pr-5 pl-3 text-right align-middle">
 			<span className="flex flex-col items-end gap-1.5">
 				<span className={cn("text-small tabular-nums", over && "font-semibold")}>
-					{whole.format(percent)}%
+					{formatNumber(percent)}%
 				</span>
 				<Bar percent={percent} />
 			</span>
@@ -150,7 +148,7 @@ function EnergySplit({ nutrition }: { nutrition: Nutrition }) {
 						<span aria-hidden className={cn("size-2 rounded-full", part.tint)} />
 						{part.label}
 						<span className="tabular-nums">
-							{whole.format((part.kcal / total) * 100)}%
+							{formatNumber((part.kcal / total) * 100)}%
 						</span>
 					</li>
 				))}
@@ -177,7 +175,7 @@ export function NutritionLabel({
 	const pack = packGrams(quantity);
 	const [perPack, setPerPack] = useState(false);
 	const factor = perPack && pack ? pack / 100 : 1;
-	const basis = perPack && pack ? `la confezione (${whole.format(pack)} g)` : "100 g";
+	const basis = perPack && pack ? `la confezione (${formatNumber(pack)} g)` : "100 g";
 	const rows = ROWS.filter(row => nutrition[row.key] !== null);
 	const kcal = nutrition.energyKcal === null ? null : nutrition.energyKcal * factor;
 
@@ -200,7 +198,7 @@ export function NutritionLabel({
 						>
 							{[
 								{ value: false, label: "100 g" },
-								{ value: true, label: `Confezione · ${whole.format(pack)} g` },
+								{ value: true, label: `Confezione · ${formatNumber(pack)} g` },
 							].map(option => (
 								<button
 									key={option.label}
@@ -252,11 +250,11 @@ export function NutritionLabel({
 							</th>
 							<td className="pt-5 pb-3 pl-3 text-right align-middle">
 								<span className="font-display text-title block leading-none font-semibold whitespace-nowrap tabular-nums">
-									{whole.format(kcal)}
+									{formatNumber(kcal)}
 									<span className="text-body font-medium"> kcal</span>
 								</span>
 								<span className="text-small text-text-soft tabular-nums">
-									{whole.format(kcal * KJ_PER_KCAL)} kJ
+									{formatNumber(kcal * KJ_PER_KCAL)} kJ
 								</span>
 							</td>
 							<IntakeCell percent={(kcal / ENERGY_INTAKE_KCAL) * 100} />
@@ -289,7 +287,7 @@ export function NutritionLabel({
 									</span>
 								</th>
 								<td className="py-3 pl-3 text-right align-middle tabular-nums">
-									{number.format(value)} {row.unit}
+									{formatAmount(value)} {row.unit}
 								</td>
 								<IntakeCell percent={(value / row.intake) * 100} />
 							</tr>

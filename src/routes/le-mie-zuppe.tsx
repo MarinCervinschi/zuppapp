@@ -6,14 +6,18 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { buttonClass } from "@/components/ds/button";
 import { HeartButton } from "@/components/ds/heart-button";
 import { ArrowRightIcon } from "@/components/ds/icons";
+import { PackThumb } from "@/components/ds/pack-photo";
 import { PageHead } from "@/components/ds/page-head";
-import { RatingBadge, StarIcon } from "@/components/ds/stars";
+import { rowCard, rowCardGround, rowCardLink } from "@/components/ds/row-card";
+import { SegmentCount, segment, segmentedBar } from "@/components/ds/segmented";
+import { SimplePager } from "@/components/ds/simple-pager";
+import { MissingVotesBadge, MyScoreBadge, RatingBadge } from "@/components/ds/stars";
 import { SoupLink } from "@/components/product/soup-sheet";
 import { productDetails } from "@/lib/catalog/details";
-import { sizedImage } from "@/lib/catalog/image";
 import { EXACT_SEARCH } from "@/lib/catalog/schemas";
 import type { ProductListItem } from "@/lib/catalog/types";
 import { favoriteQueries } from "@/lib/favorites/queries";
+import { formatDayMonth } from "@/lib/format";
 import { MIN_VOTES_TO_RANK, SCORE_LABELS } from "@/lib/ranking/rules";
 import { userQueries } from "@/lib/user/queries";
 import { myVotesSchema } from "@/lib/user/schemas";
@@ -41,12 +45,10 @@ export const Route = createFileRoute("/le-mie-zuppe")({
 	component: MySoups,
 });
 
-const date = new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "long" });
 const SIGN = { positive: "+", negative: "−", neutral: "·" } as const;
 
 // A row a thumb can press, as in the ranking: photo, words, and what is yours on the right.
-const rowCard =
-	"group bg-ground-raised hover:bg-text/[0.06] relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-[1.5rem] p-2 pr-3 transition-[scale,background-color] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.98]";
+const row = cn(rowCard, rowCardGround, "grid-cols-[auto_minmax(0,1fr)_auto]");
 
 function MySoups() {
 	const { scheda, pagina } = Route.useSearch();
@@ -56,44 +58,33 @@ function MySoups() {
 	const viewer = me?.viewer;
 	const signedIn = Boolean(viewer && !viewer.isAnonymous);
 
-	const tab = (active: boolean) =>
-		cn(
-			"text-body flex min-h-11 items-center justify-center gap-1.5 rounded-full px-4 font-medium no-underline transition-[background-color,color] duration-200",
-			active ? "bg-text text-ground" : "hover:bg-text/[0.06]"
-		);
-
 	return (
 		<>
 			<PageHead blob="pumpkin" title="Le tue zuppe" back="/profilo" barWidth="max-w-xl">
 				<p>Quelle che hai votato e quelle col cuore.</p>
 			</PageHead>
 			<main className="mx-auto flex max-w-xl flex-col gap-6 px-4">
-				<nav
-					aria-label="Quali zuppe"
-					className="bg-ground-raised grid grid-cols-2 gap-1 rounded-full p-1"
-				>
+				<nav aria-label="Quali zuppe" className={cn(segmentedBar, "grid grid-cols-2")}>
 					<Link
 						to="/le-mie-zuppe"
 						search={{ scheda: undefined }}
 						activeOptions={EXACT_SEARCH}
 						aria-current={!favorites ? "page" : undefined}
-						className={tab(!favorites)}
+						className={segment(!favorites)}
 					>
 						Votate
-						{viewer && (
-							<span className="tabular-nums opacity-70">{viewer.votesCount}</span>
-						)}
+						{viewer && <SegmentCount n={viewer.votesCount} active={!favorites} />}
 					</Link>
 					<Link
 						to="/le-mie-zuppe"
 						search={{ scheda: "preferite" }}
 						activeOptions={EXACT_SEARCH}
 						aria-current={favorites ? "page" : undefined}
-						className={tab(favorites)}
+						className={segment(favorites)}
 					>
 						Preferite
 						{signedIn && viewer && (
-							<span className="tabular-nums opacity-70">{viewer.favoritesCount}</span>
+							<SegmentCount n={viewer.favoritesCount} active={favorites} />
 						)}
 					</Link>
 				</nav>
@@ -160,17 +151,14 @@ function VotesList({ page, anonymous }: { page: number; anonymous: boolean }) {
 
 function VoteRow({ vote }: { vote: MyVote }) {
 	return (
-		<article className={rowCard}>
-			<Thumb src={vote.imageUrl} />
+		<article className={row}>
+			<PackThumb className="size-16 rounded-[1rem]" src={vote.imageUrl} />
 			<div className="flex min-w-0 flex-col gap-0.5">
-				<SoupLink
-					ean={vote.ean}
-					className="font-display text-body font-medium no-underline group-hover:underline after:absolute after:inset-0 after:rounded-[1.5rem]"
-				>
+				<SoupLink ean={vote.ean} className={rowCardLink}>
 					{vote.name}
 				</SoupLink>
 				<p className="text-small text-text-soft">
-					{[vote.brand, `votata il ${date.format(new Date(vote.votedAt))}`]
+					{[vote.brand, `votata il ${formatDayMonth(vote.votedAt)}`]
 						.filter(Boolean)
 						.join(" • ")}
 				</p>
@@ -188,11 +176,7 @@ function VoteRow({ vote }: { vote: MyVote }) {
 				)}
 			</div>
 			<p className="flex flex-col items-end gap-0.5">
-				<span className="bg-ink text-on-ink text-small inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-semibold tabular-nums">
-					<StarIcon className="text-star size-3.5" />
-					{vote.score}
-					<span className="sr-only">{vote.score === 1 ? " stella" : " stelle"}</span>
-				</span>
+				<MyScoreBadge score={vote.score} />
 				<span className="text-small text-text-soft">
 					{SCORE_LABELS[vote.score].label}
 				</span>
@@ -248,21 +232,16 @@ function FavoritesList({ page }: { page: number }) {
 function FavoriteRow({ product }: { product: ProductListItem }) {
 	const missing = MIN_VOTES_TO_RANK - product.votesCount;
 	return (
-		<article className={rowCard}>
-			<Thumb src={product.imageUrl} />
+		<article className={row}>
+			<PackThumb className="size-16 rounded-[1rem]" src={product.imageUrl} />
 			<div className="flex min-w-0 flex-col gap-1">
-				<SoupLink
-					ean={product.ean}
-					className="font-display text-body font-medium no-underline group-hover:underline after:absolute after:inset-0 after:rounded-[1.5rem]"
-				>
+				<SoupLink ean={product.ean} className={rowCardLink}>
 					{product.name}
 				</SoupLink>
 				<p className="text-small text-text-soft">{productDetails(product)}</p>
 				<p className="flex flex-wrap items-center gap-1.5">
 					{missing > 0 ? (
-						<span className="text-small bg-field text-on-field rounded-full px-2 py-0.5 font-medium">
-							{missing === 1 ? "Manca 1 voto" : `Mancano ${missing} voti`}
-						</span>
+						<MissingVotesBadge votesCount={product.votesCount} />
 					) : (
 						<RatingBadge
 							mean={product.mean}
@@ -270,13 +249,7 @@ function FavoriteRow({ product }: { product: ProductListItem }) {
 							size="sm"
 						/>
 					)}
-					{product.myScore && (
-						<span className="bg-ink text-on-ink text-small inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold tabular-nums">
-							<StarIcon className="text-star size-3" />
-							{product.myScore}
-							<span className="sr-only"> stelle, il tuo voto</span>
-						</span>
-					)}
+					{product.myScore && <MyScoreBadge score={product.myScore} />}
 				</p>
 			</div>
 			{/* Above the stretched link: taking the heart off is its own button, undone by its toast. */}
@@ -286,20 +259,6 @@ function FavoriteRow({ product }: { product: ProductListItem }) {
 				className="relative z-20"
 			/>
 		</article>
-	);
-}
-
-function Thumb({ src }: { src: string | null }) {
-	return src ? (
-		<img
-			src={sizedImage(src, 100) ?? src}
-			alt=""
-			loading="lazy"
-			decoding="async"
-			className="size-16 rounded-[1rem] bg-white object-cover"
-		/>
-	) : (
-		<span aria-hidden className="bg-ground size-16 rounded-[1rem]" />
 	);
 }
 
@@ -333,32 +292,20 @@ function Pages({
 	pageCount: number;
 	favorites: boolean;
 }) {
-	if (pageCount <= 1) return null;
 	const scheda = favorites ? ("preferite" as const) : undefined;
-	const link = "text-body min-h-11 content-center font-medium underline";
 	return (
-		<nav aria-label="Pagine" className="flex items-center justify-between gap-3">
-			{page > 1 ? (
+		<SimplePager
+			page={page}
+			pageCount={pageCount}
+			link={(to, children, className) => (
 				<Link
 					to="/le-mie-zuppe"
-					search={{ scheda, pagina: page - 1 === 1 ? undefined : page - 1 }}
-					className={link}
+					search={{ scheda, pagina: to === 1 ? undefined : to }}
+					className={className}
 				>
-					‹ Indietro
+					{children}
 				</Link>
-			) : (
-				<span />
 			)}
-			<p className="text-small text-text-soft tabular-nums">
-				Pagina {page} di {pageCount}
-			</p>
-			{page < pageCount ? (
-				<Link to="/le-mie-zuppe" search={{ scheda, pagina: page + 1 }} className={link}>
-					Avanti ›
-				</Link>
-			) : (
-				<span />
-			)}
-		</nav>
+		/>
 	);
 }

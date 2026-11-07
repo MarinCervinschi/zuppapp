@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 
+import { CreditsLine } from "@/components/ds/credits";
 import { SoupField } from "@/components/ds/soup-field";
 import { ThemeSwitch } from "@/components/ds/theme-switch";
 import { GoogleButton } from "@/components/user/google-button";
@@ -128,27 +129,7 @@ function SignIn() {
 							</span>
 							<ThemeSwitch />
 						</div>
-						<p className="text-small text-text-soft">
-							Dati dei prodotti da{" "}
-							<a
-								href="https://world.openfoodfacts.org"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="underline"
-							>
-								Open Food Facts
-							</a>
-							, licenza ODbL.{" "}
-							<a
-								href="https://github.com/MarinCervinschi/zuppapp"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="underline"
-							>
-								Guarda il codice su GitHub
-							</a>
-							.
-						</p>
+						<CreditsLine />
 					</div>
 				</div>
 			</main>

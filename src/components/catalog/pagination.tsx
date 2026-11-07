@@ -4,11 +4,12 @@ import { Link } from "@tanstack/react-router";
 
 import type { BrowseParams } from "@/lib/catalog/schemas";
 import { EXACT_SEARCH } from "@/lib/catalog/schemas";
+import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type PageParam = "pagina" | "posti";
 /** The two screens that page through the catalogue, with the same URL params. */
-export type CatalogRoute = "/" | "/classifica";
+type CatalogRoute = "/" | "/classifica";
 
 /** 1 … 4 5 6 … 38: the first, the last and the neighbours of the current page. */
 export function pageWindow(page: number, pageCount: number): (number | "gap")[] {
@@ -23,8 +24,6 @@ export function pageWindow(page: number, pageCount: number): (number | "gap")[] 
 	}
 	return result;
 }
-
-const number = new Intl.NumberFormat("it-IT");
 
 // Quiet by default, like the rest of the controls: plain numbers on the paper, the current page
 // inked in. Every cell stays a 44px target even where it looks small.
@@ -61,7 +60,6 @@ export function Pagination({
 	section,
 	label,
 	unit,
-	firstNumber = 1,
 	route = "/",
 }: {
 	page: number;
@@ -78,8 +76,6 @@ export function Pagination({
 	label: string;
 	/** What is being counted, in the plural: "zuppe", "posti". */
 	unit: string;
-	/** The number of the first item of page 1: 4 in the ranking, after the podium. */
-	firstNumber?: number;
 	route?: CatalogRoute;
 }) {
 	if (total <= 0) return null;
@@ -87,12 +83,12 @@ export function Pagination({
 		...prev,
 		[param]: p === 1 ? undefined : p,
 	});
-	const first = firstNumber + (page - 1) * pageSize;
-	const last = Math.min(firstNumber - 1 + total, first + pageSize - 1);
+	const first = 1 + (page - 1) * pageSize;
+	const last = Math.min(total, first + pageSize - 1);
 	const range =
 		unit === "posti"
-			? `Posti ${number.format(first)}–${number.format(last)} di ${number.format(firstNumber - 1 + total)}`
-			: `${number.format(first)}–${number.format(last)} di ${number.format(total)} ${unit}`;
+			? `Posti ${formatNumber(first)}–${formatNumber(last)} di ${formatNumber(total)}`
+			: `${formatNumber(first)}–${formatNumber(last)} di ${formatNumber(total)} ${unit}`;
 
 	return (
 		<div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">

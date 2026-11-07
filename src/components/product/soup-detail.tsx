@@ -7,14 +7,17 @@ import { NutriScore } from "@/components/ds/nutri-score";
 import { NutritionLabel } from "@/components/ds/nutrition-label";
 import { Pill } from "@/components/ds/pill";
 import { StarDistribution } from "@/components/ds/star-distribution";
+import { RatingBadge } from "@/components/ds/stars";
 import { ALLERGEN_FILTERS } from "@/lib/catalog/schemas";
 import type { ProductCard } from "@/lib/catalog/types";
+import { formatDate } from "@/lib/format";
+import { VOTI, count } from "@/lib/plural";
+import { missingVotesLabel } from "@/lib/ranking/rules";
+import { cn } from "@/lib/utils";
 
 // What a soup's sheet and its page share under the vote: how it was voted and what people say,
 // what it is free of, the label, the Nutri-Score and the rest. One component, so the sheet pulled
 // up and the page opened from a link read the same.
-
-const date = new Intl.DateTimeFormat("it-IT", { dateStyle: "long" });
 
 const TAG_ORDER = { positive: 0, negative: 1, neutral: 2 } as const;
 const TAG_SIGN = { positive: "+", negative: "−", neutral: "·" } as const;
@@ -40,8 +43,8 @@ export function SoupWarnings({ product }: { product: ProductCard }) {
 			)}
 			{product.recipeChangedAt && (
 				<p className="bg-field text-body text-on-field rounded-card p-4">
-					Ricetta cambiata il {date.format(new Date(product.recipeChangedAt))}: i voti
-					di prima riguardano la versione vecchia.
+					Ricetta cambiata il {formatDate(product.recipeChangedAt)}: i voti di prima
+					riguardano la versione vecchia.
 				</p>
 			)}
 		</>
@@ -195,5 +198,33 @@ export function SoupSections({ product }: { product: ProductCard }) {
 				</p>
 			</section>
 		</>
+	);
+}
+
+/** The soup's standing in one quiet line: its mean and place, or how far it is from the ranking. */
+export function RankLine({
+	product,
+	large = false,
+}: {
+	product: ProductCard;
+	/** On the product page, under its big title. */
+	large?: boolean;
+}) {
+	const { stats } = product;
+	const missing = missingVotesLabel(stats.votesCount);
+	const text = large ? "text-body" : "text-small";
+	if (missing) return <p className={cn(text, "text-text-soft")}>{missing}</p>;
+	return (
+		<p className="flex flex-wrap items-center gap-2">
+			<RatingBadge
+				mean={stats.mean}
+				votesCount={stats.votesCount}
+				size={large ? "md" : "sm"}
+			/>
+			<span className={cn(text, "text-text-soft tabular-nums")}>
+				{count(stats.votesCount, VOTI)}
+				{stats.rank && ` · ${stats.rank}° in classifica`}
+			</span>
+		</p>
 	);
 }

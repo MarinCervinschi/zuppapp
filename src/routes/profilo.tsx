@@ -4,9 +4,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
 import { Button, buttonClass } from "@/components/ds/button";
+import { CREDITS, CreditsList } from "@/components/ds/credits";
 import {
 	ChevronRightIcon,
 	ExternalIcon,
+	HEART_PATH,
 	InfoIcon,
 	KeyIcon,
 	LogoutIcon,
@@ -139,7 +141,7 @@ function Profile() {
 							className="text-soup-tomato size-6"
 							fill="currentColor"
 						>
-							<path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z" />
+							<path d={HEART_PATH} />
 						</svg>
 						<span className="flex flex-col">
 							<span className="font-display text-title leading-none font-semibold tabular-nums">
@@ -227,41 +229,13 @@ function EditProfile({
 
 /** What the licences ask for, and where the code is: once the page's footer, now one tap away. */
 function Credits({ onClosed }: { onClosed: () => void }) {
-	const external = "inline-flex items-center gap-1 underline";
 	return (
 		<Sheet title="Crediti" onClosed={onClosed} wide="popup">
 			{() => (
 				<div className="flex flex-col gap-5">
-					<ul className="text-body flex flex-col gap-3">
-						<li>
-							Dati dei prodotti da{" "}
-							<a
-								href="https://world.openfoodfacts.org"
-								target="_blank"
-								rel="noopener noreferrer"
-								className={external}
-							>
-								Open Food Facts
-								<ExternalIcon className="size-4" />
-							</a>
-							, licenza ODbL.
-						</li>
-						<li>
-							Avatar{" "}
-							<a
-								href="https://www.dicebear.com/styles/critters/"
-								target="_blank"
-								rel="noopener noreferrer"
-								className={external}
-							>
-								Critters di DiceBear
-								<ExternalIcon className="size-4" />
-							</a>
-							, CC0.
-						</li>
-					</ul>
+					<CreditsList />
 					<a
-						href="https://github.com/MarinCervinschi/zuppapp"
+						href={CREDITS.code.href}
 						target="_blank"
 						rel="noopener noreferrer"
 						className={cn(buttonClass(), "w-full")}

@@ -38,3 +38,16 @@ export function meanStars(scoreSum: number, votesCount: number) {
 export function isRanked(votesCount: number) {
 	return votesCount >= MIN_VOTES_TO_RANK;
 }
+
+/**
+ * How far a soup is from the ranking, in the words every screen uses; null once it is in.
+ * «Nessun voto: il primo è tuo», «Manca 1 voto alla classifica», «Mancano 2 voti alla classifica».
+ */
+export function missingVotesLabel(votesCount: number): string | null {
+	const missing = MIN_VOTES_TO_RANK - votesCount;
+	if (missing <= 0) return null;
+	if (votesCount === 0) return "Nessun voto: il primo è tuo";
+	return missing === 1
+		? "Manca 1 voto alla classifica"
+		: `Mancano ${missing} voti alla classifica`;
+}

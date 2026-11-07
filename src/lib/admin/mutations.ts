@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { isRefreshableCatalogQuery } from "@/lib/catalog/queries";
 import { PRODOTTI, count } from "@/lib/plural";
 import { toast } from "@/lib/toast";
 
@@ -21,13 +22,9 @@ function useRefresh() {
 	const queryClient = useQueryClient();
 	// The public catalogue changes too when a product is published or corrected, and so do the
 	// reader's own lists ("Le mie zuppe", "Preferiti"), which show the same names and photos.
-	// The scanner's lookup is left alone: refetching it would ask Open Food Facts again.
 	return () => {
 		queryClient.invalidateQueries({ queryKey: ["admin"] });
-		queryClient.invalidateQueries({
-			predicate: query =>
-				query.queryKey[0] === "catalog" && query.queryKey[1] !== "lookup",
-		});
+		queryClient.invalidateQueries({ predicate: isRefreshableCatalogQuery });
 		queryClient.invalidateQueries({ queryKey: ["viewer"] });
 	};
 }

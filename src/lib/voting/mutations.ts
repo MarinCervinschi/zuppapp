@@ -2,6 +2,7 @@ import { type QueryClient, useMutation, useQueryClient } from "@tanstack/react-q
 
 import { authClient } from "@/lib/auth/client";
 import { turnstileToken } from "@/lib/auth/turnstile";
+import { isRefreshableCatalogQuery } from "@/lib/catalog/queries";
 import type { ListPage, ProductListItem, RankingPage } from "@/lib/catalog/types";
 import type { Score } from "@/lib/ranking/rules";
 import { toast } from "@/lib/toast";
@@ -34,8 +35,7 @@ async function ensureVoter() {
  */
 function refreshAfterVote(queryClient: QueryClient, ean?: string) {
 	queryClient.invalidateQueries({
-		predicate: query =>
-			query.queryKey[0] === "catalog" && query.queryKey[1] !== "lookup",
+		predicate: isRefreshableCatalogQuery,
 		refetchType: "none",
 	});
 	queryClient.invalidateQueries({

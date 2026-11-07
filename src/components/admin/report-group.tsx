@@ -2,14 +2,11 @@ import { useState } from "react";
 
 import { Button, paperOnRaised } from "@/components/ds/button";
 import { useResolveReports } from "@/lib/admin/mutations";
+import { formatDateTime } from "@/lib/format";
 import { SEGNALAZIONI, count } from "@/lib/plural";
 import type { ReportGroup } from "@/lib/reports/service";
 
 const STATUS = { draft: "bozza", published: "pubblicato", archived: "archiviato" };
-const date = new Intl.DateTimeFormat("it-IT", {
-	dateStyle: "medium",
-	timeStyle: "short",
-});
 const field = "bg-ground text-body min-h-12 w-full rounded-thumb px-4";
 
 /** Every open report of one EAN, and what to do with all of them at once. */
@@ -47,7 +44,7 @@ export function ReportGroupCard({ group }: { group: ReportGroup }) {
 						className="bg-ground rounded-thumb flex flex-col gap-2 p-4"
 					>
 						<p className="text-small text-text-soft">
-							{report.author} · {date.format(new Date(report.createdAt))}
+							{report.author} · {formatDateTime(report.createdAt)}
 						</p>
 						<p className="text-body">
 							{[report.name, report.brand, report.quantity]

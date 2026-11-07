@@ -9,6 +9,8 @@ import { toast } from "@/lib/toast";
 import { userQueries } from "@/lib/user/queries";
 import { cn } from "@/lib/utils";
 
+import { HEART_PATH } from "./icons";
+
 /**
  * The heart that keeps a soup among the reader's favourites: a round glass button, outlined in ink
  * when off, filled tomato inside the same outline when on (the outline keeps it readable on any
@@ -42,7 +44,10 @@ export function HeartButton({
 		event.stopPropagation();
 		if (!signedIn) {
 			toast("I preferiti si salvano nel tuo account.", {
-				action: { label: "Accedi", onClick: () => navigate({ to: "/accedi" }) },
+				action: {
+					label: "Accedi con Google",
+					onClick: () => navigate({ to: "/accedi" }),
+				},
 			});
 			return;
 		}
@@ -93,7 +98,7 @@ export function HeartButton({
 				strokeWidth="2"
 				strokeLinejoin="round"
 			>
-				<path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z" />
+				<path d={HEART_PATH} />
 			</svg>
 		</button>
 	);

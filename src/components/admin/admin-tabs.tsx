@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 import { KeyIcon } from "@/components/ds/icons";
+import { SegmentCount, segment, segmentedBar } from "@/components/ds/segmented";
 import type { AdminCounts } from "@/lib/admin/service";
 import { EXACT_SEARCH } from "@/lib/catalog/schemas";
 import { cn } from "@/lib/utils";
@@ -47,28 +48,24 @@ export function AdminHeader({
 				aria-label="Code dell’admin"
 				className="fade-x -mx-4 -my-1.5 [scrollbar-width:none] overflow-x-auto py-1.5 lg:mx-0 [&::-webkit-scrollbar]:hidden"
 			>
-				<ul className="bg-ground-raised mx-4 flex w-max gap-1 rounded-full p-1 lg:mx-0">
+				<ul className={cn(segmentedBar, "mx-4 flex w-max lg:mx-0")}>
 					{TABS.map(([key, label]) => {
 						const active = current === key;
-						const className = cn(
-							"text-body inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-medium whitespace-nowrap no-underline transition-[background-color,color] duration-200",
-							active ? "bg-text text-ground" : "hover:bg-text/[0.06]"
-						);
+						const className = segment(active);
 						const content = (
 							<>
 								{label}
-								<span
+								<SegmentCount
+									n={counts[key]}
+									active={active}
+									// Open reports wait for someone: the count stands out until the tab is open.
 									className={cn(
-										"text-small tabular-nums",
-										active ? "text-ground/75" : "text-text-soft",
 										key === "reports" &&
 											counts.reports > 0 &&
 											!active &&
 											"bg-field text-on-field rounded-full px-1.5 font-semibold"
 									)}
-								>
-									{counts[key]}
-								</span>
+								/>
 							</>
 						);
 						return (

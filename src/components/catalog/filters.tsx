@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 
+import { chip, chipOff, chipOn } from "@/components/ds/chip";
 import { subtypeLabel } from "@/lib/catalog/labels";
 import {
 	ALLERGEN_FILTERS,
@@ -18,12 +19,6 @@ import { BrandPicker } from "./brand-picker";
 
 // Every filter is a link: a URL to share, the back button undoes it, and it works before
 // the JavaScript arrives. The brand, a long list, adds a search field above its links.
-
-const chip =
-	"text-body inline-flex min-h-11 items-center gap-2 rounded-full px-4 no-underline transition-[background-color] duration-150";
-const on = "bg-text text-ground";
-// A tint of the ink, not a surface: it reads on the page (sidebar) and on the sheet alike.
-const off = "bg-text/[0.06] hover:bg-text/10";
 
 function toggled(list: string | undefined, item: string) {
 	const items = listParam(list);
@@ -71,7 +66,7 @@ export function FilterPanel({
 									aria-label={`Nutri-Score ${grade.toUpperCase()}, ${counts[grade] ?? 0} zuppe`}
 									className={cn(
 										"rounded-thumb flex min-h-14 flex-col items-center justify-center no-underline transition-[background-color] duration-150",
-										active ? on : off
+										active ? chipOn : chipOff
 									)}
 								>
 									<span className="font-display text-title leading-none font-semibold uppercase">
@@ -107,7 +102,7 @@ export function FilterPanel({
 										pagina: undefined,
 									})}
 									aria-current={active ? "true" : undefined}
-									className={cn(chip, "pl-3", active ? on : off)}
+									className={cn(chip, "pl-3", active ? chipOn : chipOff)}
 								>
 									{/* A minus: the ingredient is taken away, the soups that have it leave the list. */}
 									<span aria-hidden className="font-semibold">
@@ -182,7 +177,7 @@ export function ActiveFilters({ params }: { params: BrowseParams }) {
 									to="/"
 									activeOptions={EXACT_SEARCH}
 									search={prev => ({ ...item.search(prev), pagina: undefined })}
-									className={cn(chip, on, "hover:bg-text/85")}
+									className={cn(chip, chipOn, "hover:bg-text/85")}
 								>
 									{item.label}
 									<span aria-hidden>×</span>

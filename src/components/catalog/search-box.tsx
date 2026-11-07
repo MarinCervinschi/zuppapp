@@ -3,12 +3,14 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 
-import { CloseIcon, SearchIcon } from "@/components/ds/icons";
-import { PackPhoto } from "@/components/ds/pack-photo";
+import { ClearSearchButton, searchInput } from "@/components/ds/chip";
+import { SearchIcon } from "@/components/ds/icons";
+import { PackThumb } from "@/components/ds/pack-photo";
 import { StarIcon } from "@/components/ds/stars";
 import { useOpenSoup } from "@/components/product/soup-sheet";
 import { subtypeLabel } from "@/lib/catalog/labels";
 import { catalogQueries } from "@/lib/catalog/queries";
+import { formatStars } from "@/lib/format";
 import { ZUPPE, count } from "@/lib/plural";
 import { cn } from "@/lib/utils";
 
@@ -197,12 +199,10 @@ export function SearchBox({
 							});
 						}
 					}}
-					className="text-text text-body placeholder:text-text-soft min-h-12 w-full min-w-0 bg-transparent outline-none [&::-webkit-search-cancel-button]:hidden"
+					className={searchInput}
 				/>
 				{text && (
-					<button
-						type="button"
-						onMouseDown={event => event.preventDefault()}
+					<ClearSearchButton
 						onClick={() => {
 							setText("");
 							setActive(-1);
@@ -214,11 +214,7 @@ export function SearchBox({
 									resetScroll: false,
 								});
 						}}
-						className="hover:bg-text/10 grid size-11 shrink-0 place-items-center rounded-full transition-[scale] duration-150 motion-safe:active:scale-[0.92]"
-					>
-						<CloseIcon className="size-5" />
-						<span className="sr-only">Svuota la ricerca</span>
-					</button>
+					/>
 				)}
 			</div>
 
@@ -251,14 +247,7 @@ export function SearchBox({
 					>
 						{option.kind === "soup" ? (
 							<>
-								<span className="plate grid size-12 shrink-0 place-items-center overflow-hidden rounded-[0.875rem] bg-white">
-									<PackPhoto
-										src={option.image}
-										alt=""
-										size="thumb"
-										className="size-full rounded-none object-cover"
-									/>
-								</span>
+								<PackThumb src={option.image} className="size-12 rounded-[0.875rem]" />
 								<span className="flex min-w-0 flex-1 flex-col">
 									<span className="text-body leading-snug">
 										<Highlight text={option.label} query={typed} />
@@ -270,7 +259,7 @@ export function SearchBox({
 								{option.mean !== null && (
 									<span className="bg-badge-good text-small inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 font-semibold text-[#16120f] tabular-nums">
 										<StarIcon className="size-3" />
-										{option.mean.toLocaleString("it-IT")}
+										{formatStars(option.mean)}
 										<span className="sr-only"> stelle</span>
 									</span>
 								)}

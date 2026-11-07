@@ -31,6 +31,11 @@ export function useSetFavorite() {
 			queryClient.setQueryData(key, context?.previous);
 			toast.error("Il cuore non è stato salvato. Controlla la connessione e riprova.");
 		},
-		onSettled: () => queryClient.invalidateQueries({ queryKey: ["viewer"] }),
+		// Only what a heart changes: the favourites pages and the counts on the viewer. Not the ids,
+		// already right (or put back above), nor the reader's votes.
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: ["viewer", "favorites", "page"] });
+			queryClient.invalidateQueries({ queryKey: ["viewer"], exact: true });
+		},
 	});
 }
