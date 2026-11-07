@@ -13,8 +13,8 @@ Stack: web-ts 3 (plugin `stack-web-ts`), più ParadeDB per la ricerca; le migraz
 | `pnpm db:up` / `pnpm db:down`                 | ParadeDB locale (`compose.yaml`, porta 54330)                                                                                                                                                              |
 | `pnpm db:generate --name x`                   | migrazione dallo schema Drizzle                                                                                                                                                                            |
 | `pnpm db:migrate`                             | applica le migrazioni                                                                                                                                                                                      |
-| `pnpm dev`                                    | dev server su :3000 con l'ambiente `dev` di Infisical: **il database di produzione**, via Tailscale                                                                                                        |
-| `pnpm dev:local`                              | dev server su :3000 con `.env` e il ParadeDB locale                                                                                                                                                        |
+| `pnpm dev`                                    | dev server su :3002 con l'ambiente `dev` di Infisical: **il database di produzione**, via Tailscale                                                                                                        |
+| `pnpm dev:local`                              | dev server su :3002 con l'ambiente `local` di Infisical: il ParadeDB locale, il client Google di `dev` per riferimento, nessun bucket                                                                      |
 | `pnpm user:admin <email>`                     | rende admin un account Google già entrato una volta (`--revoke` per togliere)                                                                                                                              |
 | `pnpm db:seed`                                | 4 prodotti d'esempio (EAN 2…, mai reali); come `db:seed:votes` e `--publish`, rifiuta un database non locale                                                                                               |
 | `pnpm db:seed:votes`                          | 60 votanti finti su 45 prodotti, per vedere podio e classifica in locale                                                                                                                                   |
@@ -27,7 +27,8 @@ cancellerebbe. Ogni modifica passa da `generate` + `migrate`.
 
 ## Produzione
 
-Coolify, con il deploy in Terraform in una repo privata. L'immagine (`Dockerfile`) non legge segreti al build; all'avvio
+Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il progetto Infisical (`prod`, `dev`,
+`local`). L'immagine (`Dockerfile`) non legge segreti al build; all'avvio
 `docker-entrypoint.sh` entra in Infisical con l'identità `zuppapp-app`, applica le migrazioni
 (`scripts/migrate.mjs`) e poi avvia il server. Una sola istanza.
 
@@ -103,10 +104,10 @@ Coolify, con il deploy in Terraform in una repo privata. L'immagine (`Dockerfile
 
 Il giro dopo una feature o una modifica alla UI è `method:feature-review`. In Zuppapp si fa così:
 
-- Server: `preview_start` con `zuppapp-local-3002` (`.claude/launch.json`: `.env` e il ParadeDB locale, con
-  `BETTER_AUTH_URL` sulla 3002 così l'accesso funziona). Se manca, si aggiunge con
-  `"env": {"BETTER_AUTH_URL": "http://localhost:3002"}`, `--strictPort` e `"autoPort": false`. **Mai `pnpm dev`
-  né la configurazione `zuppapp`**: leggono Infisical `dev`, cioè il database di produzione. Prima `pnpm db:up`,
+- Server: `preview_start` con `zuppapp-local-3002` (`.claude/launch.json`: `pnpm dev:local`, cioè Infisical
+  `local`, il ParadeDB locale sulla 3002, dove punta anche il redirect di Google). Se manca, si aggiunge con
+  `"runtimeArgs": ["dev:local"]`, `"port": 3002` e `"autoPort": false`. **Mai `pnpm dev` né la configurazione
+  `zuppapp`**: leggono Infisical `dev`, cioè il database di produzione. Prima `pnpm db:up`,
   poi `pnpm db:migrate` se ci sono migrazioni nuove.
 - taste-skill (`taste-skill:design-taste-frontend`, solo revisione: niente draw, niente redesign): i comandi di
   `DESIGN.md` § «Controlli», con `--out .taste-skill/inspect-<rotta>`, una rotta per volta, comprese quelle con

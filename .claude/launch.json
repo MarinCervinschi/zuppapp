@@ -5,7 +5,15 @@
 			"name": "zuppapp",
 			"runtimeExecutable": "pnpm",
 			"runtimeArgs": ["dev"],
-			"port": 3000
+			"port": 3002,
+			"autoPort": false
+		},
+		{
+			"name": "zuppapp-local-3002",
+			"runtimeExecutable": "pnpm",
+			"runtimeArgs": ["dev:local"],
+			"port": 3002,
+			"autoPort": false
 		}
 	]
 }

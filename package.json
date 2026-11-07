@@ -6,8 +6,8 @@
 	"license": "MIT",
 	"packageManager": "pnpm@10.30.1",
 	"scripts": {
-		"dev": "infisical run --silent -- vite dev --port 3000",
-		"dev:local": "dotenv run -q -- vite dev --port 3000",
+		"dev": "infisical run --silent -- vite dev --port 3002 --strictPort",
+		"dev:local": "infisical run --env=local --silent -- vite dev --port 3002 --strictPort",
 		"build": "vite build",
 		"start": "node .output/server/index.mjs",
 		"typecheck": "tsc --noEmit",
@@ -16,14 +16,14 @@
 		"format:check": "prettier --check .",
 		"db:up": "docker compose up -d --wait db",
 		"db:down": "docker compose down",
-		"db:generate": "dotenv run -q -- drizzle-kit generate",
-		"db:migrate": "dotenv run -q -- drizzle-kit migrate",
-		"db:studio": "dotenv run -q -- drizzle-kit studio",
-		"db:seed": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/seed-dev.ts",
+		"db:generate": "infisical run --env=local --silent -- drizzle-kit generate",
+		"db:migrate": "infisical run --env=local --silent -- drizzle-kit migrate",
+		"db:studio": "infisical run --env=local --silent -- drizzle-kit studio",
+		"db:seed": "infisical run --env=local --silent -- tsx --tsconfig tsconfig.json scripts/seed-dev.ts",
 		"catalog:import": "infisical run --silent -- tsx --tsconfig tsconfig.json scripts/catalog-import.ts",
 		"icons": "node scripts/make-icons.mjs",
 		"user:admin": "infisical run --silent -- tsx --tsconfig tsconfig.json scripts/user-admin.ts",
-		"db:seed:votes": "dotenv run -q -- tsx --tsconfig tsconfig.json scripts/seed-dev-votes.ts"
+		"db:seed:votes": "infisical run --env=local --silent -- tsx --tsconfig tsconfig.json scripts/seed-dev-votes.ts"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
@@ -63,7 +63,6 @@
 		"@types/react": "^19.3.0",
 		"@types/react-dom": "^19.3.0",
 		"@vitejs/plugin-react": "^6.1.2",
-		"dotenv-cli": "^11.0.0",
 		"drizzle-kit": "^0.31.11",
 		"nitro": "3.0.260311-beta",
 		"prettier": "^3.9.10",
