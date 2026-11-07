@@ -1,25 +1,27 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
-import { Button, buttonClass, paperOnRaised } from "@/components/ds/button";
+import { Button, buttonClass } from "@/components/ds/button";
 import {
-	CheckIcon,
+	ChevronRightIcon,
+	ExternalIcon,
+	InfoIcon,
 	KeyIcon,
 	LogoutIcon,
 	PencilIcon,
-	SettingsIcon,
-	StarLineIcon,
+	SunIcon,
 } from "@/components/ds/icons";
-import { pillClass } from "@/components/ds/pill";
+import { Sheet } from "@/components/ds/sheet";
 import { SoupField } from "@/components/ds/soup-field";
+import { StarIcon } from "@/components/ds/stars";
 import { ThemeSwitch } from "@/components/ds/theme-switch";
 import { AvatarPicker } from "@/components/user/avatar-picker";
 import { NicknameForm } from "@/components/user/nickname-form";
 import { UserAvatar } from "@/components/user/user-avatar";
 import { authClient } from "@/lib/auth/client";
-import { VOTI, count } from "@/lib/plural";
 import { userQueries } from "@/lib/user/queries";
 import { cn } from "@/lib/utils";
 
@@ -33,26 +35,27 @@ export const Route = createFileRoute("/profilo")({
 	component: Profile,
 });
 
+// A row of the grouped settings list: a 56 px target, icon, words, and what it leads to.
+const row =
+	"text-body flex min-h-14 w-full items-center gap-3 px-4 text-left no-underline transition-[background-color] duration-150 hover:bg-text/[0.05]";
+
 function Profile() {
 	const { data } = useQuery(userQueries.viewer());
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const viewer = data?.viewer;
-	// Name and face change rarely: they open on request, not under the reader's thumb all the time.
-	const [editing, setEditing] = useState(false);
-	// The button that opens the editor goes away with it: focus follows to where the reader is.
-	const editorHeading = useRef<HTMLHeadingElement>(null);
-	const editButton = useRef<HTMLButtonElement>(null);
-	const opened = useRef(false);
-	useEffect(() => {
-		if (editing) editorHeading.current?.focus();
-		else if (opened.current) editButton.current?.focus();
-		opened.current = editing;
-	}, [editing]);
+	const [sheet, setSheet] = useState<"edit" | "credits" | null>(null);
+	const [leaving, setLeaving] = useState(false);
 	if (!viewer) return null;
 
 	async function signOut() {
-		await authClient.signOut();
+		setLeaving(true);
+		const { error } = await authClient.signOut();
+		if (error) {
+			setLeaving(false);
+			toast.error("Non sei uscito. Controlla la connessione e riprova.");
+			return;
+		}
 		// Everything cached belonged to that account: votes, hearts, the stars on every card.
 		await queryClient.invalidateQueries();
 		navigate({ to: "/" });
@@ -63,132 +66,211 @@ function Profile() {
 			{/* Your corner of the app gets its own soup: beetroot, rolling over the top. */}
 			<div className="relative isolate overflow-hidden">
 				<SoupField soup="beet" shape="onda" />
-				<header className="mx-auto flex max-w-xl flex-col gap-5 px-4 pt-14 pb-10">
-					<div className="flex items-center gap-4">
+				<header className="stagger mx-auto flex max-w-xl flex-col items-center gap-3 px-4 pt-12 pb-8 text-center">
+					<button
+						type="button"
+						onClick={() => setSheet("edit")}
+						className="group relative rounded-full transition-[scale] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.96]"
+					>
 						<UserAvatar
 							seed={viewer.avatarSeed}
-							className="size-20 shrink-0 rounded-full sm:size-24"
+							className="bg-ground-raised size-28 rounded-full"
 						/>
-						<div className="flex min-w-0 flex-col items-start gap-2">
-							<h1 className="font-display text-title font-semibold">
-								{viewer.displayName}
-							</h1>
-							{!editing && (
-								<Button
-									ref={editButton}
-									onClick={() => setEditing(true)}
-									className="min-h-11 px-4 whitespace-nowrap"
-									aria-controls="profile-editor"
-								>
-									<PencilIcon className="size-5" />
-									Modifica profilo
-								</Button>
-							)}
-						</div>
-					</div>
-					{/* Under the avatar row, full width: on a narrow phone each pill keeps one line. */}
-					<nav aria-label="Le tue zuppe" className="flex flex-wrap gap-2">
-						<Link to="/le-mie-zuppe" className={cn(pillClass(), "whitespace-nowrap")}>
-							<StarLineIcon className="size-4" />
-							Le mie zuppe
-							<span className="text-text-soft tabular-nums">
-								{count(viewer.votesCount, VOTI)}
-							</span>
-						</Link>
-						<Link to="/preferiti" className={cn(pillClass(), "whitespace-nowrap")}>
-							<svg
-								aria-hidden
-								viewBox="0 0 24 24"
-								className="text-soup-tomato size-4"
-								fill="currentColor"
-							>
-								<path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z" />
-							</svg>
-							Preferiti
-							<span className="text-text-soft tabular-nums">
-								{viewer.favoritesCount}
-							</span>
-						</Link>
-					</nav>
-				</header>
-			</div>
-			<main className="mx-auto flex max-w-xl flex-col gap-10 px-4 pt-2">
-				{!viewer.hasNickname && !editing && (
-					<div className="bg-field text-on-field rounded-card flex flex-col items-start gap-3 p-5">
-						<p className="text-body">
-							Scegli come ti chiami: per ora gli altri ti vedono come «
-							{viewer.displayName}».
-						</p>
-						<Button variant="ink" onClick={() => setEditing(true)}>
+						{/* The pencil says the face can be changed; the button's name says it in words. */}
+						<span
+							aria-hidden
+							className="bg-text text-ground absolute right-0 bottom-0 grid size-9 place-items-center rounded-full transition-transform duration-200 motion-safe:group-hover:rotate-12"
+						>
+							<PencilIcon className="size-4" />
+						</span>
+						<span className="sr-only">Cambia nome e faccia</span>
+					</button>
+					<h1 className="font-display text-title font-semibold text-balance">
+						{viewer.displayName}
+					</h1>
+					{!viewer.hasNickname ? (
+						<Button
+							variant="ink"
+							onClick={() => setSheet("edit")}
+							className="min-h-11 px-4"
+						>
 							<PencilIcon className="size-5" />
 							Scegli il tuo nome
 						</Button>
-					</div>
+					) : (
+						<Button onClick={() => setSheet("edit")} className="min-h-11 px-4">
+							<PencilIcon className="size-5" />
+							Modifica profilo
+						</Button>
+					)}
+				</header>
+			</div>
+
+			<main className="mx-auto flex max-w-xl flex-col gap-8 px-4">
+				{!viewer.hasNickname && (
+					<p className="text-small text-text-soft -mt-4 text-center">
+						Per ora gli altri ti vedono come «{viewer.displayName}».
+					</p>
 				)}
 
-				{editing && (
-					<section
-						id="profile-editor"
-						aria-labelledby="editor-heading"
-						className="bg-ground-raised rounded-card motion-safe:animate-rise flex flex-col gap-8 p-5"
+				<nav aria-label="Le tue zuppe" className="grid grid-cols-2 gap-3">
+					<Link
+						to="/le-mie-zuppe"
+						className="bg-ink text-on-ink rounded-card flex min-h-28 flex-col justify-between p-4 no-underline transition-[scale] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.97]"
 					>
-						<div className="flex items-center justify-between gap-3">
-							<h2
-								id="editor-heading"
-								ref={editorHeading}
-								tabIndex={-1}
-								className="font-display text-lead font-medium outline-none"
-							>
-								Modifica profilo
-							</h2>
-							<Button
-								onClick={() => setEditing(false)}
-								className={cn(paperOnRaised, "min-h-11 px-4")}
-							>
-								<CheckIcon className="size-5" />
-								Fatto
-							</Button>
-						</div>
-						<NicknameForm
-							current={viewer.hasNickname ? viewer.displayName : null}
-							onRaised
-						/>
-						<AvatarPicker userId={viewer.id} current={viewer.avatarSeed} onRaised />
-					</section>
-				)}
+						<StarIcon className="text-star size-6" />
+						<span className="flex flex-col">
+							<span className="font-display text-title leading-none font-semibold tabular-nums">
+								{viewer.votesCount}
+							</span>
+							<span className="text-body">
+								{viewer.votesCount === 1 ? "zuppa votata" : "zuppe votate"}
+							</span>
+						</span>
+					</Link>
+					<Link
+						to="/le-mie-zuppe"
+						search={{ scheda: "preferite" }}
+						className="bg-ground-raised rounded-card flex min-h-28 flex-col justify-between p-4 no-underline transition-[scale] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.97]"
+					>
+						<svg
+							aria-hidden
+							viewBox="0 0 24 24"
+							className="text-soup-tomato size-6"
+							fill="currentColor"
+						>
+							<path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z" />
+						</svg>
+						<span className="flex flex-col">
+							<span className="font-display text-title leading-none font-semibold tabular-nums">
+								{viewer.favoritesCount}
+							</span>
+							<span className="text-body">
+								{viewer.favoritesCount === 1 ? "preferita" : "preferite"}
+							</span>
+						</span>
+					</Link>
+				</nav>
 
-				<section aria-labelledby="settings-heading" className="flex flex-col gap-5">
+				<section aria-labelledby="settings-heading" className="flex flex-col gap-2">
 					<h2
 						id="settings-heading"
-						className="font-display text-lead inline-flex items-center gap-2 font-medium"
+						className="text-small text-text-soft px-4 font-semibold tracking-[0.06em] uppercase"
 					>
-						<SettingsIcon className="size-6" />
 						Impostazioni
 					</h2>
-					<div className="flex flex-col gap-2">
-						<span aria-hidden className="text-body font-semibold">
-							Tema
-						</span>
-						<ThemeSwitch className="self-start" />
+					<div className="bg-ground-raised group-rows overflow-hidden rounded-[1.5rem]">
+						<div className="flex min-h-14 flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-2">
+							<span aria-hidden className="text-body flex items-center gap-3">
+								<SunIcon className="size-5" />
+								Tema
+							</span>
+							<ThemeSwitch className="bg-ground" />
+						</div>
+						{viewer.isAdmin && (
+							<Link to="/admin" className={row}>
+								<KeyIcon className="size-5" />
+								<span className="flex-1">Gestione prodotti</span>
+								<ChevronRightIcon className="text-text-soft size-5" />
+							</Link>
+						)}
+						<button type="button" onClick={() => setSheet("credits")} className={row}>
+							<InfoIcon className="size-5" />
+							<span className="flex-1">Crediti e codice aperto</span>
+							<ChevronRightIcon className="text-text-soft size-5" />
+						</button>
 					</div>
-					{viewer.isAdmin && (
-						<Link to="/admin" className={cn(buttonClass(), "self-start")}>
-							<KeyIcon className="size-5" />
-							Gestione prodotti
-						</Link>
-					)}
-					<div className="flex flex-col items-start gap-2 pt-4">
-						<Button onClick={signOut}>
+					<div className="bg-ground-raised mt-2 overflow-hidden rounded-[1.5rem]">
+						<button
+							type="button"
+							onClick={signOut}
+							disabled={leaving}
+							className={cn(row, "text-danger disabled:opacity-60")}
+						>
 							<LogoutIcon className="size-5" />
-							Esci dall’account
-						</Button>
-						<p className="text-small text-text-soft">
-							Uscendo, i tuoi voti restano nell’account e li ritrovi al prossimo
-							accesso.
-						</p>
+							{leaving ? "Esco…" : "Esci dall’account"}
+						</button>
 					</div>
+					<p className="text-small text-text-soft px-4">
+						Uscendo, i tuoi voti restano nell’account e li ritrovi al prossimo accesso.
+					</p>
 				</section>
 			</main>
+
+			{sheet === "edit" && (
+				<EditProfile viewer={viewer} onClosed={() => setSheet(null)} />
+			)}
+			{sheet === "credits" && <Credits onClosed={() => setSheet(null)} />}
 		</>
+	);
+}
+
+/** Name and face, in a sheet: they change rarely, so they open on request. */
+function EditProfile({
+	viewer,
+	onClosed,
+}: {
+	viewer: { id: string; displayName: string; hasNickname: boolean; avatarSeed: string };
+	onClosed: () => void;
+}) {
+	return (
+		<Sheet title="Modifica profilo" onClosed={onClosed} wide="popup">
+			{() => (
+				<div className="flex flex-col gap-7">
+					<NicknameForm current={viewer.hasNickname ? viewer.displayName : null} />
+					<AvatarPicker userId={viewer.id} current={viewer.avatarSeed} />
+				</div>
+			)}
+		</Sheet>
+	);
+}
+
+/** What the licences ask for, and where the code is: once the page's footer, now one tap away. */
+function Credits({ onClosed }: { onClosed: () => void }) {
+	const external = "inline-flex items-center gap-1 underline";
+	return (
+		<Sheet title="Crediti" onClosed={onClosed} wide="popup">
+			{() => (
+				<div className="flex flex-col gap-5">
+					<ul className="text-body flex flex-col gap-3">
+						<li>
+							Dati dei prodotti da{" "}
+							<a
+								href="https://world.openfoodfacts.org"
+								target="_blank"
+								rel="noopener noreferrer"
+								className={external}
+							>
+								Open Food Facts
+								<ExternalIcon className="size-4" />
+							</a>
+							, licenza ODbL.
+						</li>
+						<li>
+							Avatar{" "}
+							<a
+								href="https://www.dicebear.com/styles/critters/"
+								target="_blank"
+								rel="noopener noreferrer"
+								className={external}
+							>
+								Critters di DiceBear
+								<ExternalIcon className="size-4" />
+							</a>
+							, CC0.
+						</li>
+					</ul>
+					<a
+						href="https://github.com/MarinCervinschi/zuppapp"
+						target="_blank"
+						rel="noopener noreferrer"
+						className={cn(buttonClass(), "w-full")}
+					>
+						Guarda il codice su GitHub
+						<ExternalIcon className="size-5" />
+					</a>
+				</div>
+			)}
+		</Sheet>
 	);
 }

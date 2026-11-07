@@ -80,16 +80,25 @@ Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il p
 - Admin: `/admin` risponde 404 a chiunque non sia admin (`isAdminFn` in `beforeLoad`), e ogni server
   function di `src/lib/admin/` ricontrolla con `adminMiddleware`. Le correzioni di nome, marca e tipo
   finiscono in `overrides`. Ricerca (testo o inizio dell'EAN) e filtri (`tipo`, `foto`, `voti`, `corretti`,
-  `ordine`) stanno nell'URL (`adminListSchema`).
-- Cache: dopo un voto o un voto tolto, `refreshAfterVote` (`src/lib/voting/mutations.ts`) segna vecchie tutte le
+  `ordine`) stanno nell'URL (`adminListSchema`); i filtri si scelgono in un foglio, il prodotto si corregge nel
+  suo foglio (`AdminProductSheet` in `src/components/admin/product-row.tsx`).
+- Foglio della zuppa: `src/components/product/soup-sheet.tsx`. Si apre con `useOpenSoup`/`SoupLink`, che mettono
+  l'EAN in `state.zuppa` della cronologia (tipizzato in `src/router.tsx`); `SoupSheetHost` in `__root` lo mostra
+  solo dopo l'idratazione. Ricerca con suggerimenti: `suggestFn` (`src/lib/catalog/suggest.ts`). I filtri: colonna a
+  sinistra su desktop, foglio dal tondo accanto alla ricerca su telefono (`index.tsx`); `/cerca` rimanda alla home.
+  Il foglio (`src/components/ds/sheet.tsx`) disegna da sé maniglia, intestazione e X, uguali per ogni foglio, e ha
+  due altezze con `detents` (anteprima `data-sheet-peek`, intero);
+  foglio e pagina della zuppa condividono le sezioni (`src/components/product/soup-detail.tsx`).
+- Cache: dopo un voto o un voto tolto, `patchListVotes` scrive il nuovo voto nelle liste in cache e `refreshAfterVote` (`src/lib/voting/mutations.ts`) segna vecchie tutte le
   query `catalog` (non `lookup`) e `viewer`. Le pagine personali e la scheda caricano con `fetchQuery`, non
   `ensureQueryData`, così una query vecchia si riprende prima di mostrarla.
 - Utente: `src/lib/user/` (`viewerFn` legge dal database, non dalla cache di 5 minuti della sessione, così
   nome e avatar cambiano subito; `myVotesFn` per «Le mie zuppe»). Il visitatore è precaricato nel loader di
-  `__root`. Pagine `/accedi`, `/profilo`, `/le-mie-zuppe`, `/preferiti`.
+  `__root`. Pagine `/accedi`, `/profilo` e `/le-mie-zuppe`, con due schede (votate, `?scheda=preferite`);
+  `/preferiti` rimanda alla seconda.
 - Preferiti: `src/lib/favorites/` (tabella `favorites`), solo con un account Google (`accountMiddleware`). Tutti i
   cuori leggono `favoriteQueries.ids`, precaricata in `__root`; `useSetFavorite` la cambia subito (ottimistico).
-  La pagina usa `getFavoritesPage` in `catalog/browse.ts`, così le card sono le stesse del catalogo.
+  La scheda Preferite di `/le-mie-zuppe` usa `getFavoritesPage` in `catalog/browse.ts`.
 - Design system: `DESIGN.md` (leggi «Regole per ogni schermata» prima di toccare la UI) e la pagina `/design`.
   Clash Display arriva dal CDN di Fontshare (la licenza ITF non permette di ridistribuirne i file), Poppins da
   `@fontsource`;

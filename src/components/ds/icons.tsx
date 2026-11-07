@@ -172,3 +172,37 @@ export function EyeIcon({ className }: IconProps) {
 		</Line>
 	);
 }
+
+export function InfoIcon({ className }: IconProps) {
+	return (
+		<Line className={className}>
+			<circle cx="12" cy="12" r="9" />
+			<path d="M12 11v5M12 8h.01" />
+		</Line>
+	);
+}
+
+export function ChevronRightIcon({ className }: IconProps) {
+	return (
+		<Line className={className}>
+			<path d="m9 6 6 6-6 6" />
+		</Line>
+	);
+}
+
+export function SunIcon({ className }: IconProps) {
+	return (
+		<Line className={className}>
+			<circle cx="12" cy="12" r="4" />
+			<path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" />
+		</Line>
+	);
+}
+
+export function HeartIcon({ className }: IconProps) {
+	return (
+		<Line className={className}>
+			<path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z" />
+		</Line>
+	);
+}

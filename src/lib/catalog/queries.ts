@@ -6,6 +6,7 @@ import {
 	lookupEanFn,
 	rankingFn,
 	searchFn,
+	suggestFn,
 	toTasteFn,
 } from "./api";
 import type { BrowseParams } from "./schemas";
@@ -21,6 +22,14 @@ export const catalogQueries = {
 			queryKey: ["catalog", "lookup", ean],
 			queryFn: () => lookupEanFn({ data: { ean } }),
 			staleTime: Infinity,
+		}),
+	/** The search box's suggestions: kept a minute, the previous ones shown while the next arrive. */
+	suggest: (q: string) =>
+		queryOptions({
+			queryKey: ["catalog", "suggest", q],
+			queryFn: () => suggestFn({ data: { q } }),
+			placeholderData: keepPreviousData,
+			enabled: q.trim().length >= 2,
 		}),
 	card: (ean: string) =>
 		queryOptions({

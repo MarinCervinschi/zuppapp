@@ -1,101 +1,75 @@
-import { useState } from "react";
-
-import { Link } from "@tanstack/react-router";
-
 import { HeartButton } from "@/components/ds/heart-button";
-import { RatingBadge } from "@/components/ds/stars";
-import { ZoomablePhoto } from "@/components/ds/zoomable-photo";
+import { PackPhoto } from "@/components/ds/pack-photo";
+import { RatingBadge, StarIcon } from "@/components/ds/stars";
+import { SoupLink } from "@/components/product/soup-sheet";
 import { productDetails } from "@/lib/catalog/details";
 import type { ProductListItem } from "@/lib/catalog/types";
-import { MIN_VOTES_TO_RANK, type Score } from "@/lib/ranking/rules";
-
-import { QuickVote } from "./quick-vote";
+import { MIN_VOTES_TO_RANK } from "@/lib/ranking/rules";
 
 /**
- * A product in a grid: its pack, because that is how people find it on the shelf, filling a plate
- * of fixed shape (cropped if it must, so the cards in a row line up); the rating on the plate's
- * corner, the name, and the stars to vote it.
+ * A soup in a list, big like a post in a feed: its pack fills the plate, the rating (or the
+ * votes still missing) sits on the photo, and under it only the name and the details. The whole
+ * card is one link, the name stretched over it: a tap opens the soup's sheet, where you vote.
  */
-export function TasteTile({
-	product,
-	demo,
-}: {
-	product: ProductListItem;
-	demo?: boolean;
-}) {
-	// The reader's own vote counts at once, so the card never says "Nessun voto" under their stars.
-	const [myScore, setMyScore] = useState<Score | null>(product.myScore);
-	const votes = product.votesCount + (myScore && !product.myScore ? 1 : 0);
-	const missing = MIN_VOTES_TO_RANK - votes;
+export function TasteTile({ product }: { product: ProductListItem }) {
+	const missing = MIN_VOTES_TO_RANK - product.votesCount;
 	const details = productDetails(product);
 
 	return (
-		<article className="flex h-full flex-col gap-3">
-			<div className="plate rounded-card relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-white sm:aspect-square">
+		<article className="group relative flex h-full flex-col gap-3">
+			<div className="plate rounded-card relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-white sm:aspect-square">
 				{product.imageUrl ? (
-					<ZoomablePhoto
+					<PackPhoto
 						src={product.imageUrl}
-						name={product.name}
-						ean={product.ean}
+						alt=""
 						size="shelf"
-						thumb={400}
-						className="flex size-full"
-						imageClassName="size-full object-cover"
+						className="size-full max-h-none object-cover transition-[scale] duration-500 ease-[var(--ease-out-snap)] group-hover:scale-[1.03]"
 					/>
 				) : (
 					<span className="font-display text-lead text-[#6a5f53]">Senza foto</span>
 				)}
-				<HeartButton
-					productId={product.id}
-					name={product.name}
-					className="absolute top-3 right-3 z-20"
-				/>
-				{product.mean !== null && votes >= MIN_VOTES_TO_RANK && (
-					<RatingBadge
-						mean={product.mean}
-						votesCount={product.votesCount}
-						size="sm"
-						className="absolute right-3 bottom-3"
-					/>
+				{product.myScore && (
+					<span className="bg-ink text-on-ink text-small absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold tabular-nums">
+						<StarIcon className="text-star size-3.5" />
+						{product.myScore}
+						<span className="sr-only">
+							{product.myScore === 1 ? " stella, il tuo voto" : " stelle, il tuo voto"}
+						</span>
+					</span>
 				)}
+				<span className="absolute bottom-3 left-3">
+					{missing > 0 ? (
+						<span className="text-small bg-field text-on-field inline-flex rounded-full px-2.5 py-1 font-semibold">
+							{product.votesCount === 0
+								? "Nessun voto: il primo è tuo"
+								: missing === 1
+									? "Manca 1 voto alla classifica"
+									: `Mancano ${missing} voti alla classifica`}
+						</span>
+					) : (
+						<RatingBadge
+							mean={product.mean}
+							votesCount={product.votesCount}
+							size="sm"
+						/>
+					)}
+				</span>
 			</div>
-			<div className="flex flex-col gap-1 px-1">
-				<Link
-					to="/prodotti/$ean"
-					params={{ ean: product.ean }}
-					className="font-display text-lead font-medium no-underline hover:underline"
+			<div className="flex flex-col gap-0.5 px-1">
+				<SoupLink
+					ean={product.ean}
+					className="font-display text-lead font-medium text-balance no-underline group-hover:underline after:absolute after:inset-0 after:z-10 after:rounded-[1.75rem]"
 				>
 					{product.name}
-				</Link>
+				</SoupLink>
 				{details && <p className="text-small text-text-soft">{details}</p>}
 			</div>
-			{missing > 0 ? (
-				<p className="text-small bg-field text-on-field mx-1 self-start rounded-full px-2.5 py-0.5 font-medium">
-					{votes === 0
-						? "Nessun voto"
-						: missing === 1
-							? "Manca 1 voto alla classifica"
-							: `Mancano ${missing} voti alla classifica`}
-				</p>
-			) : (
-				product.votesCount < MIN_VOTES_TO_RANK && (
-					// The reader's vote just put it on the board; its mean comes with the ranking.
-					<p className="text-small bg-ink text-on-ink mx-1 self-start rounded-full px-2.5 py-0.5 font-medium">
-						Entrata in classifica
-					</p>
-				)
-			)}
-			<div className="mt-auto">
-				<QuickVote
-					productId={product.id}
-					ean={product.ean}
-					name={product.name}
-					initial={product.myScore}
-					votesCount={product.votesCount}
-					onVoted={setMyScore}
-					demo={demo}
-				/>
-			</div>
+			{/* Above the stretched link, so the heart stays its own button. */}
+			<HeartButton
+				productId={product.id}
+				name={product.name}
+				className="absolute top-3 right-3 z-20"
+			/>
 		</article>
 	);
 }

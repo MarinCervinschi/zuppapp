@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 
-import { AdminTabs } from "@/components/admin/admin-tabs";
+import { AdminHeader } from "@/components/admin/admin-tabs";
 import { ReportGroupCard } from "@/components/admin/report-group";
 import { NotFoundPage } from "@/components/error/error-pages";
 import { isAdminFn } from "@/lib/admin/api";
@@ -25,9 +25,8 @@ function ReportsPage() {
 	if (!data) return null;
 
 	return (
-		<main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 pt-14">
-			<h1 className="font-display text-display font-semibold">Gestione prodotti</h1>
-			<AdminTabs counts={data.counts} current="reports" />
+		<main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 pt-[max(2.5rem,env(safe-area-inset-top))]">
+			<AdminHeader counts={data.counts} current="reports" />
 			{data.groups.length === 0 ? (
 				<p className="text-body">
 					Nessuna segnalazione da guardare. Arrivano da chi scansiona una zuppa che non

@@ -11,6 +11,7 @@ import { Toaster } from "sonner";
 import { SiteFooter } from "@/components/ds/site-footer";
 import { TabBar } from "@/components/ds/tab-bar";
 import { ErrorPage, NotFoundPage } from "@/components/error/error-pages";
+import { SoupSheetHost } from "@/components/product/soup-sheet";
 import { analyticsQueries } from "@/lib/analytics/queries";
 import { favoriteQueries } from "@/lib/favorites/queries";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
@@ -100,11 +101,13 @@ function RootLayout() {
 			<MotionConfig reducedMotion="user">
 				{/* The page takes the free height, so on a short page the footer still sits at the bottom.
 			    A plain block, not a flex column: inside one, a centred `mx-auto` bar would shrink to its content. */}
-				<div className="flex-1">
+				{/* On a phone there is no footer: the page itself leaves room for the tab bar. */}
+				<div className="pb-tabbar flex-1 lg:pb-0">
 					<Outlet />
 				</div>
 				<SiteFooter />
 				<TabBar />
+				<SoupSheetHost />
 				{/* Above the tab bar, so a toast never hides it or hides under it. */}
 				<Toaster
 					position="bottom-center"

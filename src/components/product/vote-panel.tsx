@@ -89,9 +89,12 @@ export function useVote(product: ProductCard) {
 export function VotePanel({
 	product,
 	vote,
+	peek = false,
 }: {
 	product: ProductCard;
 	vote: ReturnType<typeof useVote>;
+	/** In the soup's sheet: the stars end its preview, the tags wait below it. */
+	peek?: boolean;
 }) {
 	const picker = useRef<HTMLDivElement>(null);
 	// The star under the mouse, named before it is clicked.
@@ -99,9 +102,12 @@ export function VotePanel({
 
 	return (
 		<section aria-labelledby="vote-heading" className="flex flex-col gap-6">
-			<div className="bg-ink text-on-ink rounded-panel flex flex-col items-center gap-4 px-4 pt-5 pb-4">
+			<div
+				data-sheet-peek={peek || undefined}
+				className="bg-ink text-on-ink rounded-panel flex flex-col items-center gap-3 px-4 pt-5 pb-3"
+			>
 				<h2 id="vote-heading" className="font-display text-lead font-medium">
-					{vote.score ? "La tua valutazione" : "Com’era?"}
+					{vote.score ? "Il tuo voto" : "Com’era?"}
 				</h2>
 				<StarPicker
 					ref={picker}
@@ -120,8 +126,8 @@ export function VotePanel({
 						</span>
 					) : vote.score ? (
 						<>
-							<span>
-								«{SCORE_LABELS[vote.score].label}». Per cambiare, tocca un’altra stella.
+							<span className="text-body font-medium">
+								«{SCORE_LABELS[vote.score].label}»
 							</span>
 							{/* A real button: the toast that follows can put the vote back. */}
 							<button

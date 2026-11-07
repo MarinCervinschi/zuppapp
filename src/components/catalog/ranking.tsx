@@ -1,15 +1,15 @@
-import { Link } from "@tanstack/react-router";
-
 import { HeartButton } from "@/components/ds/heart-button";
+import { PackPhoto } from "@/components/ds/pack-photo";
 import { RatingBadge, formatStars } from "@/components/ds/stars";
-import { ZoomablePhoto } from "@/components/ds/zoomable-photo";
+import { SoupLink } from "@/components/product/soup-sheet";
 import { productDetails } from "@/lib/catalog/details";
 import { sizedImage } from "@/lib/catalog/image";
 import type { ProductListItem } from "@/lib/catalog/types";
 import { VOTI, count } from "@/lib/plural";
 import { cn } from "@/lib/utils";
 
-// The ranking: the first three as big cards, their packs large, then one line each.
+// The ranking: the first three as cards on a podium, the first one bigger, then one row each.
+// Every soup opens its sheet, where it is voted.
 
 // Gold, the sky of a silver medal, and pumpkin for bronze: the podium's three discs.
 const MEDALS: Record<number, string> = {
@@ -23,7 +23,7 @@ function RankDisc({ rank, className }: { rank: number; className?: string }) {
 		<span
 			aria-hidden
 			className={cn(
-				"font-display text-body flex size-9 items-center justify-center rounded-full font-semibold text-[#16120f] tabular-nums",
+				"font-display flex items-center justify-center rounded-full font-semibold text-[#16120f] tabular-nums",
 				MEDALS[rank] ?? "bg-ground-raised",
 				className
 			)}
@@ -46,84 +46,90 @@ function accessibleName(product: ProductListItem) {
 }
 
 /**
- * The product's name as the card's one link, stretched over the whole card by a pseudo
- * element: anywhere on the card opens the product, except the photo, which sits above the
- * stretch and opens large. One link per card, so a screen reader hears one name, not five.
+ * The three on the podium. On a phone the first fills the width and the other two share a row;
+ * on a wide screen they stand side by side, the first in the middle and taller.
  */
-function StretchedLink({
-	product,
-	className,
-}: {
-	product: ProductListItem;
-	className?: string;
-}) {
-	return (
-		<Link
-			to="/prodotti/$ean"
-			params={{ ean: product.ean }}
-			aria-label={accessibleName(product)}
-			className={cn("no-underline after:absolute after:inset-0", className)}
-		>
-			{product.name}
-		</Link>
-	);
-}
-
-/** The three on the podium: the pack on a wide white plate, its place and rating on the corners. */
 export function Podium({ products }: { products: ProductListItem[] }) {
 	if (products.length === 0) return null;
 
 	return (
-		<ol className="stagger grid gap-8 md:grid-cols-3 md:gap-5">
-			{products.map(product => (
-				<li key={product.id}>
-					<article className="group relative flex flex-col gap-3">
-						<div className="plate rounded-card relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-white">
-							<ZoomablePhoto
-								src={product.imageUrl}
-								name={product.name}
-								ean={product.ean}
-								size="shelf"
-								thumb={400}
-								className="flex size-full"
-								imageClassName="size-full object-cover"
-							/>
-							<RankDisc
-								rank={product.rank ?? 0}
-								className="absolute top-3 left-3 z-20"
-							/>
+		<ol className="stagger grid grid-cols-2 gap-3 md:grid-cols-3 md:items-end md:gap-5">
+			{products.map(product => {
+				const first = product.rank === 1;
+				return (
+					<li
+						key={product.id}
+						className={cn(
+							first && "col-span-2 md:order-2 md:col-span-1",
+							product.rank === 2 && "md:order-1",
+							product.rank === 3 && "md:order-3"
+						)}
+					>
+						<article
+							className={cn(
+								"group bg-ground-raised rounded-card relative flex flex-col gap-3 p-2.5 pb-4 transition-[scale] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.98]",
+								first && "outline-soup-corn outline-2"
+							)}
+						>
+							<div
+								className={cn(
+									"plate relative flex items-center justify-center overflow-hidden rounded-[1.25rem] bg-white",
+									first ? "aspect-[16/10] md:aspect-[4/5]" : "aspect-square"
+								)}
+							>
+								<PackPhoto
+									src={product.imageUrl}
+									alt=""
+									size="shelf"
+									className="size-full max-h-none object-cover transition-[scale] duration-500 ease-[var(--ease-out-snap)] group-hover:scale-[1.03]"
+								/>
+								<RankDisc
+									rank={product.rank ?? 0}
+									className={cn(
+										"absolute top-2.5 left-2.5",
+										first ? "text-lead size-11" : "text-body size-9"
+									)}
+								/>
+								<RatingBadge
+									mean={product.mean}
+									votesCount={product.votesCount}
+									size={first ? "md" : "sm"}
+									className="absolute bottom-2.5 left-2.5"
+								/>
+							</div>
+							<div className="flex flex-col gap-0.5 px-1.5">
+								<SoupLink
+									ean={product.ean}
+									label={accessibleName(product)}
+									className={cn(
+										"font-display font-medium text-balance no-underline group-hover:underline after:absolute after:inset-0 after:z-10 after:rounded-[1.75rem]",
+										first ? "text-lead" : "text-body leading-snug"
+									)}
+								>
+									{product.name}
+								</SoupLink>
+								<p className="text-small text-text-soft">
+									{first && productDetails(product) && `${productDetails(product)} • `}
+									<span className="tabular-nums">
+										{count(product.votesCount, VOTI)}
+									</span>
+								</p>
+							</div>
+							{/* Above the stretched link: the heart stays its own button. */}
 							<HeartButton
 								productId={product.id}
 								name={product.name}
-								className="absolute top-3 right-3 z-20"
+								className="absolute top-5 right-5 z-20"
 							/>
-							<RatingBadge
-								mean={product.mean}
-								votesCount={product.votesCount}
-								className="absolute right-3 bottom-3 z-20"
-							/>
-						</div>
-						<div className="flex flex-col gap-1 px-1">
-							<StretchedLink
-								product={product}
-								className="font-display text-lead font-medium group-hover:underline"
-							/>
-							<p className="text-small text-text-soft">
-								{productDetails(product)}
-								<span className="tabular-nums">
-									{" "}
-									• {count(product.votesCount, VOTI)}
-								</span>
-							</p>
-						</div>
-					</article>
-				</li>
-			))}
+						</article>
+					</li>
+				);
+			})}
 		</ol>
 	);
 }
 
-/** Fourth place down: one line each, place, a round thumbnail, name, rating. */
+/** Fourth place down: a row each, as cards a thumb can press, place, round photo, name, rating. */
 export function Leaderboard({
 	products,
 	start,
@@ -133,13 +139,13 @@ export function Leaderboard({
 }) {
 	if (products.length === 0) return null;
 	return (
-		<ol start={start} className="stagger flex flex-col">
+		<ol start={start} className="stagger grid gap-2 md:grid-cols-2 md:gap-x-5">
 			{products.map(product => (
-				<li key={product.id} className="nutrient-row last:border-b-0">
-					<article className="group relative grid grid-cols-[2rem_auto_1fr_auto] items-center gap-3 py-3">
+				<li key={product.id}>
+					<article className="group bg-ground-raised hover:bg-text/[0.06] relative grid grid-cols-[2.25rem_auto_minmax(0,1fr)_auto] items-center gap-3 rounded-[1.5rem] p-2 pr-3 transition-[scale,background-color] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.98]">
 						<span
 							aria-hidden
-							className="font-display text-lead text-center font-medium tabular-nums"
+							className="font-display text-lead text-text-soft text-center font-semibold tabular-nums"
 						>
 							{product.rank}
 						</span>
@@ -149,28 +155,30 @@ export function Leaderboard({
 								alt=""
 								loading="lazy"
 								decoding="async"
-								className="size-14 rounded-full bg-white object-contain p-1"
+								className="size-14 rounded-full bg-white object-cover"
 							/>
 						) : (
-							<span aria-hidden className="bg-ground-raised size-14 rounded-full" />
+							<span aria-hidden className="bg-ground size-14 rounded-full" />
 						)}
 						<div className="flex min-w-0 flex-col gap-0.5">
-							<StretchedLink
-								product={product}
-								className="font-display text-body font-medium group-hover:underline"
-							/>
-							<p className="text-small text-text-soft">{productDetails(product)}</p>
+							<SoupLink
+								ean={product.ean}
+								label={accessibleName(product)}
+								className="font-display text-body font-medium no-underline group-hover:underline after:absolute after:inset-0 after:rounded-[1.5rem]"
+							>
+								{product.name}
+							</SoupLink>
+							<p className="text-small text-text-soft">
+								{[product.brand, count(product.votesCount, VOTI)]
+									.filter(Boolean)
+									.join(" • ")}
+							</p>
 						</div>
-						<span className="flex flex-col items-end gap-0.5">
-							<RatingBadge
-								mean={product.mean}
-								votesCount={product.votesCount}
-								size="sm"
-							/>
-							<span aria-hidden className="text-small text-text-soft tabular-nums">
-								{count(product.votesCount, VOTI)}
-							</span>
-						</span>
+						<RatingBadge
+							mean={product.mean}
+							votesCount={product.votesCount}
+							size="sm"
+						/>
 					</article>
 				</li>
 			))}

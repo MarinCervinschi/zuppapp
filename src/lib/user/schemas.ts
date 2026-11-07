@@ -19,6 +19,8 @@ export const avatarSeedSchema = z.object({
 
 export const MY_VOTES_PAGE_SIZE = 20;
 
+/** «Le tue zuppe»: the voted ones by default, `scheda=preferite` for the hearts. */
 export const myVotesSchema = z.object({
+	scheda: z.enum(["preferite"]).optional().catch(undefined),
 	pagina: z.coerce.number().int().min(1).max(1000).optional().catch(undefined),
 });

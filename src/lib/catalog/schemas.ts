@@ -5,6 +5,9 @@ export const eanSchema = z.object({
 	ean: z.string().regex(/^\d{8,14}$/, "Il codice EAN ha da 8 a 14 cifre."),
 });
 
+/** What the search box sends while you type: two letters at least, so «m» is not a query. */
+export const suggestSchema = z.object({ q: z.string().trim().min(2).max(60) });
+
 export const NUTRISCORES = ["a", "b", "c", "d", "e"] as const;
 
 /** The allergens a soup pack most often declares, by the name the import stores. */

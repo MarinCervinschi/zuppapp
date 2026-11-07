@@ -21,11 +21,11 @@ rimbalzo (`animate-pop`), e i tag salgono sotto (`animate-rise`).
 Tre posti, sempre a portata di pollice nella **tab bar** in basso (`TabBar`): una pill flottante con la scheda
 corrente in una pill più chiara.
 
-| Tab        | Rotta         | Cosa c'è                                                                          |
-| ---------- | ------------- | --------------------------------------------------------------------------------- |
-| Zuppe      | `/`           | La ricerca. Con testo, filtri o «Vedi tutte» la lista; prima, «Da assaggiare»     |
-| Classifica | `/classifica` | Podio e righe, filtrabili per tipo                                                |
-| Profilo    | `/profilo`    | Nome, faccia e tema. Senza account rimanda ad `/accedi`, che porta alle tue zuppe |
+| Tab        | Rotta         | Cosa c'è                                                                         |
+| ---------- | ------------- | -------------------------------------------------------------------------------- |
+| Zuppe      | `/`           | La ricerca. Con testo o filtri i risultati; prima, «Da assaggiare» o il catalogo |
+| Classifica | `/classifica` | Podio e righe, filtrabili per tipo                                               |
+| Profilo    | `/profilo`    | Nome, faccia, le tue zuppe e le impostazioni. Senza account rimanda ad `/accedi` |
 
 Chi è admin ha un quarto tab, **Admin** (`/admin`, la chiave), e nella scheda prodotto un tondo con la chiave
 accanto al cuore, che apre quel prodotto nella gestione (`?stato=…&q=<ean>`).
@@ -44,7 +44,7 @@ in basso, così i pulsanti galleggiano su di lei e non sul testo che passa sotto
 ## Colori
 
 Carta, inchiostro e le zuppe. I componenti usano solo i token semantici (`bg-ground`, `text-text-soft`, …), mai
-i primitivi. Il tema si sceglie tra **Sistema, Chiaro e Scuro** (`ThemeSwitch`, nel piè di pagina e tra le impostazioni del profilo, dove il piè di pagina non lo ripete),
+i primitivi. Il tema si sceglie tra **Sistema, Chiaro e Scuro** (`ThemeSwitch`: tra le impostazioni del profilo, in fondo a «Prendi la tua tessera» su telefono, nel piè di pagina su desktop),
 finisce in `<html data-theme>` e resta in quel browser. Ogni regola scura usa lo stesso doppio selettore:
 `[data-theme="dark"]`, oppure il sistema scuro quando non è `[data-theme="light"]`.
 
@@ -99,10 +99,9 @@ e segue il cambio di tema.
 | -------------- | --------------------------------- | ----- |
 | Ricerca (home) | mais                              | onda  |
 | Classifica     | pomodoro                          | onda  |
-| Le mie zuppe   | zucca                             | gocce |
+| Le tue zuppe   | zucca                             | gocce |
 | Profilo        | barbabietola                      | onda  |
 | Accesso        | piselli, dietro la tessera gialla | gocce |
-| Preferiti      | barbabietola                      | gocce |
 | Errori         | pomodoro                          | gocce |
 
 La scheda prodotto non ne ha: lì il colore lo dà la foto della confezione.
@@ -168,12 +167,14 @@ saturate(180%)`, una luce sul bordo alto, un bordo di luce e un riflesso in alto
     crescono quando entrano in vista. Si carica con `LazyMotion` e `domAnimation` in `__root` (i componenti
     leggeri `m.*`, `strict`), e `MotionConfig reducedMotion="user"` segue l'impostazione del sistema. Niente
     animazioni di layout: chiederebbero `domMax`, il doppio del peso.
-- **Spazio per la tab bar**: il piè di pagina porta `.pb-tabbar`, e i toast stanno 104 px sopra il fondo.
-
-## Componenti
-
-In `src/components/ds/`, più quelli del catalogo in `src/components/catalog/`.
-
+- **Spazio per la tab bar**: su telefono la pagina stessa porta `.pb-tabbar`, su desktop il piè di pagina; i toast
+  stanno 104 px sopra il fondo.
+- **La tab bar si fa da parte**: scorrendo verso il basso scende fuori dallo schermo, risalendo torna, e c'è sempre
+  in cima alla pagina e quando la tastiera ci arriva. Con `prefers-reduced-motion` resta ferma.
+- **Il piè di pagina c'è solo su desktop**: su telefono un piè da sito sotto ogni pagina è fuori posto. Tema e
+  crediti stanno nel profilo e, per chi non ha un account, in fondo a «Prendi la tua tessera».
+- **Il foglio della zuppa e la sua pagina sono lo stesso foglio**: su telefono la pagina ha la maniglia e si
+  trascina giù per tornare indietro, come il foglio aperto del tutto.
 - **`PageHead`**: il marchio, `h1` e una riga, centrati; con `blob` (e `shape`) la macchia viva.
 - **`HeartButton`**: il cuore dei preferiti, un tondo di vetro. Contorno d'inchiostro; acceso, pieno pomodoro
   dentro lo stesso contorno (che lo tiene leggibile sul vetro scuro sopra una foto bianca), con un battito (`animate-pop`) solo quando lo accendi tu. Sta nella barra della scheda e in alto a
@@ -214,7 +215,18 @@ In `src/components/ds/`, più quelli del catalogo in `src/components/catalog/`.
   la tastiera coprirebbe l'elenco, che si vede e si scorre per primo. Il pannello scorre in cima al foglio con l'elenco in vista; toccando il campo,
   il foglio lo porta in cima sopra la tastiera, con uno spazio in fondo che c'è solo con il touch.
 - **`Barcode`**: l'EAN-13 vero, nero su bianco in entrambi i temi; solo in fondo alla scheda e sulla tessera.
-- **`Podium`, `Leaderboard`** (`catalog/ranking.tsx`), **`TasteTile`, `QuickVote`**: vedi sotto.
+- **`Podium`, `Leaderboard`** (`catalog/ranking.tsx`), **`TasteTile`**: vedi sotto.
+- **`TypeRail`** (`catalog/type-rail.tsx`): i tipi come tondi del colore della loro zuppa, ognuno con la sua
+  icona (`SubtypeIcon`, `catalog/type-icons.tsx`), «Tutte» per primo. Scorre di lato su telefono, va a capo
+  su desktop; quello scelto ha un anello del colore del testo, così si distingue anche senza colore.
+- **`Sheet`** (`ds/sheet.tsx`): il foglio dal basso, un `<dialog>` modale che si trascina; su desktop un
+  pannello a destra (`wide="panel"`) o un popup al centro (`"popup"`), che sfuma e sale di poco. Il pannello è
+  `fixed` e il `<dialog>` non scorre mai, se no il browser lo scorre per mostrare il pannello spostato e il foglio
+  salta. L'intestazione è sua, uguale in ogni foglio: maniglia, poi `title`, `subtitle`, `media` (la foto) e
+  `actions` («Azzera») prima della X. Maniglia e intestazione trascinano il foglio; con `detents` (anteprima e
+  foglio intero) un tocco sull'intestazione lo apre tutto. Nessun foglio si fa un'intestazione o una X da sé. Lo
+  usano il foglio della zuppa (`product/soup-sheet.tsx`, vedi «Votare deve costare un tap»), i filtri, «Come si
+  ordina», il profilo e l'admin.
 
 ## Regole per ogni schermata
 
@@ -229,23 +241,38 @@ Niente prezzi: non li abbiamo, e la SPEC li tiene fuori dalla v1.
 
 ### La classifica
 
-- **Podio**: tre card grandi con la confezione su un piatto bianco largo, il disco della posizione in alto a
-  sinistra (mais, azzurro, zucca) e il badge in basso a destra. Sotto, nome e dettagli.
-- **Dal 4° in giù**: una riga per prodotto con posizione, tondo, nome, dettagli e badge con i voti sotto.
-  È un vero `<ol>` che parte da 4.
-- **Accanto alla media c'è sempre il numero di voti.** Una nota sotto la lista spiega l'ordine: ogni zuppa
-  parte con 5 voti nella media di tutte (`bayesMean`), così un 5 da due voti non supera un 4,7 da quaranta.
+- **Podio**: tre card sul foglio rialzato. Su telefono la prima occupa tutta la larghezza e le altre due
+  dividono una riga; su desktop stanno affiancate, la prima al centro e più alta. La prima ha un bordo giallo
+  mais. Il disco della posizione in alto a sinistra (mais, azzurro, zucca), il badge in basso.
+- **Dal 4° in giù**: una card-riga per prodotto con posizione, tondo, nome, marca e voti, badge. È un vero
+  `<ol>` che parte da 4; su desktop due colonne.
+- **Si filtra con gli stessi tondi dei tipi** della home, senza conteggi (la classifica conta posti, non
+  zuppe).
+- **Il perché dell'ordine sta in un foglio**, «Come si ordina»: ogni zuppa parte con 5 voti nella media di
+  tutte (`bayesMean`), così un 5 da due voti non supera un 4,7 da quaranta. Su desktop è una card al centro.
 - **Da 3 voti in su si entra in classifica.** Prima il prodotto è «Da assaggiare», con l'etichetta gialla
   «Mancano N voti alla classifica».
 - **«Per pagina» conta i posti, podio compreso**, e l'intestazione dice «Top 10 zuppe» solo sulla prima pagina.
+- Ogni zuppa apre il suo foglio, come nella home.
 
 ### Votare deve costare un tap
 
-- Ogni card ha le cinque stelle in una pill nera (`QuickVote`): si vota dalla lista senza aprire niente. Il
-  voto rapido **non tocca i tag già scelti** (`tagIds` omesso).
-- Il voto del lettore conta subito nell'etichetta della card: mai «Nessun voto» sopra le sue stelle.
-- Nella scheda: il pannello nero «Com'era?» diventa «La tua valutazione»; sotto, il nome della stella scelta,
-  come cambiarla e **«Togli il voto»**, un pulsante vero. Il toast «Voto tolto» con «Rimettilo» lo annulla.
+- **Le card non hanno stelle**: grandi come un post, con la foto, il voto medio (o i voti che mancano) sopra
+  la foto e sotto solo nome e dettagli. Se l'hai votata, un bollino nero in alto a sinistra dice il tuo voto.
+- **Toccare una zuppa apre il suo foglio** (`SoupSheet`), sopra la pagina, con due altezze su telefono:
+  - **l'anteprima**, alta quanto il suo contenuto: foto, media, «Com'era?» con le stelle grandi;
+  - **il foglio intero**: trascinato su (da un punto qualunque dell'anteprima, o toccando la maniglia) cresce
+    fino a riempire lo schermo e diventa la scheda completa, con le stesse sezioni della pagina
+    (`SoupSections`). Da intero scorre, e si trascina dalla maniglia: giù torna all'anteprima, poi si chiude.
+  - Il movimento è un solo `transform` impostato dal codice: entra, si ferma e se ne va sulla stessa
+    transizione, e mentre il dito trascina lo segue senza. Lasciato andare, lo slancio sceglie l'altezza.
+  - Su desktop è un pannello che entra da destra e scorre fino in fondo. Con il movimento ridotto sfuma e basta.
+  - Sta nello stato della cronologia della pagina sotto (`state.zuppa`): il tasto indietro lo chiude e la
+    pagina resta dove era. Il link della card resta un vero link a `/prodotti/<ean>`.
+  - Il voto dato nel foglio entra subito nelle card della lista sotto (`patchListVotes`), senza ricaricarla.
+- Nella scheda e nel foglio: il pannello nero «Com'era?» diventa «La tua valutazione»; sotto, il nome della
+  stella scelta, come cambiarla e **«Togli il voto»**, un pulsante vero. Il toast «Voto tolto» con
+  «Rimettilo» lo annulla.
 - **I tag** compaiono dopo la prima stella, in tre gruppi (Pro, Contro, Com'è) con il segno davanti (+ − ·),
   al massimo tre.
 
@@ -262,9 +289,21 @@ gli allergeni dei filtri che l'etichetta non dichiara, e ricorda di leggere semp
 
 ### Ricerca e filtri
 
+- **La ricerca suggerisce mentre scrivi** (da due lettere): fino a cinque zuppe con foto e media, poi tipi e
+  marche, poi «Tutti i risultati per…». È un combobox ARIA: frecce, Invio, Esc. Il testo diventa una ricerca
+  solo con Invio o una scelta, così la lista sotto non salta a ogni lettera.
+- **Il tipo si sceglie dai tondi** (`TypeRail`) sopra la lista.
+- **Prima di cercare, due schede sopra la lista**: «Da assaggiare» e «Tutto il catalogo» (`vedi=tutte`). Non
+  «Tutte», che è già il primo tondo dei tipi. Con un testo o un filtro la lista è dei risultati e le schede spariscono.
+- **Gli altri filtri** (Nutri-Score, allergeni, marca): su desktop in una colonna a sinistra della lista, su
+  telefono in un foglio aperto dal tondo con l'icona accanto alla ricerca, che porta il numero dei filtri
+  attivi. Nel foglio ogni opzione cambia subito la lista sotto, e «Vedi N zuppe» lo chiude su di lei. `/cerca`
+  rimanda alla home con le stesse scelte.
 - **Ogni filtro è un link**: un URL da condividere, il tasto indietro lo annulla, funziona prima del JavaScript.
-- **Un solo pannello** (`FilterPanel`): laterale su desktop (≥ 1024 px), su telefono un foglio dal basso
-  (`FilterSheet`) aperto da «Filtri». I filtri attivi stanno sopra i risultati come pill con ×.
+- **Gli allergeni hanno la loro icona** (`AllergenIcon`) e un «−» davanti: è un ingrediente che togli. Le stesse
+  icone stanno nel «Senza:» della zuppa.
+- **Un solo pannello** (`FilterPanel`), nella colonna o nel foglio. I filtri attivi stanno sopra i risultati
+  come pill con ×.
 - **Ogni opzione mostra quante zuppe trova**, calcolato senza il proprio filtro.
 - **La marca ha un selettore nostro** (`BrandPicker`), con ricerca e conteggi.
 - **Lo stato si annuncia con `aria-current`**, e i link usano `activeOptions={EXACT_SEARCH}`.
@@ -281,14 +320,37 @@ gli allergeni dei filtri che l'etichetta non dichiara, e ricorda di leggere semp
 ### Account e profilo
 
 - **Il nome pubblico è sempre il nickname**; finché non lo scegli sei un nome da zuppa (`soupNameFor`).
-- **L'avatar è Critters**, in un tondo.
-- **Nome e faccia si cambiano su richiesta**: «Modifica profilo» apre un pannello con i due campi, «Fatto» lo
-  chiude. Sotto, «Impostazioni»: tema, gestione prodotti per l'admin, «Esci dall'account».
-- **Le icone stanno accanto a una parola**, mai da sole tranne nei tondi della barra (con il nome per i lettori
-  di schermo): `src/components/ds/icons.tsx`, griglia 24, tratto 1,6.
+- **L'avatar è Critters**, in un tondo, con una matita sopra: toccarlo apre la modifica.
+- **Nome e faccia si cambiano in un foglio** («Modifica profilo»; su desktop una card al centro), non in una
+  sezione sempre aperta. Chi non ha ancora un nome vede «Scegli il tuo nome».
+- **Sotto, due riquadri da toccare**: le zuppe votate (nero, la stella) e le preferite (carta, il cuore), che
+  portano alle due schede di «Le tue zuppe».
+- **Le impostazioni sono un elenco raggruppato**, come sul telefono: righe da 56 px con icona e freccia su un
+  solo foglio rialzato, separate da un filo (`.group-rows`). Tema, gestione prodotti per l'admin, crediti (in
+  un foglio). «Esci dall'account» sta da solo, in rosso.
+- **«Le tue zuppe» è una pagina con due schede**, Votate e Preferite (`?scheda=preferite`): sono la stessa cosa
+  vista da due lati. `/preferiti` rimanda lì. Le righe sono card come in classifica e aprono il foglio della
+  zuppa; nelle preferite il cuore toglie la zuppa dalla lista, con «Rimettila». Senza account la scheda dei
+  preferiti spiega che servono un account e un accesso.
 - **Accedere è «prendere la tua tessera»** (`/accedi`, `LoyaltyCard`): la carta fedeltà gialla e sgranata, con
   un codice a barre interno di negozio. Chi ha già votato senza account trova lì il link alle sue zuppe.
 - **Il pulsante di Google segue le sue linee guida** (`GoogleButton`), con i suoi colori e il suo bordo.
+
+### Gestione prodotti (admin)
+
+Uno strumento di lavoro, nella stessa direzione delle altre pagine ma più fitto.
+
+- **Intestazione con la chiave** e le quattro code (Bozze, Pubblicati, Archiviati, Segnalazioni) in una barra a
+  pill che scorre di lato su telefono; le segnalazioni aperte hanno il conteggio in giallo.
+- **Ricerca come nella home** (nome, marca o inizio dell'EAN) e **«Filtri» in un foglio**: tipo (anche «Senza
+  tipo»), foto, voti, correzioni e ordine come opzioni da toccare, ognuna un link. Quelli attivi stanno sotto la
+  ricerca come pill con ×, e il pulsante ne dice il numero.
+- **Ogni prodotto è una card-riga**: toccarla apre il suo foglio (su desktop il pannello a destra) con stato,
+  azioni su quel prodotto, link alla scheda e a Open Food Facts, e la correzione, dove il tipo si sceglie dai
+  tondi con le icone.
+- **La casella a sinistra seleziona**, e appena c'è una selezione sale una barra nera sopra la tab bar: quanti,
+  l'azione principale in giallo, le altre come icone su telefono, e la × per annullare. Ogni cambio di stato si
+  annulla dal toast.
 
 ## Comportamenti
 
@@ -316,10 +378,12 @@ utenti!», ed è stato tolto), niente «Ops!».
 ```bash
 node <taste-skill>/scripts/lint.mjs src                                   # 0 FAIL
 node <taste-skill>/scripts/inspect.mjs http://localhost:3002/classifica --app \
-  --allow font-not-dealt,palette-cream,gradient,app-title-size,colour-sprawl
+  --allow font-not-dealt,palette-cream,gradient,app-title-size,colour-sprawl,icon-chips
 ```
 
-Le regole escluse sono scelte del design system, non sviste: il carattere e la carta crema vengono dalle
+Le regole escluse sono scelte del design system, non sviste: `icon-chips` sono i tondi colorati dei tipi
+(`TypeRail`), e su `/` e `/classifica` resta un `edge-text` voluto: la riga dei tipi scorre di lato ed è tagliata
+dal bordo dello schermo apposta, con la sfumatura, per far capire che continua. Per il resto: il carattere e la carta crema vengono dalle
 reference del designer, non dal foglio di `.taste-skill/direction.json` (che è della direzione precedente); le
 macchie sfumate e i titoli grandi sono la vetrina di ricerca e classifica. Nel codice, le stesse eccezioni
 stanno in utility con un nome (`.blob-head`, `.sheet-tint`, `.fade-bottom`, `.glass`, `.glass-drop`, `.plate`)

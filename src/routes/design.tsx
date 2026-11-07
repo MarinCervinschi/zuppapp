@@ -169,7 +169,7 @@ function DesignPage() {
 
 				<Section title="Il voto">
 					<div className="bg-ink text-on-ink rounded-panel flex flex-col items-center gap-4 px-4 pt-5 pb-4">
-						<p className="font-display text-lead font-medium">La tua valutazione</p>
+						<p className="font-display text-lead font-medium">Il tuo voto</p>
 						<StarPicker value={score} onPick={setScore} />
 						<p className="text-small" aria-live="polite">
 							{score
@@ -210,7 +210,6 @@ function DesignPage() {
 					<ul className="grid grid-cols-1 gap-x-4 gap-y-10 sm:grid-cols-2 md:grid-cols-3">
 						<li>
 							<TasteTile
-								demo
 								product={{
 									...sample(null, "Zuppa di farro", "Marca Esempio", 4, 1),
 									rank: null,
@@ -219,7 +218,6 @@ function DesignPage() {
 						</li>
 						<li>
 							<TasteTile
-								demo
 								product={{
 									...sample(null, "Passato di verdure", "Altra Marca", 3.5, 0),
 									mean: null,

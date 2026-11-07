@@ -1,11 +1,8 @@
-import { useRef } from "react";
-
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 
-import { Button } from "@/components/ds/button";
-import { subtypeLabel, zuppe } from "@/lib/catalog/labels";
+import { subtypeLabel } from "@/lib/catalog/labels";
 import {
 	ALLERGEN_FILTERS,
 	type BrowseParams,
@@ -16,6 +13,7 @@ import { EXACT_SEARCH } from "@/lib/catalog/schemas";
 import type { Facets } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils";
 
+import { AllergenIcon } from "./allergen-icons";
 import { BrandPicker } from "./brand-picker";
 
 // Every filter is a link: a URL to share, the back button undoes it, and it works before
@@ -55,50 +53,6 @@ export function FilterPanel({
 
 	return (
 		<div className="flex flex-col gap-8">
-			<Group title="Tipo">
-				<ul className="flex flex-wrap gap-2">
-					<li>
-						<Link
-							to="/"
-							activeOptions={EXACT_SEARCH}
-							search={prev => ({ ...prev, tipo: undefined, pagina: undefined })}
-							aria-current={!params.tipo ? "true" : undefined}
-							className={cn(chip, !params.tipo ? on : off)}
-						>
-							Tutte
-						</Link>
-					</li>
-					{facets.subtypes.map(({ value, count }) => {
-						const active = params.tipo === value;
-						return (
-							<li key={value}>
-								<Link
-									to="/"
-									activeOptions={EXACT_SEARCH}
-									search={prev => ({
-										...prev,
-										tipo: active ? undefined : value,
-										pagina: undefined,
-									})}
-									aria-current={active ? "true" : undefined}
-									className={cn(chip, active ? on : off)}
-								>
-									{subtypeLabel(value)}
-									<span
-										className={cn(
-											"text-small tabular-nums",
-											active ? "text-ground/80" : "text-text-soft"
-										)}
-									>
-										{count}
-									</span>
-								</Link>
-							</li>
-						);
-					})}
-				</ul>
-			</Group>
-
 			<Group title="Nutri-Score">
 				<ul className="grid grid-cols-5 gap-1">
 					{NUTRISCORES.map(grade => {
@@ -153,8 +107,13 @@ export function FilterPanel({
 										pagina: undefined,
 									})}
 									aria-current={active ? "true" : undefined}
-									className={cn(chip, active ? on : off)}
+									className={cn(chip, "pl-3", active ? on : off)}
 								>
+									{/* A minus: the ingredient is taken away, the soups that have it leave the list. */}
+									<span aria-hidden className="font-semibold">
+										−
+									</span>
+									<AllergenIcon allergen={allergen} className="size-5" />
 									{allergen.charAt(0).toUpperCase() + allergen.slice(1)}
 								</Link>
 							</li>
@@ -251,62 +210,6 @@ export function ActiveFilters({ params }: { params: BrowseParams }) {
 				</m.ul>
 			)}
 		</AnimatePresence>
-	);
-}
-
-/**
- * On a phone the panel opens as a sheet from the bottom: a native dialog, so focus, Escape
- * and the backdrop behave as the platform does.
- */
-export function FilterSheet({
-	params,
-	facets,
-	active,
-}: {
-	params: BrowseParams;
-	facets: Facets;
-	active: number;
-}) {
-	const dialog = useRef<HTMLDialogElement>(null);
-	return (
-		<>
-			<Button onClick={() => dialog.current?.showModal()} className="lg:hidden">
-				<svg
-					aria-hidden
-					viewBox="0 0 24 24"
-					className="size-5"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="1.8"
-					strokeLinecap="round"
-				>
-					<path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
-					<circle cx="16" cy="7" r="2" />
-					<circle cx="8" cy="17" r="2" />
-				</svg>
-				Filtri{active > 0 && <span className="tabular-nums"> ({active})</span>}
-			</Button>
-			<dialog
-				ref={dialog}
-				aria-labelledby="filter-sheet-title"
-				className="bg-ground-raised text-text open:animate-sheet open:backdrop:animate-fade m-0 mt-auto max-h-[85dvh] w-full max-w-none overflow-y-auto overscroll-contain rounded-t-[var(--radius-card)] p-0 backdrop:bg-black/50"
-				onClick={event => {
-					if (event.target === dialog.current) dialog.current.close();
-				}}
-			>
-				<div className="bg-ground-raised sticky top-0 z-10 flex items-center justify-between px-4 pt-4 pb-3">
-					<h2 id="filter-sheet-title" className="font-display text-title font-semibold">
-						Filtri
-					</h2>
-					<Button variant="ink" onClick={() => dialog.current?.close()}>
-						Mostra {zuppe(facets.total)}
-					</Button>
-				</div>
-				<div className="px-4 pb-8">
-					<FilterPanel params={params} facets={facets} />
-				</div>
-			</dialog>
-		</>
 	);
 }
 

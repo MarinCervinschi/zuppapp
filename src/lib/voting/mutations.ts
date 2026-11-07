@@ -3,6 +3,8 @@ import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth/client";
 import { turnstileToken } from "@/lib/auth/turnstile";
+import type { ListPage, ProductListItem, RankingPage } from "@/lib/catalog/types";
+import type { Score } from "@/lib/ranking/rules";
 
 import { castVoteFn, removeVoteFn } from "./api";
 
@@ -42,6 +44,34 @@ function refreshAfterVote(queryClient: QueryClient, ean?: string) {
 	queryClient.invalidateQueries({ queryKey: ["viewer"] });
 }
 
+// The lists whose cards show the reader's own stars.
+const LIST_KEYS = new Set(["ranking", "to-taste", "search"]);
+
+/**
+ * Writes the reader's new stars into every cached list that holds the soup, so the card under the
+ * sheet shows the vote at once, without refetching (which would move the cards around).
+ */
+function patchListVotes(
+	queryClient: QueryClient,
+	productId: string,
+	score: Score | null
+) {
+	const patch = (item: ProductListItem) =>
+		item.id === productId ? { ...item, myScore: score } : item;
+	queryClient.setQueriesData<ListPage | RankingPage>(
+		{
+			predicate: ({ queryKey: [area, kind, sub] }) =>
+				(area === "catalog" && LIST_KEYS.has(String(kind))) ||
+				(area === "viewer" && kind === "favorites" && sub === "page"),
+		},
+		data => {
+			if (!data) return data;
+			if ("items" in data) return { ...data, items: data.items.map(patch) };
+			return { ...data, podium: data.podium.map(patch), rows: data.rows.map(patch) };
+		}
+	);
+}
+
 export function useCastVote(ean?: string) {
 	const queryClient = useQueryClient();
 
@@ -56,7 +86,10 @@ export function useCastVote(ean?: string) {
 			return { firstVote };
 		},
 		// The first vote also creates the voter: the viewer is in what gets refreshed.
-		onSuccess: () => refreshAfterVote(queryClient, ean),
+		onSuccess: (_result, { productId, score }) => {
+			patchListVotes(queryClient, productId, score as Score);
+			refreshAfterVote(queryClient, ean);
+		},
 		onError: (error: Error) => toast.error(error.message),
 	});
 }
@@ -66,7 +99,10 @@ export function useRemoveVote(ean: string) {
 
 	return useMutation({
 		mutationFn: (productId: string) => removeVoteFn({ data: { productId } }),
-		onSuccess: () => refreshAfterVote(queryClient, ean),
+		onSuccess: (_result, productId) => {
+			patchListVotes(queryClient, productId, null);
+			refreshAfterVote(queryClient, ean);
+		},
 		onError: (error: Error) => toast.error(error.message),
 	});
 }

@@ -276,15 +276,19 @@ export async function getFacets(params: BrowseParams): Promise<Facets> {
 			`)
 		).rows;
 
-	const [subtypes, brands, nutriscores, [{ total }]] = await Promise.all([
+	const countWhere = (where: SQL) =>
+		getDb()
+			.execute<{ total: number }>(
+				sql`SELECT count(*)::int AS total FROM products WHERE ${where}`
+			)
+			.then(result => result.rows[0]?.total ?? 0);
+
+	const [subtypes, brands, nutriscores, total, anyType] = await Promise.all([
 		facet(sql`products.subtype`, filtersOf(params, "tipo")),
 		facet(sql`products.brand`, filtersOf(params, "marca")),
 		facet(sql`products.nutriscore`, filtersOf(params, "nutri")),
-		getDb()
-			.execute<{ total: number }>(
-				sql`SELECT count(*)::int AS total FROM products WHERE ${filtersOf(params)}`
-			)
-			.then(result => result.rows),
+		countWhere(filtersOf(params)),
+		params.tipo ? countWhere(filtersOf(params, "tipo")) : null,
 	]);
-	return { subtypes, brands, nutriscores, total };
+	return { subtypes, brands, nutriscores, total, anyType: anyType ?? total };
 }

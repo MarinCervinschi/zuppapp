@@ -54,6 +54,10 @@
 	/* How much soup colour a blob and the product sheet carry: by night they glow, not shout. */
 	--blob-strength: 100%;
 	--sheet-tint: 45%;
+	/* A sheet over the page: its paper, its edge, and the veil on the page behind it. */
+	--sheet: var(--cream-100);
+	--sheet-edge: transparent;
+	--scrim: rgb(22 18 15 / 0.45);
 
 	color-scheme: light dark;
 }
@@ -80,6 +84,11 @@
 	--danger: #ff8a73;
 	--blob-strength: 55%;
 	--sheet-tint: 14%;
+	/* By night the page is already dark: the veil goes deeper, the sheet a step lighter, with a
+	   thin light edge, so the two never melt together. */
+	--sheet: #1d1915;
+	--sheet-edge: rgb(245 239 230 / 0.12);
+	--scrim: rgb(0 0 0 / 0.62);
 	color-scheme: dark;
 }
 
@@ -97,6 +106,9 @@
 		--danger: #ff8a73;
 		--blob-strength: 55%;
 		--sheet-tint: 14%;
+		--sheet: #1d1915;
+		--sheet-edge: rgb(245 239 230 / 0.12);
+		--scrim: rgb(0 0 0 / 0.62);
 		color-scheme: dark;
 	}
 }
@@ -490,6 +502,14 @@
 		mask-image: linear-gradient(to bottom, black calc(100% - 2.5rem), transparent); /* taste-skill-ignore */
 	}
 
+	/* A row that scrolls sideways fades at both ends on a phone, to say there is more beyond. */
+	/* prettier-ignore */
+	@media (width < 64rem) {
+		.fade-x {
+			mask-image: linear-gradient(to right, transparent, black 1rem, black calc(100% - 1.5rem), transparent); /* taste-skill-ignore */
+		}
+	}
+
 	/* A canvas that ends in the page's own paper: its foot fades out, so no colour step shows. */
 	/* prettier-ignore */
 	.fade-foot {
@@ -626,6 +646,70 @@
 		}
 		:root:not([data-theme="light"]) .google-button:enabled:hover {
 			background: #2a2a2c;
+		}
+	}
+
+	/* A sheet. Its place is one transform the code sets (--y from the bottom, --x from the right):
+	   it enters, stops and leaves on this transition, and follows a dragging finger with none. */
+	.sheet-panel {
+		transform: translate3d(var(--x, 0px), var(--y, 0px), 0);
+		transition:
+			transform 380ms var(--ease-out-snap),
+			opacity 220ms ease-out;
+	}
+	.sheet-panel[data-dragging] {
+		transition: none;
+	}
+	@media (width >= 64rem) {
+		/* The popup in the middle does not travel: it fades in, rising a little, on one soft curve. */
+		.sheet-panel[data-wide="popup"] {
+			transition:
+				opacity 240ms ease-out,
+				translate 320ms var(--ease-out-snap);
+		}
+		.sheet-panel[data-wide="popup"][data-shown="false"] {
+			opacity: 0;
+			translate: 0 0.75rem;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.sheet-panel {
+			transition: opacity 200ms ease-out;
+		}
+		.sheet-panel[data-shown="false"] {
+			opacity: 0;
+			translate: none;
+		}
+	}
+
+	/* A grouped list, like the settings of a phone: rows on one raised card, parted by a faint rule. */
+	.group-rows > * + * {
+		border-top: 1px solid rgb(from var(--text) r g b / 0.08); /* taste-skill-ignore */
+	}
+
+	/* What floats over the page and must lift off it: the soup's sheet, the search suggestions. */
+	.overlay-shadow {
+		box-shadow: 0 16px 48px rgb(22 18 15 / 0.2); /* taste-skill-ignore */
+	}
+
+	/* A sheet's paper, with its edge (only by night) and its shadow; the veil behind it. */
+	.sheet-surface {
+		background: var(--sheet);
+		/* prettier-ignore */
+		box-shadow: 0 0 0 1px var(--sheet-edge), 0 16px 48px rgb(22 18 15 / 0.2); /* taste-skill-ignore */
+	}
+	.scrim {
+		background: var(--scrim);
+	}
+
+	/* A shape standing in for content on its way, shimmering like the photo plates. */
+	.skeleton {
+		/* prettier-ignore */
+		background: linear-gradient(100deg, rgb(from var(--text) r g b / 0.06) 30%, rgb(from var(--text) r g b / 0.12) 50%, rgb(from var(--text) r g b / 0.06) 70%) 0 0 / 200% 100%; /* taste-skill-ignore */
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		.skeleton {
+			animation: shimmer 1.2s linear infinite;
 		}
 	}
 }

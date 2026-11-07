@@ -1,13 +1,17 @@
+import { useState } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { Pagination } from "@/components/catalog/pagination";
 import { Leaderboard, Podium } from "@/components/catalog/ranking";
+import { TypeRail } from "@/components/catalog/type-rail";
+import { buttonClass } from "@/components/ds/button";
+import { InfoIcon } from "@/components/ds/icons";
 import { PageHead } from "@/components/ds/page-head";
-import { pillClass } from "@/components/ds/pill";
-import { subtypeLabel, zuppe } from "@/lib/catalog/labels";
+import { Sheet } from "@/components/ds/sheet";
 import { catalogQueries } from "@/lib/catalog/queries";
-import { EXACT_SEARCH, ROW_PAGE_SIZES, browseSchema } from "@/lib/catalog/schemas";
+import { ROW_PAGE_SIZES, browseSchema } from "@/lib/catalog/schemas";
 import { MIN_VOTES_TO_RANK, PRIOR_VOTES } from "@/lib/ranking/rules";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +47,7 @@ function Ranking() {
 		catalogQueries.ranking({ tipo }, { page: posti ?? 1, size: righe })
 	);
 	const first = (posti ?? 1) === 1;
+	const [explaining, setExplaining] = useState(false);
 	const top = board ? Math.min(board.pageSize, board.total) : 0;
 
 	return (
@@ -51,42 +56,27 @@ function Ranking() {
 				blob="tomato"
 				shape="onda"
 				title={first && top > 3 ? `Top ${top} zuppe` : "La classifica"}
-			>
-				<p>
-					{board && board.total > 0
-						? `Le ${zuppe(board.total)}${tipo ? ` (${subtypeLabel(tipo).toLowerCase()})` : ""} votate da almeno ${MIN_VOTES_TO_RANK} persone, dalla più amata.`
-						: "Le zuppe più amate, votate da chi le ha assaggiate."}
-				</p>
-			</PageHead>
+				action={
+					<button
+						type="button"
+						onClick={() => setExplaining(true)}
+						className="glass grid size-11 place-items-center rounded-full transition-[scale] duration-150 ease-out motion-safe:active:scale-[0.94]"
+					>
+						<InfoIcon className="size-6" />
+						<span className="sr-only">Come si ordina la classifica</span>
+					</button>
+				}
+			/>
+			{explaining && <HowItWorks onClosed={() => setExplaining(false)} />}
 
-			<main className="mx-auto flex max-w-4xl flex-col gap-8 px-4">
+			<main className="mx-auto flex max-w-5xl flex-col gap-8 px-4">
 				{facets && facets.subtypes.length > 1 && (
-					<nav aria-label="Tipo di zuppa" className="flex justify-center">
-						<ul className="flex flex-wrap justify-center gap-2">
-							{[
-								{ value: undefined, label: "Tutte" },
-								...facets.subtypes.map(f => ({
-									value: f.value,
-									label: subtypeLabel(f.value),
-								})),
-							].map(option => {
-								const active = tipo === option.value;
-								return (
-									<li key={option.label}>
-										<Link
-											to="/classifica"
-											activeOptions={EXACT_SEARCH}
-											search={{ tipo: option.value }}
-											aria-current={active ? "true" : undefined}
-											className={pillClass(active)}
-										>
-											{option.label}
-										</Link>
-									</li>
-								);
-							})}
-						</ul>
-					</nav>
+					<TypeRail
+						route="/classifica"
+						current={tipo}
+						subtypes={facets.subtypes}
+						className="[&_ul]:justify-start lg:[&_ul]:justify-center"
+					/>
 				)}
 
 				{!board || board.total === 0 ? (
@@ -109,11 +99,6 @@ function Ranking() {
 					>
 						<Podium products={board.podium} />
 						<Leaderboard products={board.rows} start={board.rows[0]?.rank ?? 1} />
-						<p className="text-small text-text-soft">
-							Conta la media delle stelle e quante persone l’hanno votata: ogni zuppa
-							parte con {PRIOR_VOTES} voti nella media di tutte, così un 5 da due voti
-							non supera un 4,7 da quaranta.
-						</p>
 						<Pagination
 							page={board.page}
 							pageCount={board.pageCount}
@@ -131,5 +116,46 @@ function Ranking() {
 				)}
 			</main>
 		</>
+	);
+}
+
+/** «Come si ordina»: the ranking's rule in three lines, in a sheet instead of under the list. */
+function HowItWorks({ onClosed }: { onClosed: () => void }) {
+	return (
+		<Sheet title="Come si ordina" onClosed={onClosed} wide="popup">
+			{close => (
+				<div className="flex flex-col gap-5">
+					<ol className="flex flex-col gap-4">
+						{[
+							[
+								"Conta la media e quanti l’hanno votata.",
+								`Ogni zuppa parte con ${PRIOR_VOTES} voti nella media di tutte: così un 5 da due voti non supera un 4,7 da quaranta.`,
+							],
+							[
+								`Si entra dal ${MIN_VOTES_TO_RANK}° voto.`,
+								"Prima la zuppa è «da assaggiare»: la trovi nelle Zuppe, e il tuo voto può farla entrare.",
+							],
+							[
+								"Il bollino verde è la media semplice.",
+								"Le stelle che le hanno dato, divise per i voti: quella che leggi su ogni card.",
+							],
+						].map(([title, body], index) => (
+							<li key={title} className="flex gap-3">
+								<span className="bg-soup-corn font-display text-body grid size-9 shrink-0 place-items-center rounded-full font-semibold text-[#16120f]">
+									{index + 1}
+								</span>
+								<p className="text-body flex flex-col gap-0.5">
+									<span className="font-semibold">{title}</span>
+									<span className="text-text-soft">{body}</span>
+								</p>
+							</li>
+						))}
+					</ol>
+					<Link to="/" onClick={close} className={cn(buttonClass("ink"), "w-full")}>
+						Vota le zuppe da assaggiare
+					</Link>
+				</div>
+			)}
+		</Sheet>
 	);
 }

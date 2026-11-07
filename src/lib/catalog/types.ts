@@ -81,6 +81,8 @@ export type Facets = {
 	brands: FacetValue[];
 	nutriscores: FacetValue[];
 	total: number;
+	/** The total without the type filter: what «Tutte» counts. */
+	anyType: number;
 };
 
 export type RankingPage = {

@@ -50,7 +50,11 @@ export function HeartButton({
 		if (!on) {
 			setBeat(n => n + 1);
 			toast("Nei preferiti", {
-				action: { label: "Vedili", onClick: () => navigate({ to: "/preferiti" }) },
+				action: {
+					label: "Vedili",
+					onClick: () =>
+						navigate({ to: "/le-mie-zuppe", search: { scheda: "preferite" } }),
+				},
 			});
 		} else {
 			// Taking a heart off is undone, not confirmed: in «Preferiti» the card leaves at once.

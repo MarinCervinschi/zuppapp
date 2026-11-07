@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 
+import { BackButton } from "./app-bar";
 import { type FieldShape, SoupField } from "./soup-field";
 
 export type Soup = "tomato" | "pumpkin" | "corn" | "pea" | "beet";
@@ -23,10 +24,19 @@ export function PageHead({
 	children,
 	blob,
 	shape = "gocce",
+	action,
+	back,
+	barWidth = "max-w-5xl",
 	className,
 }: {
 	title: React.ReactNode;
 	children?: React.ReactNode;
+	/** A round button in the top right corner, for something about the whole page. */
+	action?: React.ReactNode;
+	/** An inner page: the way back in the top left corner, to this page when there is no history. */
+	back?: "/" | "/profilo";
+	/** The width the corner buttons line up with: the page's content below. */
+	barWidth?: "max-w-xl" | "max-w-5xl";
 	blob?: Soup;
 	shape?: FieldShape;
 	className?: string;
@@ -42,12 +52,29 @@ export function PageHead({
 					: undefined
 			}
 			className={cn(
-				blob && "blob-head relative isolate overflow-hidden",
+				blob && "blob-head isolate overflow-hidden",
+				"relative",
 				"px-4 pt-14 pb-8 text-center",
 				className
 			)}
 		>
 			{blob && <SoupField soup={blob} shape={shape} />}
+			{(action || back) && (
+				// Aligned with the page's content, not the far corners of a wide screen.
+				<div
+					className={cn(
+						"pointer-events-none absolute inset-x-0 top-[max(1rem,env(safe-area-inset-top))] z-10 mx-auto flex items-center justify-between px-4",
+						barWidth
+					)}
+				>
+					{back ? (
+						<BackButton fallback={back} className="pointer-events-auto" />
+					) : (
+						<span />
+					)}
+					{action && <div className="pointer-events-auto">{action}</div>}
+				</div>
+			)}
 			<div className="stagger mx-auto flex max-w-xl flex-col items-center gap-4">
 				<p
 					className={cn(

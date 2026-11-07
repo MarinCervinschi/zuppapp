@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 
 import { SoupField } from "@/components/ds/soup-field";
+import { ThemeSwitch } from "@/components/ds/theme-switch";
 import { GoogleButton } from "@/components/user/google-button";
 import { LoyaltyCard } from "@/components/user/loyalty-card";
 import { track } from "@/lib/analytics/track";
@@ -118,6 +119,37 @@ function SignIn() {
 						Votare resta possibile anche senza tessera. Da Google riceviamo nome ed
 						email e non li mostriamo mai: qui ti chiami con il nome che scegli tu.
 					</p>
+
+					{/* On a phone there is no footer: the theme and the credits, for whoever has no profile yet. */}
+					<div className="flex flex-col gap-3 pt-2 lg:hidden">
+						<div className="flex flex-wrap items-center gap-3">
+							<span aria-hidden className="text-body font-semibold">
+								Tema
+							</span>
+							<ThemeSwitch />
+						</div>
+						<p className="text-small text-text-soft">
+							Dati dei prodotti da{" "}
+							<a
+								href="https://world.openfoodfacts.org"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="underline"
+							>
+								Open Food Facts
+							</a>
+							, licenza ODbL.{" "}
+							<a
+								href="https://github.com/MarinCervinschi/zuppapp"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="underline"
+							>
+								Guarda il codice su GitHub
+							</a>
+							.
+						</p>
+					</div>
 				</div>
 			</main>
 		</div>

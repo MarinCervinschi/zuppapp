@@ -6,15 +6,23 @@ import { cn } from "@/lib/utils";
 
 /**
  * The way back on an inner page: a round button floating over the top left corner. It goes
- * back in history when there is one, to the soups otherwise (a shared link opened cold).
+ * back in history when there is one, to `fallback` otherwise (a shared link opened cold).
  */
-export function BackButton({ className }: { className?: string }) {
+export function BackButton({
+	fallback = "/",
+	className,
+}: {
+	fallback?: "/" | "/profilo";
+	className?: string;
+}) {
 	const router = useRouter();
 	return (
 		<button
 			type="button"
 			onClick={() =>
-				window.history.length > 1 ? router.history.back() : router.navigate({ to: "/" })
+				window.history.length > 1
+					? router.history.back()
+					: router.navigate({ to: fallback })
 			}
 			className={cn(
 				"glass flex size-12 items-center justify-center rounded-full transition-[scale] duration-150 ease-out motion-safe:active:scale-[0.96]",

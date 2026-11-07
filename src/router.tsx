@@ -30,4 +30,8 @@ declare module "@tanstack/react-router" {
 	interface Register {
 		router: ReturnType<typeof getRouter>;
 	}
+	interface HistoryState {
+		/** The EAN of the soup whose sheet is open over the page: the back button closes it. */
+		zuppa?: string;
+	}
 }
