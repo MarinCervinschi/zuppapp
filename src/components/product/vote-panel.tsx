@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
-import { toast } from "sonner";
 
 import { CloseIcon } from "@/components/ds/icons";
 import { StarPicker } from "@/components/ds/stars";
@@ -10,6 +9,7 @@ import { track } from "@/lib/analytics/track";
 import type { ProductCard } from "@/lib/catalog/types";
 import type { Score } from "@/lib/ranking/rules";
 import { SCORE_LABELS } from "@/lib/ranking/rules";
+import { toast } from "@/lib/toast";
 import { useCastVote, useRemoveVote } from "@/lib/voting/mutations";
 
 import { TagPicker } from "./tag-picker";

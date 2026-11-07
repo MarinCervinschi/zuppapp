@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
@@ -98,8 +98,13 @@ function SoupSheet({ ean }: { ean: string }) {
 	const query = useQuery(catalogQueries.card(ean));
 	const { isError } = query;
 	// A card cached before a vote cast elsewhere would start the stars from the old vote: wait
-	// for a fresh one (a fresh cache is shown at once).
-	const product = query.isFetchedAfterMount || !query.isStale ? query.data : undefined;
+	// for a fresh one (a fresh cache is shown at once). Once shown, it stays: the vote cast here
+	// marks the card stale, and going back to the skeleton until it reloads would flash the photo
+	// and reset the stars.
+	const shown = useRef(false);
+	const ready = shown.current || query.isFetchedAfterMount || !query.isStale;
+	const product = ready ? query.data : undefined;
+	if (product) shown.current = true;
 
 	/** Once slid away: back to the page without it. */
 	function closed() {

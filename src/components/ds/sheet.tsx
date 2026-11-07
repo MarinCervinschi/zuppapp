@@ -7,9 +7,11 @@ import {
 	useState,
 } from "react";
 
+import { SHEET_TOASTER, sheetOpened } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 import { CloseIcon } from "./icons";
+import { AppToaster } from "./toaster";
 
 const CLOSE_MS = 320;
 // How far ahead a flick carries the sheet when the finger lets go, in ms of its speed.
@@ -140,6 +142,8 @@ export function Sheet({
 		}
 		// The page under a modal must not scroll along with the sheet.
 		document.documentElement.classList.add("overflow-hidden");
+		// Toasts go to the toaster inside the sheet while it is open: the page behind is inert.
+		const sheetClosed = sheetOpened();
 		element.dataset.shown = "false";
 		rest.current = detents && mode() === "bottom" ? peekOffset() : 0;
 		place(away());
@@ -152,6 +156,7 @@ export function Sheet({
 		);
 		return () => {
 			cancelAnimationFrame(frame);
+			sheetClosed();
 			document.documentElement.classList.remove("overflow-hidden");
 			// While the modal is open the page behind is inert and refuses the focus: close it first.
 			if (modal.open) modal.close();
@@ -337,11 +342,12 @@ export function Sheet({
 			<div
 				ref={panel}
 				data-wide={wide}
-				data-full={full}
+				data-detents={detents || undefined}
 				className={cn(
-					// Fixed, not absolute: out of the dialog's scrollable area, however far its transform moves it.
-					"sheet-panel sheet-surface fixed inset-x-0 bottom-0 flex flex-col overflow-hidden rounded-t-[2rem]",
-					detents ? "top-3" : "max-h-[92dvh]",
+					// Fixed, not absolute: out of the dialog's scrollable area, however far its transform
+					// moves it. Where it stands on a phone is in globals.css (.sheet-panel).
+					"sheet-panel sheet-surface fixed inset-x-0 flex flex-col overflow-hidden rounded-t-[2rem]",
+					!detents && "max-h-[92dvh]",
 					wide === "panel"
 						? "lg:inset-y-3 lg:top-3 lg:right-3 lg:left-auto lg:max-h-none lg:w-[28rem] lg:rounded-[2rem]"
 						: "lg:inset-0 lg:m-auto lg:h-fit lg:max-h-[85dvh] lg:w-[32rem] lg:rounded-[2rem]"
@@ -427,6 +433,8 @@ export function Sheet({
 					{children(close)}
 				</div>
 			</div>
+			{/* Inside the dialog, so its toasts are in the top layer too, and their buttons work. */}
+			<AppToaster id={SHEET_TOASTER} />
 		</dialog>
 	);
 }

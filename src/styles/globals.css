@@ -660,6 +660,20 @@
 	.sheet-panel[data-dragging] {
 		transition: none;
 	}
+	@media (width < 64rem) {
+		/* On a phone the sheet's panel (in its dialog: the product page shares the class for its
+		   drag) has its own box just below the screen, and `translate` lifts it into
+		   place: what shows is the same as `bottom: 0`, but no box of the sheet ever touches the top
+		   edge. Safari tints its top bar from the fixed boxes it finds there, and would light up with
+		   the sheet's colour before the sheet had even slid in. */
+		.sheet .sheet-panel {
+			top: 100%;
+			translate: 0 -100%;
+		}
+		.sheet .sheet-panel[data-detents] {
+			height: calc(100dvh - 0.75rem);
+		}
+	}
 	@media (width >= 64rem) {
 		/* The popup in the middle does not travel: it fades in, rising a little, on one soft curve. */
 		.sheet-panel[data-wide="popup"] {
@@ -678,7 +692,12 @@
 		}
 		.sheet-panel[data-shown="false"] {
 			opacity: 0;
-			translate: none;
+		}
+		/* The popup does not rise either; on a phone the same sheet keeps its lift (see above). */
+		@media (width >= 64rem) {
+			.sheet-panel[data-wide="popup"][data-shown="false"] {
+				translate: none;
+			}
 		}
 	}
 

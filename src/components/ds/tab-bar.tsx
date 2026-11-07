@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 import { useQuery } from "@tanstack/react-query";
 import { Link, useRouterState } from "@tanstack/react-router";
 
@@ -53,21 +51,12 @@ export function TabBar() {
 	const admin = tabs.length > 3;
 	const current = tabs.findIndex(tab => tab.match(path));
 	const scanning = path.startsWith("/scansiona");
-	const scrolledAway = useHideOnScroll();
-	const typing = useTyping();
-	const hidden = scrolledAway || typing;
 
 	return (
 		<nav
 			aria-label="Sezioni"
-			data-hidden={hidden}
-			className={cn(
-				"pointer-events-none fixed inset-x-0 bottom-0 z-40 flex items-center justify-center gap-2 px-3 pb-[max(1rem,env(safe-area-inset-bottom))]",
-				// Out of the way while the reader scrolls down a list, back as soon as they scroll up;
-				// out of the way while they type on a phone, where the keyboard pushes it over the
-				// suggestions; and always back when the keyboard focus reaches it.
-				"transition-[translate,opacity] duration-300 ease-[var(--ease-out-snap)] focus-within:translate-y-0 focus-within:opacity-100 data-[hidden=true]:translate-y-[calc(100%+1rem)] data-[hidden=true]:opacity-0 motion-reduce:translate-y-0 motion-reduce:data-[hidden=true]:opacity-100"
-			)}
+			// Always in view. What opens over the page (the search suggestions) stands above it.
+			className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex items-center justify-center gap-2 px-3 pb-[max(1rem,env(safe-area-inset-bottom))]"
 		>
 			<ul
 				className={cn(
@@ -133,79 +122,4 @@ export function TabBar() {
 			</div>
 		</nav>
 	);
-}
-
-// How far the page must move before the bar reacts, so a finger resting on the glass does not
-// make it flicker; and how close to the top it always shows.
-const SCROLL_SLACK_PX = 8;
-const ALWAYS_NEAR_TOP_PX = 120;
-
-/** True while the reader scrolls down past the top of the page; false as soon as they scroll up. */
-function useHideOnScroll() {
-	const [hidden, setHidden] = useState(false);
-	const path = useRouterState({ select: state => state.location.pathname });
-
-	// A new page starts with the bar in view.
-	useEffect(() => setHidden(false), [path]);
-
-	useEffect(() => {
-		let last = window.scrollY;
-		function update() {
-			const y = window.scrollY;
-			if (y < ALWAYS_NEAR_TOP_PX) setHidden(false);
-			else if (y > last + SCROLL_SLACK_PX) setHidden(true);
-			else if (y < last - SCROLL_SLACK_PX) setHidden(false);
-			else return;
-			last = y;
-		}
-		window.addEventListener("scroll", update, { passive: true });
-		return () => window.removeEventListener("scroll", update);
-	}, []);
-
-	return hidden;
-}
-
-/**
- * True while a text field has the focus on a phone-sized or touch screen: the keyboard is up and
- * whatever opens under the field (the suggestions) needs the bottom of the screen.
- */
-function useTyping() {
-	const [typing, setTyping] = useState(false);
-
-	useEffect(() => {
-		const touch = window.matchMedia("(max-width: 63.99rem), (pointer: coarse)");
-		function isTextField(target: EventTarget | null) {
-			if (!(target instanceof HTMLElement)) return false;
-			if (target.isContentEditable || target instanceof HTMLTextAreaElement)
-				return true;
-			return (
-				target instanceof HTMLInputElement &&
-				![
-					"checkbox",
-					"radio",
-					"button",
-					"submit",
-					"reset",
-					"range",
-					"color",
-					"file",
-				].includes(target.type)
-			);
-		}
-		function focusIn(event: FocusEvent) {
-			if (touch.matches && isTextField(event.target)) setTyping(true);
-		}
-		function focusOut(event: FocusEvent) {
-			// Moving from one field to the next keeps the keyboard up.
-			if (!isTextField(event.relatedTarget)) setTyping(false);
-		}
-		document.addEventListener("focusin", focusIn);
-		document.addEventListener("focusout", focusOut);
-		return () => {
-			document.removeEventListener("focusin", focusIn);
-			document.removeEventListener("focusout", focusOut);
-		};
-	}, []);
-
-	return typing;
 }

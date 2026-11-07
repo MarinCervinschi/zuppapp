@@ -186,8 +186,12 @@ export async function getToTaste(
 ): Promise<ListPage> {
 	const page = params.pagina ?? 1;
 	const size = params.mostra ?? TILE_PAGE_SIZES[0];
+	// Not the ones the reader has already tasted: those are in «Le tue zuppe».
+	const notMine = userId
+		? sql` AND NOT EXISTS (SELECT 1 FROM votes v WHERE v.product_id = products.id AND v.user_id = ${userId})`
+		: sql``;
 	const rows = await query(
-		sql`${filtersOf(params)} AND coalesce(ps.votes_count, 0) < ${MIN_VOTES_TO_RANK}`,
+		sql`${filtersOf(params)} AND coalesce(ps.votes_count, 0) < ${MIN_VOTES_TO_RANK}${notMine}`,
 		sql`coalesce(ps.votes_count, 0) DESC, products.name`,
 		size,
 		(page - 1) * size,

@@ -2,7 +2,6 @@ import { useState } from "react";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
 
 import { Button, buttonClass } from "@/components/ds/button";
 import {
@@ -22,6 +21,7 @@ import { AvatarPicker } from "@/components/user/avatar-picker";
 import { NicknameForm } from "@/components/user/nickname-form";
 import { UserAvatar } from "@/components/user/user-avatar";
 import { authClient } from "@/lib/auth/client";
+import { toast } from "@/lib/toast";
 import { userQueries } from "@/lib/user/queries";
 import { cn } from "@/lib/utils";
 

@@ -167,10 +167,13 @@ saturate(180%)`, una luce sul bordo alto, un bordo di luce e un riflesso in alto
     crescono quando entrano in vista. Si carica con `LazyMotion` e `domAnimation` in `__root` (i componenti
     leggeri `m.*`, `strict`), e `MotionConfig reducedMotion="user"` segue l'impostazione del sistema. Niente
     animazioni di layout: chiederebbero `domMax`, il doppio del peso.
-- **Spazio per la tab bar**: su telefono la pagina stessa porta `.pb-tabbar`, su desktop il piè di pagina; i toast
-  stanno 104 px sopra il fondo.
-- **La tab bar si fa da parte**: scorrendo verso il basso scende fuori dallo schermo, risalendo torna, e c'è sempre
-  in cima alla pagina e quando la tastiera ci arriva. Con `prefers-reduced-motion` resta ferma.
+- **Spazio per la tab bar**: su telefono la pagina stessa porta `.pb-tabbar`, su desktop il piè di pagina.
+- **La tab bar c'è sempre**: non si nasconde scorrendo né scrivendo. Quello che si apre sopra la pagina, come i
+  suggerimenti della ricerca, ha uno z-index più alto e la copre.
+- **I toast sono pillole d'inchiostro in alto** (`AppToaster`, `ds/toaster.tsx`), lontani da tab bar, pollice e
+  foglio, con un'icona oltre al colore e l'azione come pulsante crema. Si chiamano con `toast` di `lib/toast.ts`,
+  mai da `sonner`: con un foglio aperto vanno al toaster dentro il foglio, perché il `<dialog>` modale sta nel top
+  layer e la pagina dietro è inerte, così il toast resterebbe sotto e il suo pulsante non si toccherebbe.
 - **Il piè di pagina c'è solo su desktop**: su telefono un piè da sito sotto ogni pagina è fuori posto. Tema e
   crediti stanno nel profilo e, per chi non ha un account, in fondo a «Prendi la tua tessera».
 - **Il foglio della zuppa e la sua pagina sono lo stesso foglio**: su telefono la pagina ha la maniglia e si
@@ -260,18 +263,20 @@ Niente prezzi: non li abbiamo, e la SPEC li tiene fuori dalla v1.
 - **Le card non hanno stelle**: grandi come un post, con la foto, il voto medio (o i voti che mancano) sopra
   la foto e sotto solo nome e dettagli. Se l'hai votata, un bollino nero in alto a sinistra dice il tuo voto.
 - **Toccare una zuppa apre il suo foglio** (`SoupSheet`), sopra la pagina, con due altezze su telefono:
-  - **l'anteprima**, alta quanto il suo contenuto: foto, media, «Com'era?» con le stelle grandi;
-  - **il foglio intero**: trascinato su (da un punto qualunque dell'anteprima, o toccando la maniglia) cresce
-    fino a riempire lo schermo e diventa la scheda completa, con le stesse sezioni della pagina
-    (`SoupSections`). Da intero scorre, e si trascina dalla maniglia: giù torna all'anteprima, poi si chiude.
+  - **l'anteprima**, a circa metà schermo: l'intestazione (foto, nome, dettagli e la X), la riga con la media o
+    i voti che mancano e il cuore, poi «Com'era?» con le stelle grandi;
+  - **il foglio intero**: trascinato su da un punto qualunque dell'anteprima, con un tocco sull'intestazione o
+    sulla maniglia, o con la rotella, cresce fino a riempire lo schermo con le stesse sezioni della pagina
+    (`SoupSections`). Da intero scorre; tirato giù dalla maniglia, dall'intestazione o dalla cima del
+    contenuto torna all'anteprima, poi si chiude.
   - Il movimento è un solo `transform` impostato dal codice: entra, si ferma e se ne va sulla stessa
     transizione, e mentre il dito trascina lo segue senza. Lasciato andare, lo slancio sceglie l'altezza.
   - Su desktop è un pannello che entra da destra e scorre fino in fondo. Con il movimento ridotto sfuma e basta.
   - Sta nello stato della cronologia della pagina sotto (`state.zuppa`): il tasto indietro lo chiude e la
     pagina resta dove era. Il link della card resta un vero link a `/prodotti/<ean>`.
   - Il voto dato nel foglio entra subito nelle card della lista sotto (`patchListVotes`), senza ricaricarla.
-- Nella scheda e nel foglio: il pannello nero «Com'era?» diventa «La tua valutazione»; sotto, il nome della
-  stella scelta, come cambiarla e **«Togli il voto»**, un pulsante vero. Il toast «Voto tolto» con
+- Nella scheda e nel foglio: il pannello nero «Com'era?» diventa «Il tuo voto»; sotto, il nome della stella
+  scelta e **«Togli il voto»**, un pulsante vero. Il toast «Voto tolto» con
   «Rimettilo» lo annulla.
 - **I tag** compaiono dopo la prima stella, in tre gruppi (Pro, Contro, Com'è) con il segno davanti (+ − ·),
   al massimo tre.
@@ -293,8 +298,10 @@ gli allergeni dei filtri che l'etichetta non dichiara, e ricorda di leggere semp
   marche, poi «Tutti i risultati per…». È un combobox ARIA: frecce, Invio, Esc. Il testo diventa una ricerca
   solo con Invio o una scelta, così la lista sotto non salta a ogni lettera.
 - **Il tipo si sceglie dai tondi** (`TypeRail`) sopra la lista.
-- **Prima di cercare, due schede sopra la lista**: «Da assaggiare» e «Tutto il catalogo» (`vedi=tutte`). Non
-  «Tutte», che è già il primo tondo dei tipi. Con un testo o un filtro la lista è dei risultati e le schede spariscono.
+- **Prima di cercare, due schede sopra la lista**: «Da assaggiare» (le zuppe a cui mancano voti per la
+  classifica, senza quelle che hai già votato) e «Tutte le zuppe» (`vedi=tutte`). Il titolo della lista è il
+  conteggio («446 zuppe»), senza altre righe. Con un testo o un filtro la lista è dei risultati e le schede
+  spariscono.
 - **Gli altri filtri** (Nutri-Score, allergeni, marca): su desktop in una colonna a sinistra della lista, su
   telefono in un foglio aperto dal tondo con l'icona accanto alla ricerca, che porta il numero dei filtri
   attivi. Nel foglio ogni opzione cambia subito la lista sotto, e «Vedi N zuppe» lo chiude su di lei. `/cerca`
@@ -307,11 +314,11 @@ gli allergeni dei filtri che l'etichetta non dichiara, e ricorda di leggere semp
 - **Ogni opzione mostra quante zuppe trova**, calcolato senza il proprio filtro.
 - **La marca ha un selettore nostro** (`BrandPicker`), con ricerca e conteggi.
 - **Lo stato si annuncia con `aria-current`**, e i link usano `activeOptions={EXACT_SEARCH}`.
-- **La ricerca senza testo** («Vedi tutte», `vedi=tutte`) elenca il catalogo per nome.
+- **La ricerca senza testo** («Tutte le zuppe», `vedi=tutte`) elenca il catalogo per nome.
 
 ### Liste e pagine
 
-- **Telefono**: una colonna di card, con il piatto della foto in 4:3, e una di righe in classifica. Da 640 px due colonne, con il piatto quadrato. **Desktop**: pannello filtri da 16rem e tre
+- **Telefono**: una colonna di card, con il piatto della foto in 4:5, e una di righe in classifica. Da 640 px due colonne, con il piatto quadrato. **Desktop**: colonna dei filtri da 17rem e tre
   colonne. Contenitore massimo `max-w-6xl`.
 - **Nessun nome troncato**: si va a capo.
 - **Pagine numerate** (`Pagination`), mai liste infinite: «‹ Indietro 1 2 … 38 Avanti ›» e «Per pagina». Ogni

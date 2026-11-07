@@ -356,8 +356,9 @@ function Grid({
 		>
 			{items.map(product => (
 				<li key={product.id}>
-					{/* Keyed by the reader's vote: when a fresh list brings a vote cast elsewhere, the tile starts from it. */}
-					<TasteTile key={product.myScore ?? 0} product={product} />
+					{/* No key on the vote: a tile holds no state, and remounting it on a vote would reload
+					    its photo, a flash under the sheet. */}
+					<TasteTile product={product} />
 				</li>
 			))}
 		</ul>

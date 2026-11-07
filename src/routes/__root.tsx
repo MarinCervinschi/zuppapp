@@ -6,10 +6,10 @@ import {
 	createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
-import { Toaster } from "sonner";
 
 import { SiteFooter } from "@/components/ds/site-footer";
 import { TabBar } from "@/components/ds/tab-bar";
+import { AppToaster } from "@/components/ds/toaster";
 import { ErrorPage, NotFoundPage } from "@/components/error/error-pages";
 import { SoupSheetHost } from "@/components/product/soup-sheet";
 import { analyticsQueries } from "@/lib/analytics/queries";
@@ -108,13 +108,8 @@ function RootLayout() {
 				<SiteFooter />
 				<TabBar />
 				<SoupSheetHost />
-				{/* Above the tab bar, so a toast never hides it or hides under it. */}
-				<Toaster
-					position="bottom-center"
-					richColors
-					offset={{ bottom: 104 }}
-					mobileOffset={{ bottom: 104 }}
-				/>
+				{/* At the top, away from the tab bar and the thumb. */}
+				<AppToaster />
 			</MotionConfig>
 		</LazyMotion>
 	);

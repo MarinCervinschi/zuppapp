@@ -2,10 +2,10 @@ import { useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
 
 import { useSetFavorite } from "@/lib/favorites/mutations";
 import { favoriteQueries } from "@/lib/favorites/queries";
+import { toast } from "@/lib/toast";
 import { userQueries } from "@/lib/user/queries";
 import { cn } from "@/lib/utils";
 

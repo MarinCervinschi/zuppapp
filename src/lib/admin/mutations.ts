@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 import { PRODOTTI, count } from "@/lib/plural";
+import { toast } from "@/lib/toast";
 
 import { correctProductFn, resolveReportsFn, setProductsStatusFn } from "./api";
 import type { ProductCorrectionInput, ResolveReportsInput } from "./schemas";

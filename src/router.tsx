@@ -15,6 +15,9 @@ export function getRouter() {
 		routeTree,
 		context: { queryClient },
 		scrollRestoration: true,
+		// Positions are kept by address, not by history entry: the soup's sheet is an entry of its own
+		// on the same address, and closing it (going back) must find the page where it was left.
+		getScrollRestorationKey: location => location.href,
 		defaultPreload: "intent",
 		defaultPreloadStaleTime: 0,
 		defaultErrorComponent: ErrorPage,

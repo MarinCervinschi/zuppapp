@@ -229,7 +229,7 @@ export function SearchBox({
 				aria-label="Suggerimenti"
 				hidden={!showList}
 				className={cn(
-					"bg-ground-raised motion-safe:animate-rise overlay-shadow absolute inset-x-0 top-full z-30 mt-2 flex flex-col overflow-hidden rounded-[1.75rem] p-2 text-left",
+					"bg-ground-raised motion-safe:animate-rise overlay-shadow absolute inset-x-0 top-full z-50 mt-2 flex flex-col overflow-hidden rounded-[1.75rem] p-2 text-left",
 					listClassName
 				)}
 			>

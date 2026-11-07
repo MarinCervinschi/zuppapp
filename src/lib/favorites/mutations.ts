@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 import { track } from "@/lib/analytics/track";
+import { toast } from "@/lib/toast";
 
 import { setFavoriteFn } from "./api";
 import { favoriteQueries } from "./queries";

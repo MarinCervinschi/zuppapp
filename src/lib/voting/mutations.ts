@@ -1,10 +1,10 @@
 import { type QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth/client";
 import { turnstileToken } from "@/lib/auth/turnstile";
 import type { ListPage, ProductListItem, RankingPage } from "@/lib/catalog/types";
 import type { Score } from "@/lib/ranking/rules";
+import { toast } from "@/lib/toast";
 
 import { castVoteFn, removeVoteFn } from "./api";
 
