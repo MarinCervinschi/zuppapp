@@ -1,4 +1,4 @@
-import { getRequestHeader, getRequestIP } from "@tanstack/react-start/server";
+import { getRequestHeaders, getRequestIP } from "@tanstack/react-start/server";
 
 import { AppError } from "./errors";
 import { log } from "./log";
@@ -54,11 +54,16 @@ export function hit(key: string, limit: number, windowMs: number, now = Date.now
 	buckets.set(key, recent);
 }
 
-/** Cloudflare's header first, since production sits behind its proxy. */
+/** The address of the current request's sender, as the proxy in front of the app saw it. */
 export function clientIp(): string {
-	return (
-		getRequestHeader("cf-connecting-ip") ??
-		getRequestIP({ xForwardedFor: true }) ??
-		"unknown"
-	);
+	return clientIpFrom(getRequestHeaders(), getRequestIP());
+}
+
+/** The last `X-Forwarded-For` entry; without the header, `socketIp`, or `"unknown"`. */
+export function clientIpFrom(headers: Headers, socketIp: string | undefined): string {
+	// No CDN in front: Coolify's Traefik takes the connection and appends the address it sees to
+	// `X-Forwarded-For`, so the last entry is Traefik's. With Cloudflare in front, read
+	// `cf-connecting-ip` instead.
+	const forwarded = headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
+	return forwarded || socketIp || "unknown";
 }

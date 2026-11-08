@@ -47,7 +47,10 @@ Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il p
 - Il primo voto di chi non ha sessione crea l'utente anonimo lato client (`ensureVoter` in
   `src/lib/voting/mutations.ts`), passando il token Turnstile se `VITE_TURNSTILE_SITE_KEY` è impostata.
   Il voto si salva dopo 600 ms di quiete (`useVote`).
-- Limite voti per IP in memoria (`src/lib/server/rate-limit.ts`): basta finché l'app è un solo processo.
+- Limiti per IP in memoria (`hit` in `src/lib/server/rate-limit.ts`): bastano finché l'app è un solo processo.
+  Davanti all'app c'è solo il Traefik di Coolify, niente Cloudflare: l'IP è l'ultima voce di `X-Forwarded-For`, quella
+  che scrive Traefik (`clientIp`), e `cf-connecting-ip` non conta. Better Auth legge la stessa intestazione per il suo
+  limite e per Turnstile, ma non salva l'IP nelle sessioni.
 - `src/lib/off/` legge Open Food Facts: Search-a-licious solo per scoprire i codici (la ricerca classica
   risponde 503 e le sue copie sono vecchie), l'API prodotto per i dati, al massimo 100 letture al minuto,
   con uno User-Agent che identifica l'app. `map.ts` è puro e testato.

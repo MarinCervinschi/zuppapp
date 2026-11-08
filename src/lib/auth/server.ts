@@ -52,7 +52,17 @@ function createAuth() {
 		}),
 		advanced: {
 			database: { generateId: "uuid" },
-			ipAddress: { ipAddressHeaders: ["cf-connecting-ip"] },
+			// No CDN in front: Traefik writes the address it sees here. Better Auth uses it for its
+			// rate limit and Turnstile's `remoteip`, and only when it holds one address.
+			ipAddress: { ipAddressHeaders: ["x-forwarded-for"] },
+		},
+		databaseHooks: {
+			session: {
+				create: {
+					// The IP serves only short-lived rate limits; a session lasts a year.
+					before: async () => ({ data: { ipAddress: null } }),
+				},
+			},
 		},
 		socialProviders: socialProviders(),
 		session: {
