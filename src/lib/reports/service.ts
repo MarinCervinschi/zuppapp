@@ -56,7 +56,7 @@ async function storePhotos(photos: ReportPhoto[]) {
 	return keys;
 }
 
-async function deletePhotos(keys: string[]) {
+export async function deleteReportPhotos(keys: string[]) {
 	await Promise.all(
 		keys
 			.flatMap(key => [key, sizedImage(key, "full")!])
@@ -109,7 +109,7 @@ export async function submitReport(userId: string, input: ReportInput) {
 			photoKeys,
 		});
 	} catch (error) {
-		await deletePhotos(photoKeys);
+		await deleteReportPhotos(photoKeys);
 		rethrowUniqueViolation(error, "Ce l’hai già segnalata: la stiamo guardando.");
 	}
 	log.info("Report for {Ean} received with {PhotoCount} photos", {
@@ -260,7 +260,7 @@ export async function resolveReports(adminId: string, input: ResolveReports) {
 		})
 		.where(open)
 		.returning({ id: productReports.id });
-	await deletePhotos(photoKeys);
+	await deleteReportPhotos(photoKeys);
 	log.info("Reports for {Ean} resolved: {Action}, {Resolved} closed", {
 		Ean: input.ean,
 		Action: input.action,

@@ -82,6 +82,11 @@ Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il p
   ricodifica ogni foto in due JPEG (`toJpeg`, 1600 e 400 px), il server toglie di nuovo i metadati
   (`stripJpegMetadata`) e le salva in `segnalazioni/<uuid>/<n>.400.jpg` e `.full.jpg`. Senza `S3_*` il modulo
   non chiede foto. In `/admin/segnalazioni` si risolvono tutte quelle di un EAN insieme, e le foto si cancellano.
+- Dati e privacy: `/dati` spiega la licenza ODbL e linka `/dati/catalogo.json` (`getCatalogDump` in
+  `src/lib/catalog/dump.ts`, generato a ogni richiesta, senza voti, utenti né foto). `/privacy` è l’informativa dell’art. 13 GDPR e nient’altro (niente cookie tecnici, Umami o log, che non
+  toccano dati personali): un dato personale nuovo la cambia nello stesso commit.
+  «Elimina l’account» (`deleteAccount` in `src/lib/user/service.ts`) non cancella la riga: la rende un votante
+  anonimo senza email né sessioni, così i voti restano in classifica; preferiti, segnalazioni e foto se ne vanno.
 - Admin: `/admin` risponde 404 a chiunque non sia admin (`isAdminFn` in `beforeLoad`), e ogni server
   function di `src/lib/admin/` ricontrolla con `adminMiddleware`. Le correzioni di nome, marca e tipo
   finiscono in `overrides`. Ricerca (testo o inizio dell'EAN) e filtri (`tipo`, `foto`, `voti`, `corretti`,

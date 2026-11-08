@@ -133,6 +133,47 @@ export function LogoutIcon({ className }: IconProps) {
 	);
 }
 
+export function TrashIcon({ className }: IconProps) {
+	return (
+		<Line className={className}>
+			<path d="M4 7h16M9.5 7V4.5h5V7" />
+			<path d="M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7" />
+			<path d="M10 11v6M14 11v6" />
+		</Line>
+	);
+}
+
+export function ShieldIcon({ className }: IconProps) {
+	return (
+		<Line className={className}>
+			<path d="M12 3.5 5 6v5.5c0 4.4 3 7.6 7 9 4-1.4 7-4.6 7-9V6Z" />
+			<path d="m9 12 2 2 4-4" />
+		</Line>
+	);
+}
+
+export function DownloadIcon({ className }: IconProps) {
+	return (
+		<Line className={className}>
+			<path d="M12 4v11M7 10.5 12 15.5l5-5" />
+			<path d="M5 19.5h14" />
+		</Line>
+	);
+}
+
+// The digits of a path look like an IP address to the public scan.
+const GITHUB_PATH =
+	"M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"; // check-public: allow
+
+/** GitHub's mark, filled: a logo is drawn as its owner draws it, not in our line style. */
+export function GitHubIcon({ className }: IconProps) {
+	return (
+		<svg aria-hidden viewBox="0 0 16 16" fill="currentColor" className={className}>
+			<path d={GITHUB_PATH} />
+		</svg>
+	);
+}
+
 export function ExternalIcon({ className }: IconProps) {
 	return (
 		<Line className={className}>

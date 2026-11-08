@@ -7,13 +7,15 @@ import { Button, buttonClass } from "@/components/ds/button";
 import { CREDITS, CreditsList } from "@/components/ds/credits";
 import {
 	ChevronRightIcon,
-	ExternalIcon,
+	GitHubIcon,
 	HEART_PATH,
 	InfoIcon,
 	KeyIcon,
 	LogoutIcon,
 	PencilIcon,
+	ShieldIcon,
 	SunIcon,
+	TrashIcon,
 } from "@/components/ds/icons";
 import { Sheet } from "@/components/ds/sheet";
 import { SoupField } from "@/components/ds/soup-field";
@@ -24,6 +26,7 @@ import { NicknameForm } from "@/components/user/nickname-form";
 import { UserAvatar } from "@/components/user/user-avatar";
 import { authClient } from "@/lib/auth/client";
 import { toast } from "@/lib/toast";
+import { useDeleteAccount } from "@/lib/user/mutations";
 import { userQueries } from "@/lib/user/queries";
 import { cn } from "@/lib/utils";
 
@@ -46,7 +49,7 @@ function Profile() {
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const viewer = data?.viewer;
-	const [sheet, setSheet] = useState<"edit" | "credits" | null>(null);
+	const [sheet, setSheet] = useState<"edit" | "credits" | "delete" | null>(null);
 	const [leaving, setLeaving] = useState(false);
 	if (!viewer) return null;
 
@@ -178,9 +181,14 @@ function Profile() {
 						)}
 						<button type="button" onClick={() => setSheet("credits")} className={row}>
 							<InfoIcon className="size-5" />
-							<span className="flex-1">Crediti e codice aperto</span>
+							<span className="flex-1">Crediti e open source</span>
 							<ChevronRightIcon className="text-text-soft size-5" />
 						</button>
+						<Link to="/privacy" className={row}>
+							<ShieldIcon className="size-5" />
+							<span className="flex-1">Privacy</span>
+							<ChevronRightIcon className="text-text-soft size-5" />
+						</Link>
 					</div>
 					<div className="bg-ground-raised mt-2 overflow-hidden rounded-[1.5rem]">
 						<button
@@ -196,6 +204,16 @@ function Profile() {
 					<p className="text-small text-text-soft px-4">
 						Uscendo, i tuoi voti restano nell’account e li ritrovi al prossimo accesso.
 					</p>
+					<div className="bg-ground-raised mt-6 overflow-hidden rounded-[1.5rem]">
+						<button
+							type="button"
+							onClick={() => setSheet("delete")}
+							className={cn(row, "text-danger")}
+						>
+							<TrashIcon className="size-5" />
+							Elimina l’account
+						</button>
+					</div>
 				</section>
 			</main>
 
@@ -203,6 +221,9 @@ function Profile() {
 				<EditProfile viewer={viewer} onClosed={() => setSheet(null)} />
 			)}
 			{sheet === "credits" && <Credits onClosed={() => setSheet(null)} />}
+			{sheet === "delete" && (
+				<DeleteAccount votes={viewer.votesCount} onClosed={() => setSheet(null)} />
+			)}
 		</>
 	);
 }
@@ -234,15 +255,77 @@ function Credits({ onClosed }: { onClosed: () => void }) {
 			{() => (
 				<div className="flex flex-col gap-5">
 					<CreditsList />
+					<Link to="/dati" className="text-body underline">
+						Scarica il catalogo delle zuppe
+					</Link>
 					<a
 						href={CREDITS.code.href}
 						target="_blank"
 						rel="noopener noreferrer"
 						className={cn(buttonClass(), "w-full")}
 					>
+						<GitHubIcon className="size-5" />
 						Guarda il codice su GitHub
-						<ExternalIcon className="size-5" />
 					</a>
+				</div>
+			)}
+		</Sheet>
+	);
+}
+
+/**
+ * The one action in the app that cannot be undone, so it asks first, in a sheet that says what
+ * goes and what stays.
+ */
+function DeleteAccount({ votes, onClosed }: { votes: number; onClosed: () => void }) {
+	const queryClient = useQueryClient();
+	const navigate = useNavigate();
+	const remove = useDeleteAccount();
+
+	async function confirm() {
+		try {
+			await remove.mutateAsync();
+		} catch {
+			return; // The sheet shows the error.
+		}
+		// Everything cached belonged to that account.
+		await queryClient.invalidateQueries();
+		toast.success("Account eliminato");
+		navigate({ to: "/" });
+	}
+
+	return (
+		<Sheet title="Eliminare l’account?" onClosed={onClosed} wide="popup">
+			{close => (
+				<div className="flex flex-col gap-5">
+					<ul className="text-body flex list-disc flex-col gap-2 pl-5">
+						<li>Cancelliamo nome, email, preferiti e le zuppe che ci hai segnalato.</li>
+						<li>
+							{votes === 0
+								? "Non hai voti da togliere dalla classifica."
+								: `I tuoi voti restano nella classifica, ma non sono più collegati a te: non potrai più vederli né cambiarli.`}
+						</li>
+						<li>Non si torna indietro.</li>
+					</ul>
+					{remove.error && (
+						<p role="alert" className="text-body text-danger">
+							L’account non è stato eliminato. Controlla la connessione e riprova.
+						</p>
+					)}
+					<div className="flex flex-col gap-3 sm:flex-row-reverse">
+						<Button
+							variant="ink"
+							onClick={confirm}
+							disabled={remove.isPending}
+							className="bg-danger hover:bg-danger/85 sm:flex-1"
+						>
+							<TrashIcon className="size-5" />
+							{remove.isPending ? "Elimino…" : "Elimina l’account"}
+						</Button>
+						<Button onClick={close} disabled={remove.isPending} className="sm:flex-1">
+							Tienilo
+						</Button>
+					</div>
 				</div>
 			)}
 		</Sheet>

@@ -1,11 +1,24 @@
 import { desc, eq, sql } from "drizzle-orm";
 
 import { getDb } from "@/db";
-import { products, tags, users, voteTags, votes } from "@/db/schema";
+import {
+	accounts,
+	favorites,
+	productReports,
+	products,
+	sessions,
+	tags,
+	users,
+	voteTags,
+	votes,
+} from "@/db/schema";
 import { soupNameFor } from "@/lib/auth/names";
 import { productImageUrl } from "@/lib/catalog/image";
 import { type Score, isScore } from "@/lib/ranking/rules";
+import { deleteReportPhotos } from "@/lib/reports/service";
 import { NotFound } from "@/lib/server/errors";
+import { log } from "@/lib/server/log";
+import { refreshProductStats } from "@/lib/voting/db/product-stats";
 
 import { MY_VOTES_PAGE_SIZE } from "./schemas";
 
@@ -68,6 +81,53 @@ export async function setAvatarSeed(userId: string, seed: string) {
 		.update(users)
 		.set({ avatarSeed: seed, updatedAt: sql`now()` })
 		.where(eq(users.id, userId));
+}
+
+/**
+ * "Elimina account" (SPEC decision 11): what identifies the person goes, the votes stay. The row
+ * is kept and turned into an anonymous voter nobody can sign in as, so the ranking does not move;
+ * the votes only change from registered to anonymous in `product_stats`. Favorites, reports
+ * with their photos, sessions and the Google link are deleted.
+ */
+export async function deleteAccount(userId: string) {
+	const photoKeys = await getDb().transaction(async tx => {
+		const reports = await tx
+			.delete(productReports)
+			.where(eq(productReports.userId, userId))
+			.returning({ photoKeys: productReports.photoKeys });
+		await tx.delete(favorites).where(eq(favorites.userId, userId));
+		await tx.delete(accounts).where(eq(accounts.userId, userId));
+		await tx.delete(sessions).where(eq(sessions.userId, userId));
+		await tx
+			.update(users)
+			.set({
+				isAnonymous: true,
+				name: "Account eliminato",
+				// The column is unique and required; `.invalid` is a domain that can never receive mail.
+				email: `eliminato-${userId}@zuppapp.invalid`,
+				emailVerified: false,
+				image: null,
+				nickname: null,
+				avatarSeed: null,
+				role: "user",
+				updatedAt: sql`now()`,
+			})
+			.where(eq(users.id, userId));
+
+		const voted = await tx
+			.select({ productId: votes.productId })
+			.from(votes)
+			.where(eq(votes.userId, userId));
+		await refreshProductStats(
+			tx,
+			voted.map(row => row.productId)
+		);
+		return reports.flatMap(report => report.photoKeys);
+	});
+	await deleteReportPhotos(photoKeys);
+	log.info("Account deleted, {Photos} report photos removed", {
+		Photos: photoKeys.length,
+	});
 }
 
 export type MyVote = {

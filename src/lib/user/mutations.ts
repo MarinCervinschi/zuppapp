@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { toast } from "@/lib/toast";
 
-import { setAvatarSeedFn, setNicknameFn } from "./api";
+import { deleteAccountFn, setAvatarSeedFn, setNicknameFn } from "./api";
 
 export function useSetNickname() {
 	const queryClient = useQueryClient();
@@ -25,4 +25,9 @@ export function useSetAvatarSeed() {
 		},
 		onError: (error: Error) => toast.error(error.message),
 	});
+}
+
+/** No toast here: the sheet shows the error, and the profile page says goodbye on success. */
+export function useDeleteAccount() {
+	return useMutation({ mutationFn: () => deleteAccountFn() });
 }

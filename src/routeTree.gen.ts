@@ -14,12 +14,15 @@ import { Route as AccediRouteImport } from './routes/accedi'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CercaRouteImport } from './routes/cerca'
 import { Route as ClassificaRouteImport } from './routes/classifica'
+import { Route as DatiRouteImport } from './routes/dati'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as LeMieZuppeRouteImport } from './routes/le-mie-zuppe'
 import { Route as PreferitiRouteImport } from './routes/preferiti'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfiloRouteImport } from './routes/profilo'
 import { Route as AdminSegnalazioniRouteImport } from './routes/admin_.segnalazioni'
+import { Route as DatiCatalogoDotjsonRouteImport } from './routes/dati_.catalogo[.]json'
 import { Route as ProdottiEanRouteImport } from './routes/prodotti/$ean'
 import { Route as ScansionaIndexRouteImport } from './routes/scansiona/index'
 import { Route as ScansionaCodiceRouteImport } from './routes/scansiona/$codice'
@@ -50,6 +53,11 @@ const ClassificaRoute = ClassificaRouteImport.update({
   path: '/classifica',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DatiRoute = DatiRouteImport.update({
+  id: '/dati',
+  path: '/dati',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DesignRoute = DesignRouteImport.update({
   id: '/design',
   path: '/design',
@@ -70,6 +78,11 @@ const PreferitiRoute = PreferitiRouteImport.update({
   path: '/preferiti',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfiloRoute = ProfiloRouteImport.update({
   id: '/profilo',
   path: '/profilo',
@@ -78,6 +91,11 @@ const ProfiloRoute = ProfiloRouteImport.update({
 const AdminSegnalazioniRoute = AdminSegnalazioniRouteImport.update({
   id: '/admin_/segnalazioni',
   path: '/admin/segnalazioni',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatiCatalogoDotjsonRoute = DatiCatalogoDotjsonRouteImport.update({
+  id: '/dati_/catalogo.json',
+  path: '/dati/catalogo.json',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProdottiEanRoute = ProdottiEanRouteImport.update({
@@ -107,12 +125,15 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/cerca': typeof CercaRoute
   '/classifica': typeof ClassificaRoute
+  '/dati': typeof DatiRoute
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
   '/preferiti': typeof PreferitiRoute
+  '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
   '/admin/segnalazioni': typeof AdminSegnalazioniRoute
+  '/dati/catalogo.json': typeof DatiCatalogoDotjsonRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
   '/scansiona/$codice': typeof ScansionaCodiceRoute
   '/scansiona/': typeof ScansionaIndexRoute
@@ -124,12 +145,15 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/cerca': typeof CercaRoute
   '/classifica': typeof ClassificaRoute
+  '/dati': typeof DatiRoute
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
   '/preferiti': typeof PreferitiRoute
+  '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
   '/admin/segnalazioni': typeof AdminSegnalazioniRoute
+  '/dati/catalogo.json': typeof DatiCatalogoDotjsonRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
   '/scansiona/$codice': typeof ScansionaCodiceRoute
   '/scansiona': typeof ScansionaIndexRoute
@@ -142,12 +166,15 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/cerca': typeof CercaRoute
   '/classifica': typeof ClassificaRoute
+  '/dati': typeof DatiRoute
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
   '/preferiti': typeof PreferitiRoute
+  '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
   '/admin_/segnalazioni': typeof AdminSegnalazioniRoute
+  '/dati_/catalogo.json': typeof DatiCatalogoDotjsonRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
   '/scansiona/$codice': typeof ScansionaCodiceRoute
   '/scansiona/': typeof ScansionaIndexRoute
@@ -161,12 +188,15 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cerca'
     | '/classifica'
+    | '/dati'
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
     | '/preferiti'
+    | '/privacy'
     | '/profilo'
     | '/admin/segnalazioni'
+    | '/dati/catalogo.json'
     | '/prodotti/$ean'
     | '/scansiona/$codice'
     | '/scansiona/'
@@ -178,12 +208,15 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cerca'
     | '/classifica'
+    | '/dati'
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
     | '/preferiti'
+    | '/privacy'
     | '/profilo'
     | '/admin/segnalazioni'
+    | '/dati/catalogo.json'
     | '/prodotti/$ean'
     | '/scansiona/$codice'
     | '/scansiona'
@@ -195,12 +228,15 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cerca'
     | '/classifica'
+    | '/dati'
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
     | '/preferiti'
+    | '/privacy'
     | '/profilo'
     | '/admin_/segnalazioni'
+    | '/dati_/catalogo.json'
     | '/prodotti/$ean'
     | '/scansiona/$codice'
     | '/scansiona/'
@@ -213,12 +249,15 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   CercaRoute: typeof CercaRoute
   ClassificaRoute: typeof ClassificaRoute
+  DatiRoute: typeof DatiRoute
   DesignRoute: typeof DesignRoute
   HealthRoute: typeof HealthRoute
   LeMieZuppeRoute: typeof LeMieZuppeRoute
   PreferitiRoute: typeof PreferitiRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProfiloRoute: typeof ProfiloRoute
   AdminSegnalazioniRoute: typeof AdminSegnalazioniRoute
+  DatiCatalogoDotjsonRoute: typeof DatiCatalogoDotjsonRoute
   ProdottiEanRoute: typeof ProdottiEanRoute
   ScansionaCodiceRoute: typeof ScansionaCodiceRoute
   ScansionaIndexRoute: typeof ScansionaIndexRoute
@@ -262,6 +301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClassificaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dati': {
+      id: '/dati'
+      path: '/dati'
+      fullPath: '/dati'
+      preLoaderRoute: typeof DatiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/design': {
       id: '/design'
       path: '/design'
@@ -290,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PreferitiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profilo': {
       id: '/profilo'
       path: '/profilo'
@@ -302,6 +355,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/segnalazioni'
       fullPath: '/admin/segnalazioni'
       preLoaderRoute: typeof AdminSegnalazioniRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dati_/catalogo.json': {
+      id: '/dati_/catalogo.json'
+      path: '/dati/catalogo.json'
+      fullPath: '/dati/catalogo.json'
+      preLoaderRoute: typeof DatiCatalogoDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prodotti/$ean': {
@@ -341,12 +401,15 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   CercaRoute: CercaRoute,
   ClassificaRoute: ClassificaRoute,
+  DatiRoute: DatiRoute,
   DesignRoute: DesignRoute,
   HealthRoute: HealthRoute,
   LeMieZuppeRoute: LeMieZuppeRoute,
   PreferitiRoute: PreferitiRoute,
+  PrivacyRoute: PrivacyRoute,
   ProfiloRoute: ProfiloRoute,
   AdminSegnalazioniRoute: AdminSegnalazioniRoute,
+  DatiCatalogoDotjsonRoute: DatiCatalogoDotjsonRoute,
   ProdottiEanRoute: ProdottiEanRoute,
   ScansionaCodiceRoute: ScansionaCodiceRoute,
   ScansionaIndexRoute: ScansionaIndexRoute,
