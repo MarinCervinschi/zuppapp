@@ -133,8 +133,9 @@ export function Sheet({
 		if (!modal || !element) return;
 		// Out of sight before anything is measured: a measurement fixes the style the transition
 		// starts from, and the sheet would slide in from fully open (from the top) instead.
+		// The popup in the middle never travels, and `place` never moves it back: it must stay put.
 		if (mode() === "right") element.style.setProperty("--x", "calc(100% + 24px)");
-		else element.style.setProperty("--y", "100%");
+		else if (mode() === "bottom") element.style.setProperty("--y", "100%");
 		// Whoever opened the sheet gets the focus back when it goes, however it goes (a button, the
 		// back button, a drag): the dialog is unmounted, not closed, so the browser would not do it.
 		const opener = document.activeElement as HTMLElement | null;
