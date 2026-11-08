@@ -11,6 +11,7 @@ import {
 	tidyBrand,
 	tidyName,
 } from "@/lib/off/map";
+import { log } from "@/lib/server/log";
 import { TooManyRequests, clientIp, hit } from "@/lib/server/rate-limit";
 import { isStorageConfigured } from "@/lib/storage/s3";
 
@@ -78,7 +79,7 @@ async function readOff(ean: string): Promise<OffProduct | null> {
 	} catch (error) {
 		// Too many lookups, a timeout, a 503: the report form is the way on, not an error page.
 		if (!(error instanceof TooManyRequests))
-			console.warn(`Open Food Facts ${ean}:`, error);
+			log.warn("Open Food Facts lookup of {Ean} failed", { Ean: ean }, error);
 		return null;
 	}
 }
@@ -119,10 +120,11 @@ export async function lookupEan(
 	const mapped = off ? mapOffProduct({ ...off, code: ean }) : null;
 	if (off?.categories_tags?.includes("en:soups") && mapped?.ok) {
 		await importProduct(db, mapped.product);
+		log.info("Scanned {Ean} imported from Open Food Facts as a draft", { Ean: ean });
 		// The photo copy takes a few seconds; the draft shows Open Food Facts' photo meanwhile.
 		if (mapped.product.snapshot.imageUrl)
 			void copyProductImage(db, ean, mapped.product.snapshot.imageUrl).catch(error =>
-				console.warn(`Photo of ${ean}:`, error)
+				log.warn("Photo of {Ean} not copied to the bucket", { Ean: ean }, error)
 			);
 		return {
 			kind: "coming",

@@ -107,7 +107,14 @@ Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il p
   transazione che cambia i voti. Il punteggio bayesiano si calcola in lettura, perché dipende
   dalla media globale.
 - Un `AppError` (`src/lib/server/errors.ts`) arriva all'utente col suo messaggio; ogni altro errore
-  viene sostituito da uno generico.
+  viene sostituito da uno generico e registrato con `log.error` (`errorMiddleware`, con il nome della funzione).
+- Log: `src/lib/server/log.ts` (`log`, `createLogger({ Source })`, `flushLogs`) manda eventi CLEF a Seq quando
+  c'è `SEQ_URL` (con `SEQ_API_KEY`), se no li scrive in console; se Seq non risponde, il lotto finisce in console.
+  Solo `prod` ha `SEQ_URL`: `Environment` e `Application` li aggiunge la chiave di Seq, non il codice. Template con
+  le proprietà (`"Report for {Ean}"`, `{ Ean }`), mai stringhe interpolate; come per Umami, mai email, id utente,
+  IP o testo scritto da chi usa l'app. Il file è TypeScript che Node legge senza compilare, perché
+  `scripts/migrate.mjs` lo importa nell'immagine: niente `@/` né sintassi non cancellabile (`enum`, `namespace`).
+  Gli script chiamano `await flushLogs()` prima di `process.exit`. `LOG_LEVEL` (`debug`…`error`, di base `info`).
 
 ## Controllo di una feature
 

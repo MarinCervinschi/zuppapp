@@ -16,9 +16,12 @@ import { copyProductImage } from "@/lib/catalog/images";
 import { importProduct } from "@/lib/catalog/import";
 import { discoverSoupCodes, fetchProduct } from "@/lib/off/client";
 import { isStoreInternalCode, mapOffProduct } from "@/lib/off/map";
+import { createLogger, flushLogs } from "@/lib/server/log";
 import { isStorageConfigured } from "@/lib/storage/s3";
 
 import { assertLocalDatabase } from "./lib/local-db";
+
+const log = createLogger({ Source: "import" });
 
 const { values: args } = parseArgs({
 	options: {
@@ -72,7 +75,7 @@ async function copyImages(limit: number) {
 			.then(key => count(key === before ? "già copiata" : "copiata"))
 			.catch(error => {
 				count("non copiata");
-				console.warn(`${row.ean}: ${error.message}`);
+				log.warn("Photo of {Ean} not copied to the bucket", { Ean: row.ean }, error);
 			});
 		if (done % 25 === 0) console.log(`… ${done} foto`);
 	}
@@ -88,6 +91,7 @@ async function main() {
 	if (args.images) {
 		if (!isStorageConfigured()) throw new Error("--images needs the S3_* variables");
 		await copyImages(limit);
+		await flushLogs();
 		process.exit(0);
 	}
 	const counts: Record<string, number> = {};
@@ -128,7 +132,11 @@ async function main() {
 				mapped.product.snapshot.imageUrl
 			).catch(error => {
 				count("foto non copiata nel bucket");
-				console.warn(`${mapped.product.ean}: ${error.message}`);
+				log.warn(
+					"Photo of {Ean} not copied to the bucket",
+					{ Ean: mapped.product.ean },
+					error
+				);
 			});
 		}
 		if (recipeChanged)
@@ -143,10 +151,19 @@ async function main() {
 	if (recipeChanges.length > 0) {
 		console.log(`\nRicetta cambiata:\n  ${recipeChanges.join("\n  ")}`);
 	}
+	log.info("Import finished: {Read} products read, {RecipeChanges} recipes changed", {
+		Read: seen.size,
+		RecipeChanges: recipeChanges.length,
+		Mode: args.sync ? "sync" : args.ean ? "ean" : "discover",
+		DryRun: args["dry-run"],
+		Outcomes: counts,
+	});
+	await flushLogs();
 	process.exit(0);
 }
 
-main().catch(error => {
-	console.error(error);
+main().catch(async error => {
+	log.error("Import failed", {}, error);
+	await flushLogs();
 	process.exit(1);
 });

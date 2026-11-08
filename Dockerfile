@@ -38,6 +38,7 @@ COPY --from=build --chown=node:node /app/.output ./.output
 COPY --chown=node:node package.json docker-entrypoint.sh ./
 COPY --chown=node:node drizzle ./drizzle
 COPY --chown=node:node scripts/migrate.mjs ./scripts/migrate.mjs
+COPY --chown=node:node src/lib/server/log.ts ./src/lib/server/log.ts
 USER node
 EXPOSE 3000
 ENTRYPOINT ["./docker-entrypoint.sh"]

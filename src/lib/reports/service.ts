@@ -16,6 +16,7 @@ import {
 	Unavailable,
 	rethrowUniqueViolation,
 } from "@/lib/server/errors";
+import { log } from "@/lib/server/log";
 import { TooManyRequests, hit } from "@/lib/server/rate-limit";
 import { deleteObject, isStorageConfigured, putObject } from "@/lib/storage/s3";
 
@@ -60,7 +61,9 @@ async function deletePhotos(keys: string[]) {
 		keys
 			.flatMap(key => [key, sizedImage(key, "full")!])
 			.map(key =>
-				deleteObject(key).catch(error => console.warn(`Delete ${key}:`, error))
+				deleteObject(key).catch(error =>
+					log.warn("Report photo {Key} not deleted", { Key: key }, error)
+				)
 			)
 	);
 }
@@ -109,6 +112,10 @@ export async function submitReport(userId: string, input: ReportInput) {
 		await deletePhotos(photoKeys);
 		rethrowUniqueViolation(error, "Ce l’hai già segnalata: la stiamo guardando.");
 	}
+	log.info("Report for {Ean} received with {PhotoCount} photos", {
+		Ean: input.ean,
+		PhotoCount: photoKeys.length,
+	});
 	return { ean: input.ean };
 }
 
@@ -223,7 +230,7 @@ async function importFromOff(ean: string) {
 	await importProduct(getDb(), mapped.product);
 	if (mapped.product.snapshot.imageUrl)
 		await copyProductImage(getDb(), ean, mapped.product.snapshot.imageUrl).catch(
-			error => console.warn(`Photo of ${ean}:`, error)
+			error => log.warn("Photo of {Ean} not copied to the bucket", { Ean: ean }, error)
 		);
 }
 
@@ -254,5 +261,10 @@ export async function resolveReports(adminId: string, input: ResolveReports) {
 		.where(open)
 		.returning({ id: productReports.id });
 	await deletePhotos(photoKeys);
+	log.info("Reports for {Ean} resolved: {Action}, {Resolved} closed", {
+		Ean: input.ean,
+		Action: input.action,
+		Resolved: resolved.length,
+	});
 	return { resolved: resolved.length };
 }
