@@ -5,8 +5,9 @@ import { Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-ro
 
 import { Button } from "@/components/ds/button";
 import { HeartButton } from "@/components/ds/heart-button";
-import { PackPhoto, PackThumb } from "@/components/ds/pack-photo";
+import { PackThumb } from "@/components/ds/pack-photo";
 import { Sheet } from "@/components/ds/sheet";
+import { ZoomablePhoto } from "@/components/ds/zoomable-photo";
 import { productDetails } from "@/lib/catalog/details";
 import { catalogQueries } from "@/lib/catalog/queries";
 import type { ProductCard } from "@/lib/catalog/types";
@@ -128,11 +129,18 @@ function SoupSheet({ ean }: { ean: string }) {
 			});
 	}
 
-	const thumb = (
-		<PackThumb
-			src={product?.imageUrl ?? null}
-			className="rounded-thumb size-16 lg:hidden"
+	// A tap on the photo opens it large, to read the pack.
+	const thumb = product?.imageUrl ? (
+		<ZoomablePhoto
+			src={product.imageUrl}
+			name={product.name}
+			size="thumb"
+			thumb={100}
+			className="plate rounded-thumb shrink-0 overflow-hidden bg-white lg:hidden"
+			imageClassName="rounded-none object-cover"
 		/>
+	) : (
+		<PackThumb src={null} className="rounded-thumb size-16 lg:hidden" />
 	);
 
 	return (
@@ -204,11 +212,13 @@ function SheetBody({ product }: { product: ProductCard }) {
 			<div className="flex flex-col gap-4">
 				{/* On a wide screen the panel has room for the pack itself, as on its page. */}
 				<div className="plate rounded-card hidden h-64 place-items-center overflow-hidden bg-white p-4 lg:grid">
-					<PackPhoto
+					<ZoomablePhoto
 						src={product.imageUrl}
-						alt={`Confezione di ${product.name}`}
+						name={product.name}
 						size="shelf"
-						className="max-h-full object-contain"
+						thumb={400}
+						className="flex h-full items-center justify-center"
+						imageClassName="max-h-full object-contain"
 					/>
 				</div>
 				{/* How it ranks, with the heart at the other end: far from the close button. */}

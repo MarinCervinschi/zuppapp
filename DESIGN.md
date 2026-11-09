@@ -132,8 +132,8 @@ La media si scrive all'italiana, con la virgola: «4,7» (`formatStars`).
 - **Le foto stanno su un piatto bianco.** Nelle griglie e sul podio il piatto ha una forma fissa e la foto lo riempie
   (`object-cover`, tagliata se serve), così le card di una riga sono alte uguali; nella scheda e ingrandita è intera
   (`object-contain`). In classifica dal 4° in giù la miniatura è un tondo.
-- **Su telefono la foto non si ingrandisce**: nelle liste porta alla scheda, nella scheda non fa niente. Col mouse si
-  apre grande.
+- **Su telefono, nelle liste la foto porta alla scheda**; nella scheda e nel foglio della zuppa un tocco la apre
+  grande, larga quanto lo schermo. Col mouse si apre grande ovunque.
 - **Ombre solo per ciò che galleggia** (`.float-shadow`): il campo di ricerca.
 - **Vetro liquido per ciò che galleggia sopra il contenuto** (`.glass`): tab bar, pulsante indietro, menu «Per
   pagina». È la versione CSS del Liquid Glass di iOS 26: velo traslucido con `backdrop-filter: blur(20px)
