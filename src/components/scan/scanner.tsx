@@ -18,15 +18,23 @@ const FRAME_MS = 150;
 
 /**
  * The back camera in a frame. A code counts when it is read twice in a row and its check digit
- * holds: one misread bar can't send anyone to the wrong soup. The camera turns off on the way out.
+ * holds: one misread bar can't send anyone to the wrong soup. The camera turns off on the way out,
+ * and stays off while `paused`.
  */
-export function Scanner({ onCode }: { onCode: (code: string) => void }) {
+export function Scanner({
+	onCode,
+	paused = false,
+}: {
+	onCode: (code: string) => void;
+	paused?: boolean;
+}) {
 	const video = useRef<HTMLVideoElement>(null);
 	const [state, setState] = useState<State>("starting");
 	const found = useRef(onCode);
 	found.current = onCode;
 
 	useEffect(() => {
+		if (paused) return;
 		let stream: MediaStream | null = null;
 		let stopped = false;
 		let timer: ReturnType<typeof setTimeout> | undefined;
@@ -80,7 +88,7 @@ export function Scanner({ onCode }: { onCode: (code: string) => void }) {
 			tick();
 		})();
 		return stop;
-	}, []);
+	}, [paused]);
 
 	const live = state === "starting" || state === "scanning";
 

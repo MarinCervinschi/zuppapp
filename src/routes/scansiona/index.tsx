@@ -1,4 +1,10 @@
-import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import {
+	Link,
+	createFileRoute,
+	redirect,
+	useNavigate,
+	useRouterState,
+} from "@tanstack/react-router";
 import { z } from "zod";
 
 import { Button } from "@/components/ds/button";
@@ -30,10 +36,16 @@ export const Route = createFileRoute("/scansiona/")({
 
 function Camera() {
 	const navigate = useNavigate();
+	// A soup found by the scanner opens its sheet over this page: the camera waits behind it, and
+	// starts again once the sheet is closed.
+	const sheetOpen = useRouterState({
+		select: state => Boolean(state.location.state.zuppa),
+	});
 
 	return (
 		<ScanPage>
 			<Scanner
+				paused={sheetOpen}
 				onCode={code =>
 					navigate({ to: "/scansiona/$codice", params: { codice: code } })
 				}

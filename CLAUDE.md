@@ -71,7 +71,9 @@ Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il p
   i badge mostrano la media semplice (`meanStars`).
 - I codici che iniziano per 2 (e 02, 04) sono interni dei negozi e non identificano nulla:
   `isStoreInternalCode` li tiene fuori da import e sync.
-- Scansione: tasto tondo accanto alla `TabBar` → `/scansiona` (fotocamera) e `/scansiona/<codice>` (risultato). `Scanner` usa `createDetector`
+- Scansione: tasto tondo accanto alla `TabBar` → `/scansiona` (fotocamera) e `/scansiona/<codice>` (risultato). Una zuppa
+  che abbiamo apre il suo foglio sopra la fotocamera (`soupSheetState`), che intanto resta spenta; aperto da zero, l'URL
+  porta a `/prodotti/<ean>`. `Scanner` usa `createDetector`
   (`src/lib/barcode/detector.ts`: `BarcodeDetector` nativo o il ponyfill zxing, con il `.wasm` servito da noi, mai da
   jsDelivr). `lookupEan` (`src/lib/catalog/lookup.ts`) guarda il nostro catalogo e poi l'API prodotto di OFF dal
   vivo (timeout 4 s, niente retry, 30/ora per IP): una zuppa completa entra subito come `draft`, il resto diventa il

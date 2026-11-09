@@ -23,19 +23,26 @@ import { VotePanel, useVote } from "./vote-panel";
 // sheet restored by a reload has no entry of ours behind it to go back to.
 let openedHere = false;
 
+/**
+ * The history state that opens a soup's sheet, for a navigation made in this tab: closing the
+ * sheet will go back to the entry before it.
+ */
+export function soupSheetState(ean: string) {
+	openedHere = true;
+	return { zuppa: ean };
+}
+
 /** Opens a soup's sheet over the current page, as a new history entry. */
 export function useOpenSoup() {
 	const navigate = useNavigate();
-	return (ean: string) => {
-		openedHere = true;
-		return navigate({
+	return (ean: string) =>
+		navigate({
 			to: ".",
 			search: prev => prev,
 			params: prev => prev,
-			state: prev => ({ ...prev, zuppa: ean }),
+			state: prev => ({ ...prev, ...soupSheetState(ean) }),
 			resetScroll: false,
 		});
-	};
 }
 
 /**
