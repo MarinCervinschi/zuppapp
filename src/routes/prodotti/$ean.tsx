@@ -83,7 +83,7 @@ function ProductView({ product }: { product: ProductCard }) {
 					data-drag
 					className="-mb-6 flex h-7 w-24 touch-none items-center justify-center self-center lg:hidden"
 				>
-					<span className="bg-text/25 h-1.5 w-10 rounded-full" />
+					<span className="bg-text/40 h-1.5 w-10 rounded-full" />
 				</span>
 				<header data-drag className="flex flex-col gap-3">
 					<h1 className="font-display text-title lg:text-display font-semibold tracking-[-0.01em]">

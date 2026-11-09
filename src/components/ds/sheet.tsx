@@ -373,7 +373,7 @@ export function Sheet({
 								aria-expanded={full}
 								className="mx-auto flex h-7 w-24 items-center justify-center"
 							>
-								<span aria-hidden className="bg-text/25 h-1.5 w-10 rounded-full" />
+								<span aria-hidden className="bg-text/40 h-1.5 w-10 rounded-full" />
 								<span className="sr-only">
 									{full ? "Riduci il foglio" : "Apri tutto il foglio"}
 								</span>
@@ -383,7 +383,7 @@ export function Sheet({
 								aria-hidden
 								className="mx-auto flex h-6 w-20 items-center justify-center"
 							>
-								<span className="bg-text/25 h-1.5 w-10 rounded-full" />
+								<span className="bg-text/40 h-1.5 w-10 rounded-full" />
 							</span>
 						)}
 					</div>
