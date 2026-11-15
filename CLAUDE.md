@@ -113,7 +113,7 @@ Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il p
   La scheda Preferite di `/le-mie-zuppe` usa `getFavoritesPage` in `catalog/browse.ts`.
 - SEO: `src/lib/seo/`. L'indirizzo assoluto è l'origine di `BETTER_AUTH_URL` (`siteUrlFn`, nel loader di `__root`), che
   mette il `canonical` di ogni pagina senza la query. La pagina della zuppa ha `description`, Open Graph e JSON-LD
-  `Product` (`productJsonLd`), con `aggregateRating` solo da `MIN_VOTES_TO_RANK` voti. `/robots.txt` e `/sitemap.xml`
+  `Product` (`productJsonLd`) solo da `MIN_VOTES_TO_RANK` voti, perché Google rifiuta un `Product` senza voto, recensione od offerta. `/robots.txt` e `/sitemap.xml`
   sono rotte server; le pagine personali, l'admin e la scansione hanno `noindex`.
 - Design system: `DESIGN.md` (leggi «Regole per ogni schermata» prima di toccare la UI) e la pagina `/design`.
   Clash Display arriva dal CDN di Fontshare (la licenza ITF non permette di ridistribuirne i file), Poppins da

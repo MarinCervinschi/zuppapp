@@ -28,12 +28,13 @@ export const Route = createFileRoute("/prodotti/$ean")({
 		// What the head needs, worked out here so the whole card isn't sent twice.
 		const url = site ? `${site}/prodotti/${product.ean}` : null;
 		const image = sizedImage(product.imageUrl, "full");
+		const jsonLd = url ? productJsonLd(product, url, image) : null;
 		return {
 			title: product.brand ? `${product.name} · ${product.brand}` : product.name,
 			description: productDescription(product),
 			url,
 			image,
-			jsonLd: url ? scriptJson(productJsonLd(product, url, image)) : null,
+			jsonLd: jsonLd ? scriptJson(jsonLd) : null,
 		};
 	},
 	head: ({ loaderData }) => {

@@ -51,9 +51,8 @@ describe("productJsonLd", () => {
 		});
 	});
 
-	it("leaves the rating out below the ranking", () => {
-		const ld = productJsonLd(soup({ votesCount: 1, mean: 5 }), url, null);
-		expect(ld).not.toHaveProperty("aggregateRating");
+	it("gives nothing below the ranking, since Google rejects a Product without a rating", () => {
+		expect(productJsonLd(soup({ votesCount: 1, mean: 5 }), url, null)).toBeNull();
 	});
 });
 

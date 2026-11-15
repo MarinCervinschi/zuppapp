@@ -17,11 +17,13 @@ export function productDescription(product: ProductCard) {
 }
 
 /**
- * schema.org's Product, for Google. The rating goes in only once the soup is in the ranking, so
- * no result shows five stars resting on a single vote.
+ * schema.org's Product, for Google, only once the soup is in the ranking: Google wants a rating,
+ * a review or an offer on every Product, we sell nothing, and a rating on a single vote would show
+ * five stars in the results. Before the ranking the page has no structured data at all.
  */
 export function productJsonLd(product: ProductCard, url: string, image: string | null) {
 	const { votesCount, ranked, mean } = product.stats;
+	if (!ranked || mean === null) return null;
 	return {
 		"@context": "https://schema.org",
 		"@type": "Product",
@@ -30,16 +32,13 @@ export function productJsonLd(product: ProductCard, url: string, image: string |
 		...(image && { image }),
 		...(product.brand && { brand: { "@type": "Brand", name: product.brand } }),
 		...gtin(product.ean),
-		...(ranked &&
-			mean !== null && {
-				aggregateRating: {
-					"@type": "AggregateRating",
-					ratingValue: mean,
-					ratingCount: votesCount,
-					bestRating: 5,
-					worstRating: 1,
-				},
-			}),
+		aggregateRating: {
+			"@type": "AggregateRating",
+			ratingValue: mean,
+			ratingCount: votesCount,
+			bestRating: 5,
+			worstRating: 1,
+		},
 	};
 }
 
