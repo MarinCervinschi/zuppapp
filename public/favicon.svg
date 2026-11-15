@@ -1,2 +1,1 @@
-<!-- After the CC0 soup of svgrepo.com/svg/453/soup -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect width="16" height="16" fill="#ffd21f"/><rect x="1" y="7" width="14" height="2" fill="#1d1b19"/><path d="M2 10h12a6 4.5 0 0 1-12 0z" fill="#1d1b19"/><path d="M6 1.5q1.25 1-0 2.25t0 2.25M10 1.5q1.25 1-0 2.25t0 2.25" fill="none" stroke="#1d1b19" stroke-width="1.5" stroke-linecap="square"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#ffc93c"/><circle cx="16" cy="16" r="13.5" fill="#16120f"/><circle cx="16" cy="16" r="10" fill="#ff6a13"/><path d="M15 16a1 1 0 1 1 2 0a3.2 3.2 0 1 1-6.4 0a5.5 5.5 0 1 1 11 0" fill="none" stroke="#f8f2ea" stroke-width="2" stroke-linecap="round"/></svg>

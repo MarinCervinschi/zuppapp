@@ -60,7 +60,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 				href: "https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap",
 			},
 			{ rel: "stylesheet", href: globalsCss },
-			// The bowl on shelf yellow; the sizes come from public/, made from one CC0 glyph.
+			// The pumpkin soup on corn yellow; the sizes come from public/, made by `pnpm icons`.
 			{ rel: "icon", href: "/favicon.ico", sizes: "32x32" },
 			{ rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
 			{ rel: "apple-touch-icon", href: "/apple-touch-icon.png" },

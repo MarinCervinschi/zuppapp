@@ -1,7 +1,7 @@
 {
 	"name": "Zuppapp",
 	"short_name": "Zuppapp",
-	"description": "Quale zuppa pronta è la più buona? Vota con una faccia.",
+	"description": "Quale zuppa pronta è la più buona? Votala con le stelle.",
 	"lang": "it",
 	"start_url": "/",
 	"display": "standalone",
