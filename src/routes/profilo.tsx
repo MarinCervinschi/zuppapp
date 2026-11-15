@@ -36,7 +36,12 @@ export const Route = createFileRoute("/profilo")({
 		const { viewer } = await context.queryClient.ensureQueryData(userQueries.viewer());
 		if (!viewer || viewer.isAnonymous) throw redirect({ to: "/accedi" });
 	},
-	head: () => ({ meta: [{ title: "Il tuo profilo · Zuppapp" }] }),
+	head: () => ({
+		meta: [
+			{ title: "Il tuo profilo · Zuppapp" },
+			{ name: "robots", content: "noindex" },
+		],
+	}),
 	component: Profile,
 });
 

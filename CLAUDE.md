@@ -75,8 +75,7 @@ Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il p
 - I codici che iniziano per 2 (e 02, 04) sono interni dei negozi e non identificano nulla:
   `isStoreInternalCode` li tiene fuori da import e sync.
 - Scansione: tasto tondo accanto alla `TabBar` → `/scansiona` (fotocamera) e `/scansiona/<codice>` (risultato). Una zuppa
-  che abbiamo apre il suo foglio sopra la fotocamera (`soupSheetState`), che intanto resta spenta; aperto da zero, l'URL
-  porta a `/prodotti/<ean>`. `Scanner` usa `createDetector`
+  che abbiamo apre la sua pagina `/prodotti/<ean>` al posto del risultato, così indietro torna alla fotocamera. `Scanner` usa `createDetector`
   (`src/lib/barcode/detector.ts`: `BarcodeDetector` nativo o il ponyfill zxing, con il `.wasm` servito da noi, mai da
   jsDelivr). `lookupEan` (`src/lib/catalog/lookup.ts`) guarda il nostro catalogo e poi l'API prodotto di OFF dal
   vivo (timeout 4 s, niente retry, 30/ora per IP): una zuppa completa entra subito come `draft`, il resto diventa il
@@ -112,6 +111,10 @@ Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il p
 - Preferiti: `src/lib/favorites/` (tabella `favorites`), solo con un account Google (`accountMiddleware`). Tutti i
   cuori leggono `favoriteQueries.ids`, precaricata in `__root`; `useSetFavorite` la cambia subito (ottimistico).
   La scheda Preferite di `/le-mie-zuppe` usa `getFavoritesPage` in `catalog/browse.ts`.
+- SEO: `src/lib/seo/`. L'indirizzo assoluto è l'origine di `BETTER_AUTH_URL` (`siteUrlFn`, nel loader di `__root`), che
+  mette il `canonical` di ogni pagina senza la query. La pagina della zuppa ha `description`, Open Graph e JSON-LD
+  `Product` (`productJsonLd`), con `aggregateRating` solo da `MIN_VOTES_TO_RANK` voti. `/robots.txt` e `/sitemap.xml`
+  sono rotte server; le pagine personali, l'admin e la scansione hanno `noindex`.
 - Design system: `DESIGN.md` (leggi «Regole per ogni schermata» prima di toccare la UI) e la pagina `/design`.
   Clash Display arriva dal CDN di Fontshare (la licenza ITF non permette di ridistribuirne i file), Poppins da
   `@fontsource`;

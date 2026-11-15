@@ -1,10 +1,4 @@
-import {
-	Link,
-	createFileRoute,
-	redirect,
-	useNavigate,
-	useRouterState,
-} from "@tanstack/react-router";
+import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 
 import { Button } from "@/components/ds/button";
@@ -30,22 +24,17 @@ export const Route = createFileRoute("/scansiona/")({
 		if (search.codice)
 			throw redirect({ to: "/scansiona/$codice", params: { codice: search.codice } });
 	},
-	head: () => ({ meta: [{ title: "Scansiona · Zuppapp" }] }),
+	head: () => ({
+		meta: [{ title: "Scansiona · Zuppapp" }, { name: "robots", content: "noindex" }],
+	}),
 	component: Camera,
 });
 
 function Camera() {
 	const navigate = useNavigate();
-	// A soup found by the scanner opens its sheet over this page: the camera waits behind it, and
-	// starts again once the sheet is closed.
-	const sheetOpen = useRouterState({
-		select: state => Boolean(state.location.state.zuppa),
-	});
-
 	return (
 		<ScanPage>
 			<Scanner
-				paused={sheetOpen}
 				onCode={code =>
 					navigate({ to: "/scansiona/$codice", params: { codice: code } })
 				}

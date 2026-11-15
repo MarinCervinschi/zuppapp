@@ -41,7 +41,9 @@ export const Route = createFileRoute("/le-mie-zuppe")({
 		if (viewer && !viewer.isAnonymous)
 			await queryClient.fetchQuery(favoriteQueries.page(page));
 	},
-	head: () => ({ meta: [{ title: "Le tue zuppe · Zuppapp" }] }),
+	head: () => ({
+		meta: [{ title: "Le tue zuppe · Zuppapp" }, { name: "robots", content: "noindex" }],
+	}),
 	component: MySoups,
 });
 

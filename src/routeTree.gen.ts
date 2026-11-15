@@ -21,6 +21,8 @@ import { Route as LeMieZuppeRouteImport } from './routes/le-mie-zuppe'
 import { Route as PreferitiRouteImport } from './routes/preferiti'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfiloRouteImport } from './routes/profilo'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AdminSegnalazioniRouteImport } from './routes/admin_.segnalazioni'
 import { Route as DatiCatalogoDotjsonRouteImport } from './routes/dati_.catalogo[.]json'
 import { Route as ProdottiEanRouteImport } from './routes/prodotti/$ean'
@@ -88,6 +90,16 @@ const ProfiloRoute = ProfiloRouteImport.update({
   path: '/profilo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminSegnalazioniRoute = AdminSegnalazioniRouteImport.update({
   id: '/admin_/segnalazioni',
   path: '/admin/segnalazioni',
@@ -132,6 +144,8 @@ export interface FileRoutesByFullPath {
   '/preferiti': typeof PreferitiRoute
   '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/segnalazioni': typeof AdminSegnalazioniRoute
   '/dati/catalogo.json': typeof DatiCatalogoDotjsonRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
@@ -152,6 +166,8 @@ export interface FileRoutesByTo {
   '/preferiti': typeof PreferitiRoute
   '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/segnalazioni': typeof AdminSegnalazioniRoute
   '/dati/catalogo.json': typeof DatiCatalogoDotjsonRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
@@ -173,6 +189,8 @@ export interface FileRoutesById {
   '/preferiti': typeof PreferitiRoute
   '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin_/segnalazioni': typeof AdminSegnalazioniRoute
   '/dati_/catalogo.json': typeof DatiCatalogoDotjsonRoute
   '/prodotti/$ean': typeof ProdottiEanRoute
@@ -195,6 +213,8 @@ export interface FileRouteTypes {
     | '/preferiti'
     | '/privacy'
     | '/profilo'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/admin/segnalazioni'
     | '/dati/catalogo.json'
     | '/prodotti/$ean'
@@ -215,6 +235,8 @@ export interface FileRouteTypes {
     | '/preferiti'
     | '/privacy'
     | '/profilo'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/admin/segnalazioni'
     | '/dati/catalogo.json'
     | '/prodotti/$ean'
@@ -235,6 +257,8 @@ export interface FileRouteTypes {
     | '/preferiti'
     | '/privacy'
     | '/profilo'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/admin_/segnalazioni'
     | '/dati_/catalogo.json'
     | '/prodotti/$ean'
@@ -256,6 +280,8 @@ export interface RootRouteChildren {
   PreferitiRoute: typeof PreferitiRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfiloRoute: typeof ProfiloRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminSegnalazioniRoute: typeof AdminSegnalazioniRoute
   DatiCatalogoDotjsonRoute: typeof DatiCatalogoDotjsonRoute
   ProdottiEanRoute: typeof ProdottiEanRoute
@@ -350,6 +376,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfiloRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin_/segnalazioni': {
       id: '/admin_/segnalazioni'
       path: '/admin/segnalazioni'
@@ -408,6 +448,8 @@ const rootRouteChildren: RootRouteChildren = {
   PreferitiRoute: PreferitiRoute,
   PrivacyRoute: PrivacyRoute,
   ProfiloRoute: ProfiloRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminSegnalazioniRoute: AdminSegnalazioniRoute,
   DatiCatalogoDotjsonRoute: DatiCatalogoDotjsonRoute,
   ProdottiEanRoute: ProdottiEanRoute,

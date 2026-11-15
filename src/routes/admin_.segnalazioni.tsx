@@ -14,7 +14,9 @@ export const Route = createFileRoute("/admin_/segnalazioni")({
 		if (!(await isAdminFn())) throw notFound();
 	},
 	loader: ({ context }) => context.queryClient.ensureQueryData(adminQueries.reports()),
-	head: () => ({ meta: [{ title: "Segnalazioni · Zuppapp" }] }),
+	head: () => ({
+		meta: [{ title: "Segnalazioni · Zuppapp" }, { name: "robots", content: "noindex" }],
+	}),
 	notFoundComponent: NotFoundPage,
 	component: ReportsPage,
 });

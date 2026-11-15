@@ -25,7 +25,12 @@ export const Route = createFileRoute("/admin")({
 	loaderDeps: ({ search }) => search,
 	loader: ({ context, deps }) =>
 		context.queryClient.ensureQueryData(adminQueries.list(deps)),
-	head: () => ({ meta: [{ title: "Gestione prodotti · Zuppapp" }] }),
+	head: () => ({
+		meta: [
+			{ title: "Gestione prodotti · Zuppapp" },
+			{ name: "robots", content: "noindex" },
+		],
+	}),
 	notFoundComponent: NotFoundPage,
 	component: AdminPage,
 });

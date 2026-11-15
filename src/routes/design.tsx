@@ -16,7 +16,12 @@ import type { ProductListItem } from "@/lib/catalog/types";
 import { SCORE_LABELS, type Score } from "@/lib/ranking/rules";
 
 export const Route = createFileRoute("/design")({
-	head: () => ({ meta: [{ title: "Design system · Zuppapp" }] }),
+	head: () => ({
+		meta: [
+			{ title: "Design system · Zuppapp" },
+			{ name: "robots", content: "noindex" },
+		],
+	}),
 	component: DesignPage,
 });
 

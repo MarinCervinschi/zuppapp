@@ -28,7 +28,7 @@ let openedHere = false;
  * The history state that opens a soup's sheet, for a navigation made in this tab: closing the
  * sheet will go back to the entry before it.
  */
-export function soupSheetState(ean: string) {
+function soupSheetState(ean: string) {
 	openedHere = true;
 	return { zuppa: ean };
 }

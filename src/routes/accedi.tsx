@@ -18,7 +18,12 @@ export const Route = createFileRoute("/accedi")({
 		const { viewer } = await context.queryClient.ensureQueryData(userQueries.viewer());
 		if (viewer && !viewer.isAnonymous) throw redirect({ to: "/profilo" });
 	},
-	head: () => ({ meta: [{ title: "Prendi la tua tessera · Zuppapp" }] }),
+	head: () => ({
+		meta: [
+			{ title: "Prendi la tua tessera · Zuppapp" },
+			{ name: "robots", content: "noindex" },
+		],
+	}),
 	component: SignIn,
 });
 

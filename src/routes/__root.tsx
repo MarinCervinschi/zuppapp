@@ -14,6 +14,7 @@ import { ErrorPage, NotFoundPage } from "@/components/error/error-pages";
 import { SoupSheetHost } from "@/components/product/soup-sheet";
 import { analyticsQueries } from "@/lib/analytics/queries";
 import { favoriteQueries } from "@/lib/favorites/queries";
+import { seoQueries } from "@/lib/seo/queries";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { userQueries } from "@/lib/user/queries";
 import globalsCss from "@/styles/globals.css?url";
@@ -22,14 +23,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 	// Who is looking, their hearts (so a card never lights its heart late) and the Umami script
 	// where it is set up; fetched on the server before render. Declared before head, which reads it.
 	loader: async ({ context }) => {
-		const [, , umami] = await Promise.all([
+		const [, , umami, site] = await Promise.all([
 			context.queryClient.ensureQueryData(userQueries.viewer()),
 			context.queryClient.ensureQueryData(favoriteQueries.ids()),
 			context.queryClient.ensureQueryData(analyticsQueries.umami()),
+			context.queryClient.ensureQueryData(seoQueries.siteUrl()),
 		]);
-		return { umami };
+		return { umami, site };
 	},
-	head: ({ loaderData }) => ({
+	head: ({ loaderData, matches }) => ({
 		meta: [
 			{ charSet: "utf-8" },
 			{ name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -38,8 +40,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 				name: "description",
 				content: "Quale zuppa pronta è la più buona? Votala con le stelle.",
 			},
+			{ property: "og:site_name", content: "Zuppapp" },
+			{ property: "og:locale", content: "it_IT" },
 		],
 		links: [
+			// The page without its query: a filtered list is the same page to a search engine.
+			...(loaderData?.site
+				? [{ rel: "canonical", href: loaderData.site + matches.at(-1)!.pathname }]
+				: []),
 			// Clash Display comes from Fontshare: its licence lets us use it, not ship its files.
 			{ rel: "preconnect", href: "https://api.fontshare.com" },
 			{

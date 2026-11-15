@@ -1,15 +1,13 @@
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 
 import { NotFoundPage } from "@/components/error/error-pages";
-import { soupSheetState } from "@/components/product/soup-sheet";
 import { ScanPage } from "@/components/scan/scan-page";
 import { ScanResult } from "@/components/scan/scan-result";
 import { track } from "@/lib/analytics/track";
 import { catalogQueries } from "@/lib/catalog/queries";
 
-// What a code turned out to be. A product we have opens its sheet over the camera straight away,
-// replacing this URL, so closing the sheet returns to the camera. Loaded cold from its URL, there
-// is no camera to go back to: the product's page opens instead.
+// What a code turned out to be. A product we have opens its page in place of this URL, so going back
+// returns to the camera.
 
 export const Route = createFileRoute("/scansiona/$codice")({
 	loader: async ({ context, params, preload }) => {
@@ -24,20 +22,15 @@ export const Route = createFileRoute("/scansiona/$codice")({
 				esito: result.kind === "coming" && result.imported ? "importato" : result.kind,
 			});
 		if (result.kind !== "found") return;
-		if (typeof window === "undefined")
-			throw redirect({
-				to: "/prodotti/$ean",
-				params: { ean: result.ean },
-				replace: true,
-			});
 		throw redirect({
-			to: "/scansiona",
-			// A preload only looks ahead: the sheet isn't open yet.
-			state: preload ? { zuppa: result.ean } : soupSheetState(result.ean),
+			to: "/prodotti/$ean",
+			params: { ean: result.ean },
 			replace: true,
 		});
 	},
-	head: () => ({ meta: [{ title: "Scansiona · Zuppapp" }] }),
+	head: () => ({
+		meta: [{ title: "Scansiona · Zuppapp" }, { name: "robots", content: "noindex" }],
+	}),
 	pendingComponent: () => (
 		<ScanPage>
 			<p role="status" className="text-body text-center">
