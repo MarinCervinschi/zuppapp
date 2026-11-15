@@ -51,6 +51,9 @@ Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il p
   Davanti all'app c'è solo il Traefik di Coolify, niente Cloudflare: l'IP è l'ultima voce di `X-Forwarded-For`, quella
   che scrive Traefik (`clientIp`), e `cf-connecting-ip` non conta. Better Auth legge la stessa intestazione per il suo
   limite e per Turnstile, ma non salva l'IP nelle sessioni.
+- L'indirizzo dell'app è `BETTER_AUTH_URL` (`zuppapp.fun` in produzione). `canonicalHostMiddleware`
+  (`src/lib/server/canonical-host.ts`) manda `www` lì con un 301; ogni altro host, come l'health check su
+  localhost, passa.
 - `src/lib/off/` legge Open Food Facts: Search-a-licious solo per scoprire i codici (la ricerca classica
   risponde 503 e le sue copie sono vecchie), l'API prodotto per i dati, al massimo 100 letture al minuto,
   con uno User-Agent che identifica l'app. `map.ts` è puro e testato.
