@@ -7,7 +7,8 @@ qualche tag, senza recensioni lunghe. Si vota anche senza account.
   prima di cercare, quelle «Da assaggiare».
 - **Classifica** (`/classifica`): podio e righe, ordinati per media bayesiana delle stelle.
 - **Scheda prodotto**: voto, tag, distribuzione delle stelle, ingredienti, allergeni, valori
-  nutrizionali per 100 g o per confezione, Nutri-Score.
+  nutrizionali per 100 g o per confezione, Nutri-Score. Dalle liste si apre in un foglio; ogni zuppa
+  ha anche la sua pagina, `/prodotti/<ean>`, quella che indicizza Google.
 - **Scansione** (`/scansiona`): il codice a barre dalla fotocamera porta alla scheda; una zuppa
   che manca si segnala, con le foto.
 - **Con un account Google**: i voti fatti in anonimo passano all'account, profilo con avatar,
