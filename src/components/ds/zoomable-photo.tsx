@@ -1,10 +1,11 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import { Link } from "@tanstack/react-router";
 
 import { sizedImage } from "@/lib/catalog/image";
 import { cn } from "@/lib/utils";
 
+import { BowlLoader } from "./bowl-loader";
 import { CloseIcon } from "./icons";
 import { PackPhoto } from "./pack-photo";
 
@@ -35,6 +36,9 @@ export function ZoomablePhoto({
 	imageClassName?: string;
 }) {
 	const dialog = useRef<HTMLDialogElement>(null);
+	// The large photo is fetched only once the dialog opens, and can take a while: the bowl stirs
+	// in its place until it is there.
+	const [large, setLarge] = useState<"loading" | "loaded" | "failed">("loading");
 	if (!src) return null;
 	// Drawn twice, one per kind of pointer; the same URL is fetched once.
 	const photo = (
@@ -94,7 +98,21 @@ export function ZoomablePhoto({
 						<span className="sr-only">Chiudi la foto</span>
 					</button>
 				</div>
-				<div className="rounded-card m-2 mt-0 flex justify-center bg-white p-4">
+				<div
+					className={cn(
+						"rounded-card relative m-2 mt-0 flex justify-center bg-white p-4",
+						large === "loading" && "max-sm:min-h-72"
+					)}
+				>
+					{large === "loading" && (
+						<span
+							role="status"
+							className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[#6a5f53]"
+						>
+							<BowlLoader className="size-14" />
+							<span className="text-small">Carico la foto…</span>
+						</span>
+					)}
 					{/* Loaded only when opened: lazy images inside a closed dialog are never fetched. A fixed
 					    height, so a small original still opens large; on a phone the width is the limit, so
 					    the whole width, as tall as the photo needs. */}
@@ -103,7 +121,12 @@ export function ZoomablePhoto({
 						alt={`Confezione di ${name}`}
 						loading="lazy"
 						decoding="async"
-						className="h-[min(70dvh,40rem)] w-auto max-w-full object-contain max-sm:h-auto max-sm:max-h-[70dvh] max-sm:w-full"
+						onLoad={() => setLarge("loaded")}
+						onError={() => setLarge("failed")}
+						className={cn(
+							"h-[min(70dvh,40rem)] w-auto max-w-full object-contain transition-opacity duration-300 max-sm:h-auto max-sm:max-h-[70dvh] max-sm:w-full",
+							large === "loading" && "opacity-0"
+						)}
 					/>
 				</div>
 			</dialog>

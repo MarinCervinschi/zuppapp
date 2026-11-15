@@ -1,8 +1,9 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 
+import { Confetti } from "@/components/ds/confetti";
 import { formatStars } from "@/lib/format";
 import { VOTI, count } from "@/lib/plural";
 import {
@@ -155,7 +156,26 @@ type PickerProps = {
 };
 
 /**
- * Five stars, one tap. A real radio group: arrow keys move between stars and each one's
+ * A short buzz on phones that have one (not iPhones). Only once the page has been touched: before
+ * that the browser refuses it, and complains in the console.
+ */
+function buzz(pattern: number | number[]) {
+	if (navigator.userActivation?.hasBeenActive) navigator.vibrate?.(pattern);
+}
+
+/** The star under a point along the row: past either end, the first or the last. */
+function scoreAt(group: HTMLElement, x: number): Score {
+	const stars = Array.from(group.children);
+	let index = 0;
+	stars.forEach((star, i) => {
+		if (star.getBoundingClientRect().left <= x) index = i;
+	});
+	return SCORES[index];
+}
+
+/**
+ * Five stars, one tap, or a finger slid along them: the stars light up to the finger and lifting
+ * it picks. A real radio group: arrow keys move between stars and each one's
  * accessible name is its words («4 stelle, Buona»). It is never disabled while a vote is
  * saving, so focus stays where the keyboard put it; the vote itself is debounced upstream.
  * Drawn for the black panel: filled stars in yellow, empty ones as a cream outline.
@@ -173,9 +193,27 @@ export const StarPicker = forwardRef<HTMLDivElement, PickerProps>(function StarP
 	// Counts the reader's own picks: nothing animates on first render, and each pick replays the
 	// stars filling in one after the other.
 	const [picks, setPicks] = useState(0);
-	const pick = (score: Score) => {
+	// Five stars, «La ricompro»: drops and stars burst out of the fifth, over the whole screen.
+	const [cheer, setCheer] = useState<{ key: number; star: HTMLElement } | null>(null);
+	const pick = (score: Score, star?: HTMLElement) => {
 		setPicks(n => n + 1);
 		onPick(score);
+		if (score === 5 && star) {
+			setCheer({ key: Date.now(), star });
+			buzz([12, 50, 24]);
+		}
+	};
+	// A finger on a star: it can slide along the row before it lifts. Up and down stays a scroll
+	// (`touch-pan-y`), which cancels the gesture. The lift picks, so the click that follows is skipped.
+	const sliding = useRef<number | null>(null);
+	const slidPickAt = useRef(-Infinity);
+	const slideTo = (score: Score) => {
+		if (score !== hover) buzz(8);
+		preview(score);
+	};
+	const endSlide = () => {
+		sliding.current = null;
+		preview(null);
 	};
 
 	return (
@@ -183,8 +221,37 @@ export const StarPicker = forwardRef<HTMLDivElement, PickerProps>(function StarP
 			ref={ref}
 			role="radiogroup"
 			aria-label={label}
-			onPointerLeave={() => preview(null)}
-			className={cn("flex justify-between", size === "lg" ? "gap-1" : "gap-0.5")}
+			onPointerLeave={event => {
+				if (event.pointerType === "mouse") preview(null);
+			}}
+			onPointerDown={event => {
+				if (event.pointerType === "mouse" || event.button !== 0) return;
+				if (!(event.target as HTMLElement).closest("[role=radio]")) return;
+				sliding.current = event.pointerId;
+				// Held, so the finger is followed past the row and beyond the star it started on.
+				try {
+					event.currentTarget.setPointerCapture(event.pointerId);
+				} catch {
+					// A pointer the browser does not track (a synthetic one) cannot be held.
+				}
+				slideTo(scoreAt(event.currentTarget, event.clientX));
+			}}
+			onPointerMove={event => {
+				if (sliding.current !== event.pointerId) return;
+				slideTo(scoreAt(event.currentTarget, event.clientX));
+			}}
+			onPointerUp={event => {
+				if (sliding.current !== event.pointerId) return;
+				const score = scoreAt(event.currentTarget, event.clientX);
+				endSlide();
+				slidPickAt.current = event.timeStamp;
+				pick(score, event.currentTarget.children[SCORES.indexOf(score)] as HTMLElement);
+			}}
+			onPointerCancel={endSlide}
+			className={cn(
+				"flex touch-pan-y justify-between select-none",
+				size === "lg" ? "gap-1" : "gap-0.5"
+			)}
 		>
 			{SCORES.map(score => {
 				const selected = value === score;
@@ -198,7 +265,11 @@ export const StarPicker = forwardRef<HTMLDivElement, PickerProps>(function StarP
 						aria-checked={selected}
 						aria-label={`${score} ${score === 1 ? "stella" : "stelle"}, ${SCORE_LABELS[score].label}`}
 						tabIndex={selected || (value === null && score === 1) ? 0 : -1}
-						onClick={() => pick(score)}
+						onClick={event => {
+							// The click a slide's lift sends: the lift has picked already.
+							if (event.timeStamp - slidPickAt.current < 600) return;
+							pick(score, event.currentTarget);
+						}}
 						onPointerEnter={event => {
 							if (event.pointerType === "mouse") preview(score);
 						}}
@@ -212,11 +283,10 @@ export const StarPicker = forwardRef<HTMLDivElement, PickerProps>(function StarP
 								SCORES.length - 1,
 								Math.max(0, SCORES.indexOf(score) + step)
 							);
-							pick(SCORES[index]);
-							(
-								event.currentTarget.parentElement?.children[index] as
-									HTMLElement | undefined
-							)?.focus();
+							const next = event.currentTarget.parentElement?.children[index] as
+								HTMLElement | undefined;
+							pick(SCORES[index], next);
+							next?.focus();
 						}}
 						className={cn(
 							"relative flex cursor-pointer items-center justify-center rounded-full transition-[scale] duration-150 ease-out motion-safe:active:scale-90",
@@ -238,20 +308,12 @@ export const StarPicker = forwardRef<HTMLDivElement, PickerProps>(function StarP
 								picks > 0 && filled && "motion-safe:animate-pop"
 							)}
 						/>
-						{/* Five stars, «La ricompro»: a little burst of yellow. */}
-						{picks > 0 && selected && score === 5 && (
-							<span key={picks} aria-hidden className="star-burst absolute inset-0">
-								{Array.from({ length: 8 }, (_, i) => (
-									<i
-										key={i}
-										style={{ "--a": `${i * 45 + 22}deg` } as React.CSSProperties}
-									/>
-								))}
-							</span>
-						)}
 					</button>
 				);
 			})}
+			{cheer && (
+				<Confetti key={cheer.key} anchor={cheer.star} onDone={() => setCheer(null)} />
+			)}
 		</div>
 	);
 });

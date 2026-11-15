@@ -1,3 +1,8 @@
+import { useEffect, useRef, useState } from "react";
+
+import { subtypeSoup } from "@/components/catalog/type-icons";
+import { Confetti } from "@/components/ds/confetti";
+import { CountUp } from "@/components/ds/count-up";
 import { HeartButton } from "@/components/ds/heart-button";
 import { PackPhoto, PackThumb } from "@/components/ds/pack-photo";
 import { rowCard, rowCardGround, rowCardLink } from "@/components/ds/row-card";
@@ -51,10 +56,15 @@ function accessibleName(product: ProductListItem) {
  * on a wide screen they stand side by side, the first in the middle and taller.
  */
 export function Podium({ products }: { products: ProductListItem[] }) {
+	const winner = useRef<HTMLElement>(null);
+	const cheer = useWinnerCheer();
 	if (products.length === 0) return null;
 
 	return (
-		<ol className="stagger grid grid-cols-2 gap-3 md:grid-cols-3 md:items-end md:gap-5">
+		<ol className="podium grid grid-cols-2 gap-3 md:grid-cols-3 md:items-end md:gap-5">
+			{cheer.on && winner.current && (
+				<Confetti anchor={winner.current} count={36} onDone={cheer.done} />
+			)}
 			{products.map(product => {
 				const first = product.rank === 1;
 				return (
@@ -67,14 +77,15 @@ export function Podium({ products }: { products: ProductListItem[] }) {
 						)}
 					>
 						<article
+							ref={first ? winner : undefined}
 							className={cn(
-								"group bg-ground-raised rounded-card relative flex flex-col gap-3 p-2.5 pb-4 transition-[scale] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.98]",
-								first && "outline-soup-corn outline-2"
+								"group bg-ground-raised surface rim rounded-card relative flex flex-col gap-3 p-2.5 pb-4 transition-[scale] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.98]"
 							)}
+							data-medal={product.rank}
 						>
 							<div
 								className={cn(
-									"plate relative flex items-center justify-center overflow-hidden rounded-[1.25rem] bg-white",
+									"plate shade-foot relative flex items-center justify-center overflow-hidden rounded-[1.25rem] bg-white",
 									first ? "aspect-[16/10] md:aspect-[4/5]" : "aspect-square"
 								)}
 							>
@@ -112,7 +123,11 @@ export function Podium({ products }: { products: ProductListItem[] }) {
 								<p className="text-small text-text-soft">
 									{first && productDetails(product) && `${productDetails(product)} • `}
 									<span className="tabular-nums">
-										{count(product.votesCount, VOTI)}
+										<CountUp
+											value={product.votesCount}
+											format={n => count(n, VOTI)}
+											delay={first ? 450 : 150}
+										/>
 									</span>
 								</p>
 							</div>
@@ -130,6 +145,32 @@ export function Podium({ products }: { products: ProductListItem[] }) {
 	);
 }
 
+const CHEERED_KEY = "zuppapp-podium-cheer";
+
+/**
+ * The first place lands, and drops and stars fly out of it: once a visit, or the ranking would
+ * throw a party every time it is opened. Timed to the landing in `.podium`.
+ */
+function useWinnerCheer() {
+	const [on, setOn] = useState(false);
+	useEffect(() => {
+		try {
+			if (sessionStorage.getItem(CHEERED_KEY)) return;
+		} catch {
+			return;
+		}
+		// Marked when it fires, not before: an effect run twice (and cleaned up in between) still cheers.
+		const timer = setTimeout(() => {
+			try {
+				sessionStorage.setItem(CHEERED_KEY, "1");
+			} catch {}
+			setOn(true);
+		}, 620);
+		return () => clearTimeout(timer);
+	}, []);
+	return { on, done: () => setOn(false) };
+}
+
 /** Fourth place down: a row each, as cards a thumb can press, place, round photo, name, rating. */
 export function Leaderboard({
 	products,
@@ -144,7 +185,9 @@ export function Leaderboard({
 			{products.map(product => (
 				<li key={product.id}>
 					<article
+						style={{ "--soup": subtypeSoup(product.subtype) } as React.CSSProperties}
 						className={cn(
+							"scroll-in soup-glow",
 							rowCard,
 							rowCardGround,
 							"grid-cols-[2.25rem_auto_minmax(0,1fr)_auto]"
@@ -156,7 +199,10 @@ export function Leaderboard({
 						>
 							{product.rank}
 						</span>
-						<PackThumb src={product.imageUrl} className="size-14 rounded-full" />
+						<PackThumb
+							src={product.imageUrl}
+							className="size-14 rounded-full ring-2 ring-white/90 dark:ring-white/15"
+						/>
 						<div className="flex min-w-0 flex-col gap-0.5">
 							<SoupLink
 								ean={product.ean}

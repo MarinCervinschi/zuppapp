@@ -153,7 +153,7 @@ export function SearchBox({
 			</label>
 			<div
 				className={cn(
-					"bg-ground-raised float-shadow flex min-h-14 items-center gap-3 rounded-full pr-2 pl-5 transition-[box-shadow] duration-200",
+					"bg-ground-raised float-shadow rim soup-rim relative flex min-h-14 items-center gap-3 rounded-full pr-2 pl-5 transition-[box-shadow] duration-200",
 					open && "ring-text ring-2"
 				)}
 			>

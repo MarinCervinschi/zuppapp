@@ -103,8 +103,8 @@ export function TabBar() {
 					</li>
 				))}
 			</ul>
-			{/* The glass on a wrapper, as on the pill: the link itself stays a flat target. */}
-			<div className="glass pointer-events-auto relative size-[4.25rem] shrink-0 rounded-full">
+			{/* The pumpkin drop on a wrapper: the link itself stays a flat target. */}
+			<div className="scan-drop pointer-events-auto relative size-[4.25rem] shrink-0 rounded-full">
 				<Link
 					to="/scansiona"
 					aria-current={scanning ? "page" : undefined}
@@ -113,7 +113,7 @@ export function TabBar() {
 					{scanning && (
 						<span
 							aria-hidden
-							className="bg-ground/80 dark:bg-ground-raised glass-drop absolute inset-1.5 rounded-full"
+							className="glass-drop absolute inset-1.5 rounded-full bg-white/55"
 						/>
 					)}
 					<ScanIcon className="relative size-7" />

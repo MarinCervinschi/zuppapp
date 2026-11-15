@@ -82,8 +82,8 @@
 	--on-field: #16120f;
 	--rule: #f5efe6;
 	--danger: #ff8a73;
-	--blob-strength: 55%;
-	--sheet-tint: 14%;
+	--blob-strength: 80%;
+	--sheet-tint: 20%;
 	/* By night the page is already dark: the veil goes deeper, the sheet a step lighter, with a
 	   thin light edge, so the two never melt together. */
 	--sheet: #1d1915;
@@ -104,8 +104,8 @@
 		--on-field: #16120f;
 		--rule: #f5efe6;
 		--danger: #ff8a73;
-		--blob-strength: 55%;
-		--sheet-tint: 14%;
+		--blob-strength: 80%;
+		--sheet-tint: 20%;
 		--sheet: #1d1915;
 		--sheet-edge: rgb(245 239 230 / 0.12);
 		--scrim: rgb(0 0 0 / 0.62);
@@ -208,17 +208,66 @@
 	}
 }
 
-/* A drop flying out along --a, fading as it goes. */
-@keyframes burst {
+/* A rim's light running round it. Its gradient is 250% wide and repeats: moving it by 166.667%
+   shifts it exactly one width (1.5 × 166.667% = 250%), so each loop starts where the last ended. */
+@keyframes sheen {
+	to {
+		background-position: 166.667% 0;
+	}
+}
+
+/* A card scrolled in: lower, smaller and faint, until it is well inside the screen. */
+@keyframes scroll-in {
 	from {
+		opacity: 0.2;
+		transform: translateY(32px) scale(0.9);
+	}
+}
+
+/* A word coming up from under its line, leaning back as it goes. */
+@keyframes word-up {
+	from {
+		translate: 0 110%;
+		rotate: 6deg;
+	}
+}
+
+/* The winner coming down onto the podium. */
+@keyframes land {
+	from {
+		opacity: 0;
+		translate: 0 -48px;
+		scale: 1.06;
+	}
+	30% {
 		opacity: 1;
-		translate: -50% -50%;
-		scale: 1;
 	}
 	to {
-		opacity: 0;
-		translate: calc(-50% + cos(var(--a)) * 40px) calc(-50% + sin(var(--a)) * 40px);
+		opacity: 1;
+		translate: 0 0;
+		scale: 1;
+	}
+}
+
+/* A piece of confetti: up and out fast, then slower, falling and turning as it fades. */
+@keyframes confetti {
+	0% {
+		translate: 0 0;
 		scale: 0.3;
+		opacity: 1;
+		animation-timing-function: cubic-bezier(0.1, 0.7, 0.3, 1);
+	}
+	40% {
+		translate: var(--dx) var(--dy);
+		scale: 1;
+		opacity: 1;
+		animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+	}
+	100% {
+		translate: var(--ex) var(--ey);
+		rotate: var(--r);
+		scale: 0.8;
+		opacity: 0;
 	}
 }
 
@@ -243,6 +292,44 @@
 	}
 }
 
+/* The intro's curtain: closing in on the bowl, or only fading. Hidden at the end either way. */
+@keyframes intro-close {
+	from {
+		clip-path: circle(150% at 50% 50%);
+	}
+	to {
+		clip-path: circle(0% at 50% 50%);
+		visibility: hidden;
+	}
+}
+
+@keyframes intro-fade {
+	to {
+		opacity: 0;
+		visibility: hidden;
+	}
+}
+
+/* The loader's swirl going round, and its slow pulse when motion is reduced. */
+@keyframes stir {
+	to {
+		rotate: 1turn;
+	}
+}
+
+@keyframes breathe {
+	from {
+		opacity: 0.35;
+	}
+}
+
+/* The bowl going down once the closing circle reaches its rim. */
+@keyframes intro-sink {
+	to {
+		scale: 0;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	@keyframes zoom {
 		from {
@@ -261,6 +348,19 @@
 		}
 	}
 	@keyframes rise {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	@keyframes word-up {
+		from {
+			opacity: 0;
+		}
+	}
+	@keyframes land {
 		from {
 			opacity: 0;
 		}
@@ -515,22 +615,326 @@
 		}
 	}
 
-	/* «La ricompro»: eight drops of yellow leave the fifth star. */
-	.star-burst > i {
+	/*
+	 * A gradient rim (`--rim`, `--rim-width`), drawn by a masked ::before over the edge: the podium's
+	 * medals and the home's search field. Positioned elements only.
+	 */
+	.rim::before {
+		content: "";
 		position: absolute;
-		top: 50%;
-		left: 50%;
-		width: 7px;
-		height: 7px;
-		border-radius: 9999px;
-		background: var(--star);
+		inset: 0;
+		border-radius: inherit;
+		padding: var(--rim-width, 1.5px);
+		background: var(--rim);
+		/* prettier-ignore */
+		mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); /* taste-skill-ignore */
 		pointer-events: none;
-		animation: burst 650ms var(--ease-out-snap) forwards;
+	}
+	/* The medals: gold for the first, thicker, with a glow and a slow sheen; silver and bronze. */
+	.rim[data-medal="1"] {
+		/* prettier-ignore */
+		--rim: linear-gradient(110deg, var(--soup-corn) 0%, var(--soup-pumpkin) 30%, #fff1c2 50%, var(--soup-pumpkin) 70%, var(--soup-corn) 100%) 0 0 / 250% 100%; /* taste-skill-ignore */
+		--rim-width: 2.5px;
+		/* A glow as a filter, apart from the card's own shadow. */
+		filter: drop-shadow(0 10px 22px rgb(255 160 40 / 0.3)); /* taste-skill-ignore */
+	}
+	.rim[data-medal="1"]::before {
+		animation: sheen 3.6s linear infinite;
+	}
+	.rim[data-medal="2"] {
+		/* prettier-ignore */
+		--rim: linear-gradient(135deg, #eef3f8, #9fb3c7 45%, #f6f9fc 60%, #a9bccf); /* taste-skill-ignore */
+	}
+	.rim[data-medal="3"] {
+		/* prettier-ignore */
+		--rim: linear-gradient(135deg, #ffb27a, var(--soup-pumpkin) 45%, #ffd2ad 60%, #c4520f); /* taste-skill-ignore */
+	}
+	/* The search field: every soup round its edge, with a light running along it like the gold. */
+	.soup-rim {
+		/* prettier-ignore */
+		--rim: linear-gradient(100deg, var(--soup-corn) 0%, var(--soup-pumpkin) 18%, var(--soup-tomato) 32%, #fff1c2 42%, var(--soup-beet) 52%, var(--soup-pea) 70%, var(--soup-corn) 100%) 0 0 / 250% 100%; /* taste-skill-ignore */
+		--rim-width: 1.5px;
+	}
+	/* Lighter than the medals: a field is not a prize. */
+	.soup-rim::before {
+		opacity: 0.6;
+		animation: sheen 4s linear infinite;
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.star-burst {
+		.rim::before {
+			animation: none !important;
+		}
+	}
+
+	/*
+	 * A card on the page, not a flat cut-out: its paper catches the light at the top, a thin bright
+	 * edge runs along it and a soft shade under it lifts it. By night the light is faint and the edge a
+	 * hairline. The background colour stays free for the card's own (hover, selected).
+	 */
+	.surface {
+		/* prettier-ignore */
+		background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.55), transparent 70%); /* taste-skill-ignore */
+		/* prettier-ignore */
+		box-shadow: /* taste-skill-ignore */
+			inset 0 1px 0 rgb(255 255 255 / 0.8),
+			0 1px 2px rgb(22 18 15 / 0.06),
+			0 12px 28px -10px rgb(22 18 15 / 0.16);
+	}
+	:root[data-theme="dark"] .surface {
+		/* prettier-ignore */
+		background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.045), transparent 70%); /* taste-skill-ignore */
+		/* prettier-ignore */
+		box-shadow: /* taste-skill-ignore */
+			inset 0 1px 0 rgb(255 255 255 / 0.08),
+			inset 0 0 0 1px rgb(255 255 255 / 0.035),
+			0 8px 18px -10px rgb(0 0 0 / 0.35);
+	}
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) .surface {
+			/* prettier-ignore */
+			background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.045), transparent 70%); /* taste-skill-ignore */
+			/* prettier-ignore */
+			box-shadow: /* taste-skill-ignore */
+				inset 0 1px 0 rgb(255 255 255 / 0.08),
+				inset 0 0 0 1px rgb(255 255 255 / 0.035),
+				0 8px 18px -10px rgb(0 0 0 / 0.35);
+		}
+	}
+
+	/*
+	 * The same light on a round drop (the home's type discs, the filters button): a gleam at the top
+	 * left, a little shade at the bottom, drawn over its colour, and the shade under it as a filter, so a ring
+	 * (`box-shadow`) for the chosen one still shows.
+	 */
+	.surface-drop {
+		/* prettier-ignore */
+		background-image: radial-gradient(110% 80% at 30% 12%, rgb(255 255 255 / 0.5), transparent 55%), linear-gradient(to top, rgb(22 18 15 / 0.12), transparent 50%); /* taste-skill-ignore */
+		filter: drop-shadow(0 6px 10px rgb(22 18 15 / 0.16)); /* taste-skill-ignore */
+	}
+	:root[data-theme="dark"] .surface-drop {
+		/* prettier-ignore */
+		background-image: radial-gradient(110% 80% at 30% 12%, rgb(255 255 255 / 0.3), transparent 55%), linear-gradient(to top, rgb(0 0 0 / 0.2), transparent 50%); /* taste-skill-ignore */
+		filter: drop-shadow(0 6px 12px rgb(0 0 0 / 0.5)); /* taste-skill-ignore */
+	}
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) .surface-drop {
+			/* prettier-ignore */
+			background-image: radial-gradient(110% 80% at 30% 12%, rgb(255 255 255 / 0.3), transparent 55%), linear-gradient(to top, rgb(0 0 0 / 0.2), transparent 50%); /* taste-skill-ignore */
+			filter: drop-shadow(0 6px 12px rgb(0 0 0 / 0.5)); /* taste-skill-ignore */
+		}
+	}
+
+	/* A ranking row: a soft blob of its soup's colour (`--soup`) behind the place and the photo. It
+	   fades out before the name, which keeps its full contrast on the paper. */
+	.soup-glow {
+		isolation: isolate;
+	}
+	.soup-glow::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border-radius: inherit;
+		/* prettier-ignore */
+		background: radial-gradient(5rem 4.5rem at 3.5rem 50%, color-mix(in oklab, var(--soup) 34%, transparent), transparent); /* taste-skill-ignore */
+		pointer-events: none;
+	}
+
+	/* A photo's foot in shadow, so the badges on it stand out from any pack. Under the badges. */
+	.shade-foot::before {
+		content: "";
+		position: absolute;
+		inset: auto 0 0;
+		height: 45%;
+		/* prettier-ignore */
+		background: linear-gradient(to top, rgb(22 18 15 / 0.38), transparent); /* taste-skill-ignore */
+		pointer-events: none;
+	}
+
+	/* The scan button: a drop of hot pumpkin soup, lit from above, glowing on the page. */
+	.scan-drop {
+		/* prettier-ignore */
+		background: radial-gradient(120% 90% at 30% 15%, #ffa25c, var(--soup-pumpkin) 45%, var(--soup-tomato)); /* taste-skill-ignore */
+		/* prettier-ignore */
+		box-shadow: /* taste-skill-ignore */
+			inset 0 1px 1px rgb(255 255 255 / 0.55),
+			inset 0 -2px 6px rgb(0 0 0 / 0.12),
+			0 8px 24px rgb(255 90 20 / 0.38);
+		color: #16120f; /* taste-skill-ignore */
+	}
+
+	/* The ink button, lit along its top like the glass, so it reads as pressable. */
+	.ink-sheen {
+		/* prettier-ignore */
+		background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.24) 0 1px, rgb(255 255 255 / 0.12) 1px, transparent 60%); /* taste-skill-ignore */
+	}
+
+	/* A card in a list rises a little under the mouse, its photo lifting off the page. With
+	   `translate`, apart from the scroll-in `transform` and the press `scale`. */
+	.lift-card {
+		transition: translate 260ms var(--ease-out-snap);
+	}
+	.lift-card .plate {
+		transition: box-shadow 260ms var(--ease-out-snap);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.lift-card:hover {
+			translate: 0 -4px;
+		}
+		.lift-card:hover .plate {
+			box-shadow: 0 16px 36px rgb(22 18 15 / 0.2); /* taste-skill-ignore */
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.lift-card:hover {
+			translate: none;
+		}
+	}
+
+	/* Drops and stars thrown up from one point, then falling away (`Confetti`). */
+	.confetti {
+		position: fixed;
+		z-index: 70;
+		width: 0;
+		height: 0;
+		pointer-events: none;
+	}
+	.confetti > i {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: var(--s);
+		height: var(--s);
+		margin: calc(var(--s) / -2);
+		border-radius: 9999px;
+		background: var(--c);
+		animation: confetti var(--t) var(--d) both;
+	}
+	.confetti > i.is-star {
+		border-radius: 0;
+		background: none;
+		color: var(--star);
+	}
+	.confetti svg {
+		width: 100%;
+		height: 100%;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.confetti {
 			display: none;
 		}
+	}
+
+	/*
+	 * The home's opening (DESIGN.md, «Intro»): the bowl arrives, its swirl draws itself, then the
+	 * yellow closes in on it, about a second in all. The page is drawn underneath at full opacity
+	 * the whole time, so it counts as painted; the curtain hides itself, script or not.
+	 */
+	.intro {
+		position: fixed;
+		inset: 0;
+		z-index: 60;
+		display: grid;
+		place-items: center;
+		/* Corn yellow by day; by night the dark paper, not a bright yellow flash. */
+		background: var(--soup-corn);
+		background: light-dark(var(--soup-corn), var(--ground));
+		animation: intro-close 420ms var(--ease-out-snap) 620ms both;
+	}
+	:root[data-intro="seen"] .intro {
+		display: none;
+	}
+	.intro-bowl {
+		width: 6rem;
+		height: 6rem;
+		animation:
+			pop 320ms var(--ease-out-snap) both,
+			intro-sink 160ms ease-in 880ms forwards;
+	}
+	.intro-bowl path {
+		stroke-dasharray: 1;
+		animation: draw 480ms ease-in-out 160ms both;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.intro {
+			animation: intro-fade 300ms ease-out 350ms both;
+		}
+		.intro-bowl,
+		.intro-bowl path {
+			animation: none;
+		}
+	}
+
+	/* The loader: the swirl stirs round and draws itself in and out. Held still, it only breathes. */
+	.bowl-loader path {
+		stroke-dasharray: 1;
+		transform-box: view-box;
+		transform-origin: 50% 50%;
+		animation:
+			stir 1.4s linear infinite,
+			draw 0.7s ease-in-out infinite alternate;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.bowl-loader path {
+			animation: breathe 1.6s ease-in-out infinite alternate;
+		}
+	}
+
+	/*
+	 * A card coming up from below the screen grows into place as it is scrolled in, tied to the
+	 * scroll itself, not to time. With `transform`, so the press (`scale`) still works on top.
+	 * Where scroll timelines are missing (Firefox), the cards simply are there.
+	 */
+	@supports (animation-timeline: view()) {
+		@media (prefers-reduced-motion: no-preference) {
+			.scroll-in {
+				animation: scroll-in linear both;
+				animation-timeline: view();
+				animation-range: entry 0% entry 90%;
+			}
+		}
+	}
+
+	/*
+	 * A page's title: each word rises from behind its own line, one after the other. The h1 itself
+	 * stays put in its `.stagger`. On the home, behind the intro, the words wait for the curtain.
+	 */
+	.stagger > .split-title {
+		animation: none;
+	}
+	.split-title .word {
+		display: inline-block;
+		overflow: clip;
+		/* Room for the descenders, which the clip would cut. */
+		padding-bottom: 0.12em;
+		margin-bottom: -0.12em;
+		vertical-align: top;
+	}
+	.split-title .word > span {
+		display: inline-block;
+		transform-origin: 0 100%;
+		animation: word-up 700ms var(--ease-out-snap) both;
+		animation-delay: calc(var(--i) * 70ms + 60ms);
+	}
+	:root:not([data-intro="seen"]) .intro ~ header .split-title .word > span {
+		animation-delay: calc(var(--i) * 70ms + 900ms);
+	}
+
+	/*
+	 * The podium: third and second rise, then the first drops in from above and bounces as it lands
+	 * (and `Confetti` flies out of it). In the list the first comes first, so the delays go backwards.
+	 */
+	.podium > li {
+		animation: rise 420ms var(--ease-out-snap) both;
+	}
+	.podium > li:nth-child(3) {
+		animation-delay: 60ms;
+	}
+	.podium > li:nth-child(2) {
+		animation-delay: 160ms;
+	}
+	.podium > li:nth-child(1) {
+		animation: land 560ms cubic-bezier(0.34, 1.45, 0.5, 1) 300ms both;
 	}
 
 	/*

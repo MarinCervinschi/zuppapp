@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import type { QueryClient } from "@tanstack/react-query";
 import {
 	HeadContent,
@@ -7,6 +9,8 @@ import {
 } from "@tanstack/react-router";
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 
+import { NavigationLoader } from "@/components/ds/bowl-loader";
+import { INTRO_INIT_SCRIPT } from "@/components/ds/intro";
 import { SiteFooter } from "@/components/ds/site-footer";
 import { TabBar } from "@/components/ds/tab-bar";
 import { AppToaster } from "@/components/ds/toaster";
@@ -69,6 +73,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 		// The theme before the first paint: rendered into <head> on the server, not run by React.
 		scripts: [
 			{ children: THEME_INIT_SCRIPT },
+			{ children: INTRO_INIT_SCRIPT },
 			...(loaderData?.umami
 				? [
 						{
@@ -102,6 +107,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 }
 
 function RootLayout() {
+	// Marks the page as live: what animates only for a page opened inside the app checks it.
+	useEffect(() => {
+		document.documentElement.setAttribute("data-hydrated", "");
+	}, []);
+
 	return (
 		// Motion's features load once for the whole app (the lighter `m` components need them), and
 		// every animation follows the reader's reduced-motion setting.
@@ -116,6 +126,7 @@ function RootLayout() {
 				<SiteFooter />
 				<TabBar />
 				<SoupSheetHost />
+				<NavigationLoader />
 				{/* At the top, away from the tab bar and the thumb. */}
 				<AppToaster />
 			</MotionConfig>

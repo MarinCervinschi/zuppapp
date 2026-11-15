@@ -14,6 +14,7 @@ import { TasteTile } from "@/components/catalog/taste-tile";
 import { TypeRail } from "@/components/catalog/type-rail";
 import { buttonClass } from "@/components/ds/button";
 import { SettingsIcon } from "@/components/ds/icons";
+import { Intro } from "@/components/ds/intro";
 import { PageHead } from "@/components/ds/page-head";
 import { segment, segmentedBar } from "@/components/ds/segmented";
 import { Sheet } from "@/components/ds/sheet";
@@ -64,6 +65,7 @@ function Home() {
 
 	return (
 		<>
+			<Intro />
 			<PageHead blob="corn" shape="onda" title="Che zuppa stai cercando?" />
 
 			{/* Positioned, so its focus rim paints over the header it touches, not under it. On a phone the
@@ -75,7 +77,7 @@ function Home() {
 				<button
 					type="button"
 					onClick={() => setFiltering(true)}
-					className="bg-ground-raised float-shadow relative grid size-14 shrink-0 place-items-center rounded-full transition-[scale] duration-150 motion-safe:active:scale-[0.94] lg:hidden"
+					className="bg-ground-raised surface-drop relative grid size-14 shrink-0 place-items-center rounded-full transition-[scale] duration-150 motion-safe:active:scale-[0.94] lg:hidden"
 				>
 					<SettingsIcon className="size-6" />
 					<span className="sr-only">Filtri</span>

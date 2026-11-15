@@ -141,7 +141,7 @@ function Profile() {
 					<Link
 						to="/le-mie-zuppe"
 						search={{ scheda: "preferite" }}
-						className="bg-ground-raised rounded-card flex min-h-28 flex-col justify-between p-4 no-underline transition-[scale] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.97]"
+						className="bg-ground-raised surface rounded-card flex min-h-28 flex-col justify-between p-4 no-underline transition-[scale] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.97]"
 					>
 						<svg
 							aria-hidden
@@ -169,7 +169,7 @@ function Profile() {
 					>
 						Impostazioni
 					</h2>
-					<div className="bg-ground-raised group-rows overflow-hidden rounded-[1.5rem]">
+					<div className="bg-ground-raised surface group-rows overflow-hidden rounded-[1.5rem]">
 						<div className="flex min-h-14 flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-2">
 							<span aria-hidden className="text-body flex items-center gap-3">
 								<SunIcon className="size-5" />
@@ -195,7 +195,7 @@ function Profile() {
 							<ChevronRightIcon className="text-text-soft size-5" />
 						</Link>
 					</div>
-					<div className="bg-ground-raised mt-2 overflow-hidden rounded-[1.5rem]">
+					<div className="bg-ground-raised surface mt-2 overflow-hidden rounded-[1.5rem]">
 						<button
 							type="button"
 							onClick={signOut}
@@ -209,7 +209,7 @@ function Profile() {
 					<p className="text-small text-text-soft px-4">
 						Uscendo, i tuoi voti restano nell’account e li ritrovi al prossimo accesso.
 					</p>
-					<div className="bg-ground-raised mt-6 overflow-hidden rounded-[1.5rem]">
+					<div className="bg-ground-raised surface mt-6 overflow-hidden rounded-[1.5rem]">
 						<button
 							type="button"
 							onClick={() => setSheet("delete")}
@@ -322,9 +322,10 @@ function DeleteAccount({ votes, onClosed }: { votes: number; onClosed: () => voi
 							variant="ink"
 							onClick={confirm}
 							disabled={remove.isPending}
+							pending={remove.isPending}
 							className="bg-danger hover:bg-danger/85 sm:flex-1"
 						>
-							<TrashIcon className="size-5" />
+							{!remove.isPending && <TrashIcon className="size-5" />}
 							{remove.isPending ? "Elimino…" : "Elimina l’account"}
 						</Button>
 						<Button onClick={close} disabled={remove.isPending} className="sm:flex-1">

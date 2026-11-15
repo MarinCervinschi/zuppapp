@@ -30,7 +30,8 @@ corrente in una pill più chiara.
 Chi è admin ha un quarto tab, **Admin** (`/admin`, la chiave), e nella scheda prodotto un tondo con la chiave
 accanto al cuore, che apre quel prodotto nella gestione (`?stato=…&q=<ean>`).
 
-Accanto alla pill, **staccato in un tondo di vetro tutto suo**, c'è lo scanner (`/scansiona`): è un'azione,
+Accanto alla pill, **staccato in una goccia di zuppa di zucca tutta sua** (`.scan-drop`: sfumatura zucca → pomodoro,
+luce in alto e un alone caldo sulla pagina), c'è lo scanner (`/scansiona`): è un'azione,
 non un posto, come la ricerca nella tab bar di iOS 26. Solo l'icona, con il nome per i lettori di schermo; su
 telefoni da 360 px i tab si stringono a 80 px perché ci stia tutto.
 
@@ -82,8 +83,8 @@ disegnata in WebGL. Ci sono due forme:
 
 Il bordo è **puntinato come la stampa dei poster**: vicino all'orlo ogni grano è o zuppa o carta. In più c'è una
 grana leggera su tutto. Sotto il mouse la zuppa si sporge un poco verso il puntatore. Il fondo del canvas sfuma
-nella carta vera (`.fade-foot`), così l'intestazione non ha bordo. In tema scuro le macchie portano il 55% del
-colore (`--blob-strength`): di notte brillano, non urlano.
+nella carta vera (`.fade-foot`), così l'intestazione non ha bordo. In tema scuro le macchie portano l'80% del
+colore (`--blob-strength`) e il foglio della zuppa il 20% di giallo (`--sheet-tint`): di notte restano vive.
 
 Il codice è nostro. Grainient e Aurora sono MIT + Commons Clause, che vieta di ridistribuire i componenti
 stessi, «anche come versione portata»: in una repo pubblica non possono entrare.
@@ -142,11 +143,22 @@ saturate(180%)`, una luce sul bordo alto, un bordo di luce e un riflesso in alto
   Chromium; su Safari, cioè su iPhone, non mostrano niente. Per questo il nostro è solo CSS. Senza
   `backdrop-filter`, o con `prefers-reduced-transparency`, diventa il foglio pieno.
 - **Bersagli da 44 px o più**, le stelle grandi da 56–64 px.
-- **Movimento** con `--ease-out-snap`. Niente si anima al primo disegno, solo in risposta a un gesto
-  (principio preso da morphin.dev):
+- **Movimento** con `--ease-out-snap`. Ci sono due tipi di movimento. Quello che risponde a un gesto c'è sempre.
+  Quello al primo disegno c'è solo dove fa effetto (intro, titoli, podio, card che entrano scorrendo), è breve e
+  non nasconde mai la pagina a lungo:
   - pressione a 0,96 su ogni controllo;
+  - le stelle si scelgono con un tocco o facendo scorrere il dito: si accendono fino al dito (con una vibrazione
+    breve su Android) e si sceglie alzandolo; su e giù resta lo scorrimento della pagina (`touch-pan-y`);
   - le stelle si riempiono una dopo l'altra (`animate-pop`, 45 ms di scarto), e con cinque stelle, «La
-    ricompro», otto gocce gialle partono dalla quinta (`.star-burst`);
+    ricompro», gocce di zuppa e stelle d'oro esplodono dalla quinta su tutto lo schermo (`Confetti`,
+    `ds/confetti.tsx`, dentro il foglio aperto se c'è);
+  - il titolo di ogni pagina sale una parola alla volta da dietro la sua riga (`.split-title`); sulla home
+    aspetta che l'intro si apra;
+  - sul podio salgono il terzo e il secondo, poi il primo cade dall'alto con un rimbalzo (`.podium`) e, una volta
+    per visita, lancia i coriandoli; i voti contano da zero (`CountUp`), ma solo su una pagina aperta dentro
+    l'app, così un numero già mostrato dal server non torna a zero;
+  - le card della home e le righe della classifica crescono al loro posto mentre entrano scorrendo (`.scroll-in`,
+    legate allo scorrimento con `animation-timeline: view()`, con `transform` così la pressione resta);
   - nella tab bar la goccia chiara della scheda corrente scivola fino alla nuova con un piccolo rimbalzo;
   - una pill premuta disegna la sua spunta (`draw`);
   - i tag e l'elenco delle marche salgono dal basso (`animate-rise`);
@@ -154,6 +166,30 @@ saturate(180%)`, una luce sul bordo alto, un bordo di luce e un riflesso in alto
     (`shimmer`);
   - l'anello di testo del Nutri-Score gira piano, un giro ogni 24 secondi.
     Sotto `prefers-reduced-motion` restano solo le dissolvenze: niente rimbalzi, gocce, luccichio né rotazione.
+- **Intro** (`Intro`, `ds/intro.tsx`): la ciotola dell'icona sul giallo mais, la spirale crema che si disegna, poi
+  il giallo si chiude in un cerchio sulla ciotola e scopre la home, in circa un secondo. Solo se la home è la prima
+  pagina della visita: uno script nel `head` (`INTRO_INIT_SCRIPT`) segna la visita in `sessionStorage`, e un
+  ricaricamento, la home aperta dopo un'altra pagina o una zuppa aperta da un link non la mostrano. La pagina è
+  già disegnata sotto, a piena opacità, così il contenuto conta come dipinto per l'LCP; il velo si nasconde da sé
+  in CSS, anche se lo script non parte, e un tocco lo chiude. Con `prefers-reduced-motion` la ciotola resta ferma
+  e il velo sfuma. In tema scuro il fondo è la carta scura, non un lampo giallo.
+- **Card della home**: sotto la foto un'ombra (`.shade-foot`) stacca i badge da qualunque confezione; con il mouse la
+  card sale di 4 px e la foto si alza dalla pagina con un'ombra (`.lift-card`).
+- **Le card non sono ritagli piatti** (`.surface`, su ogni card di carta rialzata: righe, podio, profilo, avvisi): la
+  carta prende luce in alto, un filo chiaro corre sul bordo superiore e un'ombra morbida la stacca dalla pagina. Di
+  notte la luce è appena accennata e il filo è un capello. Il colore di fondo resta della card (hover, selezione).
+  Le gocce tonde (i tipi della home, il tasto dei filtri) hanno la stessa luce a goccia (`.surface-drop`): un riflesso
+  in alto a sinistra, un'ombra in basso e l'ombra esterna come `filter`, così l'anello del tipo scelto resta.
+- **Il campo di ricerca della home** ha un bordo con tutte le zuppe (`.rim.soup-rim`), sottile e tenue, con la
+  stessa luce che gira dell'oro del podio. Le luci dei bordi si fermano con `prefers-reduced-motion`.
+- **Il pulsante d'inchiostro** ha una luce in alto (`.ink-sheen`), come il vetro: si capisce che si preme.
+- **Caricamento** (`BowlLoader`, `ds/bowl-loader.tsx`): la stessa ciotola dell'intro, con la spirale che gira
+  e si disegna avanti e indietro. È l'unico loader dell'app, e chi lo mostra dice a parole cosa sta arrivando.
+  Sta in quattro posti: in alto, in un tondo di vetro, quando una pagina (o la stessa con filtri nuovi) ci mette più
+  di 400 ms (`NavigationLoader` in `__root`); grande sopra «Cerco la zuppa…» dopo una scansione; piccolo nei
+  pulsanti con `pending`, che restano a piena intensità invece di sbiadire; al posto della foto ingrandita
+  finché arriva («Carico la foto…»). Con `prefers-reduced-motion` la
+  spirale sta ferma e pulsa piano.
 - **Entrate e uscite.** Due strumenti, scelti per costo:
   - **CSS, per ciò che arriva** (costo zero, gira anche prima del JavaScript e non lascia mai niente nascosto
     se lo script manca): `.stagger` fa salire i figli di un elenco uno dopo l'altro, 45 ms di scarto, al
@@ -252,9 +288,11 @@ Niente prezzi: non li abbiamo, e la SPEC li tiene fuori dalla v1.
 ### La classifica
 
 - **Podio**: tre card sul foglio rialzato. Su telefono la prima occupa tutta la larghezza e le altre due
-  dividono una riga; su desktop stanno affiancate, la prima al centro e più alta. La prima ha un bordo giallo
-  mais. Il disco della posizione in alto a sinistra (mais, azzurro, zucca), il badge in basso.
-- **Dal 4° in giù**: una card-riga per prodotto con posizione, tondo, nome, marca e voti, badge. È un vero
+  dividono una riga; su desktop stanno affiancate, la prima al centro e più alta. Le card hanno il bordo della loro
+  medaglia (`.rim` con `data-medal`, un bordo sfumato): la prima d'oro, più spesso, con un alone caldo e una luce che ci gira
+  intorno piano; la seconda d'argento, la terza di bronzo. Sotto la foto un'ombra (`.shade-foot`) stacca il badge. Il disco della posizione in alto a sinistra (mais, azzurro, zucca), il badge in basso.
+- **Dal 4° in giù**: una card-riga per prodotto con posizione, tondo, nome, marca e voti, badge. Dietro la foto
+  tonda (cerchiata di bianco) si allarga una macchia morbida del colore del suo tipo (`.soup-glow`, `subtypeSoup`). È un vero
   `<ol>` che parte da 4; su desktop due colonne.
 - **Si filtra con gli stessi tondi dei tipi** della home, senza conteggi (la classifica conta posti, non
   zuppe).
@@ -392,11 +430,11 @@ utenti!», ed è stato tolto), niente «Ops!».
 ```bash
 node <taste-skill>/scripts/lint.mjs src                                   # 0 FAIL
 node <taste-skill>/scripts/inspect.mjs http://localhost:3002/classifica --app \
-  --allow font-not-dealt,palette-cream,gradient,app-title-size,colour-sprawl,icon-chips
+  --allow font-not-dealt,palette-cream,gradient,app-title-size,colour-sprawl,icon-chips,button-fx
 ```
 
 Le regole escluse sono scelte del design system, non sviste: `icon-chips` sono i tondi colorati dei tipi
-(`TypeRail`), e su `/` e `/classifica` resta un `edge-text` voluto: la riga dei tipi scorre di lato ed è tagliata
+(`TypeRail`), `button-fx` è la luce in alto del pulsante d'inchiostro (`.ink-sheen`, una sfumatura senza ombre), e su `/` e `/classifica` resta un `edge-text` voluto: la riga dei tipi scorre di lato ed è tagliata
 dal bordo dello schermo apposta, con la sfumatura, per far capire che continua. Per il resto: il carattere e la carta crema vengono dalle
 reference del designer, non dal foglio di `.taste-skill/direction.json` (che è della direzione precedente); le
 macchie sfumate e i titoli grandi sono la vetrina di ricerca e classifica. Nel codice, le stesse eccezioni

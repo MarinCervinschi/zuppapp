@@ -1,5 +1,6 @@
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 
+import { BowlLoader } from "@/components/ds/bowl-loader";
 import { NotFoundPage } from "@/components/error/error-pages";
 import { ScanPage } from "@/components/scan/scan-page";
 import { ScanResult } from "@/components/scan/scan-result";
@@ -33,7 +34,11 @@ export const Route = createFileRoute("/scansiona/$codice")({
 	}),
 	pendingComponent: () => (
 		<ScanPage>
-			<p role="status" className="text-body text-center">
+			<p
+				role="status"
+				className="text-body flex flex-col items-center gap-3 text-center"
+			>
+				<BowlLoader className="size-16" />
 				Cerco la zuppa…
 			</p>
 		</ScanPage>

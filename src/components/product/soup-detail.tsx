@@ -37,7 +37,7 @@ export function SoupWarnings({ product }: { product: ProductCard }) {
 	return (
 		<>
 			{product.archived && (
-				<p className="bg-ground-raised text-body rounded-card p-4">
+				<p className="bg-ground-raised surface text-body rounded-card p-4">
 					Fuori produzione: resta qui con i suoi voti, ma non è in classifica.
 				</p>
 			)}

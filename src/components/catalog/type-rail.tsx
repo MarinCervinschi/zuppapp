@@ -55,7 +55,7 @@ export function TypeRail({ route, current, subtypes, total, className }: Props) 
 							>
 								<span
 									className={cn(
-										"group-focus-visible:outline-text grid size-16 place-items-center rounded-full transition-[scale,box-shadow] duration-200 ease-[var(--ease-out-snap)] group-focus-visible:outline-2 group-focus-visible:outline-offset-[7px] motion-safe:group-active:scale-[0.92]",
+										"group-focus-visible:outline-text surface-drop grid size-16 place-items-center rounded-full transition-[scale,box-shadow] duration-200 ease-[var(--ease-out-snap)] group-focus-visible:outline-2 group-focus-visible:outline-offset-[7px] motion-safe:group-active:scale-[0.92]",
 										value === null
 											? active
 												? "bg-text text-ground"

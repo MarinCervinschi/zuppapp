@@ -5,8 +5,8 @@
 export const rowCard =
 	"group relative grid items-center gap-3 rounded-[1.5rem] p-2 pr-3 transition-[scale,background-color] duration-200 ease-[var(--ease-out-snap)] motion-safe:active:scale-[0.98]";
 
-/** Its usual background. */
-export const rowCardGround = "bg-ground-raised hover:bg-text/[0.06]";
+/** Its usual background, lit like every card (`.surface`). */
+export const rowCardGround = "bg-ground-raised surface hover:bg-text/[0.06]";
 
 /** The name, a link (or button) whose box covers the card: the whole row is the target. */
 export const rowCardLink =

@@ -5,6 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Leaderboard, Podium } from "@/components/catalog/ranking";
 import { TasteTile } from "@/components/catalog/taste-tile";
 import { Barcode } from "@/components/ds/barcode";
+import { BowlLoader } from "@/components/ds/bowl-loader";
 import { Button } from "@/components/ds/button";
 import { NutriScore } from "@/components/ds/nutri-score";
 import { NutritionLabel } from "@/components/ds/nutrition-label";
@@ -203,6 +204,17 @@ function DesignPage() {
 						<Button variant="ink">Vedi 477 zuppe</Button>
 						<Button>Filtri</Button>
 						<Button disabled>Disattivato</Button>
+						<Button variant="ink" disabled pending>
+							Salvo…
+						</Button>
+					</div>
+				</Section>
+
+				<Section title="Caricamento">
+					<div className="flex items-center gap-6">
+						<BowlLoader className="size-16" />
+						<BowlLoader />
+						<BowlLoader className="size-5" />
 					</div>
 				</Section>
 

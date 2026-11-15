@@ -58,7 +58,12 @@ export function NicknameForm({
 						onRaised ? "bg-ground" : "bg-ground-raised"
 					)}
 				/>
-				<Button type="submit" variant="ink" disabled={save.isPending}>
+				<Button
+					type="submit"
+					variant="ink"
+					disabled={save.isPending}
+					pending={save.isPending}
+				>
 					<CheckIcon className="size-5" />
 					{save.isPending ? "Salvo…" : "Salva"}
 				</Button>

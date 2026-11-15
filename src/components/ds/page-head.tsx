@@ -1,3 +1,5 @@
+import { Fragment } from "react";
+
 import { cn } from "@/lib/utils";
 
 import { BackButton } from "./app-bar";
@@ -84,11 +86,31 @@ export function PageHead({
 				>
 					Zuppapp
 				</p>
-				<h1 className="font-display text-display font-semibold tracking-[-0.01em]">
-					{title}
+				<h1
+					className={cn(
+						"font-display text-display font-semibold tracking-[-0.01em]",
+						typeof title === "string" && "split-title"
+					)}
+				>
+					{typeof title === "string" ? <RisingWords text={title} /> : title}
 				</h1>
 				{children && <div className="text-body max-w-[34ch]">{children}</div>}
 			</div>
 		</header>
 	);
+}
+
+/**
+ * A title whose words rise one after the other, each from behind its own line (`.split-title`).
+ * The spaces stay plain text between them, so the title reads and wraps as it did.
+ */
+function RisingWords({ text }: { text: string }) {
+	return text.split(" ").map((word, i) => (
+		<Fragment key={i}>
+			{i > 0 && " "}
+			<span className="word">
+				<span style={{ "--i": i } as React.CSSProperties}>{word}</span>
+			</span>
+		</Fragment>
+	));
 }

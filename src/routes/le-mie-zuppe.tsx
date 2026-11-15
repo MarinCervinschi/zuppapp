@@ -274,7 +274,7 @@ function Empty({
 	action: { to: "/" | "/accedi"; label: string };
 }) {
 	return (
-		<div className="bg-ground-raised rounded-card flex flex-col items-start gap-3 p-6">
+		<div className="bg-ground-raised surface rounded-card flex flex-col items-start gap-3 p-6">
 			<p className="text-body font-semibold">{title}</p>
 			<p className="text-body">{body}</p>
 			<Link to={action.to} className={buttonClass("ink")}>

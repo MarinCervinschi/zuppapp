@@ -238,7 +238,7 @@ export function ReportForm({
 					{error}
 				</p>
 			)}
-			<Button type="submit" variant="ink" disabled={busy}>
+			<Button type="submit" variant="ink" disabled={busy} pending={busy}>
 				{preparing
 					? "Preparo le foto…"
 					: send.isPending

@@ -14,6 +14,21 @@ const COLORS: Record<string, string> = {
 	brodo: "bg-[#cfe3f5] text-[#16120f]",
 };
 
+// The same colours as CSS values, for a glow of the type's soup (a ranking row).
+const SOUPS: Record<string, string> = {
+	vellutata: "var(--soup-pumpkin)",
+	minestrone: "var(--soup-pea)",
+	legumi: "var(--soup-corn)",
+	passato: "var(--soup-tomato)",
+	cereali: "var(--soup-beet)",
+	brodo: "#cfe3f5",
+};
+
+/** The colour of a type's soup; corn for a soup with no known type. */
+export function subtypeSoup(subtype: string | null) {
+	return (subtype && SOUPS[subtype]) || "var(--soup-corn)";
+}
+
 /** The disc of a type, background and icon colour; unknown types sit on the raised paper. */
 export function subtypeColor(subtype: string | null) {
 	return (subtype && COLORS[subtype]) || "bg-ground-raised text-text";

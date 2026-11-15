@@ -16,8 +16,8 @@ export function TasteTile({ product }: { product: ProductListItem }) {
 	const details = productDetails(product);
 
 	return (
-		<article className="group relative flex h-full flex-col gap-3">
-			<div className="plate rounded-card relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-white sm:aspect-square">
+		<article className="scroll-in lift-card group relative flex h-full flex-col gap-3">
+			<div className="plate shade-foot rounded-card relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-white sm:aspect-square">
 				{product.imageUrl ? (
 					<PackPhoto
 						src={product.imageUrl}
