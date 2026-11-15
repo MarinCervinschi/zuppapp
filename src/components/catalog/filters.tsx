@@ -127,25 +127,35 @@ export function FilterPanel({
 
 /** The removable chips of what is filtered right now, each a link back to the list without it. */
 export function ActiveFilters({ params }: { params: BrowseParams }) {
-	const items: { label: string; search: (prev: BrowseParams) => BrowseParams }[] = [];
+	// `key` names the filter, not its value: choosing another type or brand changes the chip in
+	// place instead of fading the old one out beside the new one, which then jumped left.
+	const items: {
+		key: string;
+		label: string;
+		search: (prev: BrowseParams) => BrowseParams;
+	}[] = [];
 	if (params.tipo)
 		items.push({
+			key: "tipo",
 			label: subtypeLabel(params.tipo),
 			search: prev => ({ ...prev, tipo: undefined }),
 		});
 	if (params.marca)
 		items.push({
+			key: "marca",
 			label: params.marca,
 			search: prev => ({ ...prev, marca: undefined }),
 		});
 	for (const grade of listParam(params.nutri)) {
 		items.push({
+			key: `nutri-${grade}`,
 			label: `Nutri-Score ${grade.toUpperCase()}`,
 			search: prev => ({ ...prev, nutri: toggled(prev.nutri, grade) }),
 		});
 	}
 	for (const allergen of listParam(params.senza)) {
 		items.push({
+			key: `senza-${allergen}`,
 			label: `Senza ${allergen}`,
 			search: prev => ({ ...prev, senza: toggled(prev.senza, allergen) }),
 		});
@@ -172,7 +182,7 @@ export function ActiveFilters({ params }: { params: BrowseParams }) {
 				>
 					<AnimatePresence initial={false}>
 						{items.map(item => (
-							<m.li key={item.label} {...chipMotion}>
+							<m.li key={item.key} {...chipMotion}>
 								<Link
 									to="/"
 									activeOptions={EXACT_SEARCH}
