@@ -1,7 +1,20 @@
-# Zuppapp
+<p align="center"><img src="public/icon-192.png" width="96" height="96" alt=""></p>
 
-Quale zuppa pronta è la più buona? Si vota con le stelle, da 1 «Mai più» a 5 «La ricompro», e
-qualche tag, senza recensioni lunghe. Si vota anche senza account.
+<h1 align="center">Zuppapp</h1>
+
+<p align="center">Quale zuppa pronta è la più buona? Votala su <a href="https://zuppapp.fun">zuppapp.fun</a>.</p>
+
+<p align="center">
+  <a href="https://zuppapp.fun"><img alt="Sito: zuppapp.fun" src="https://img.shields.io/badge/sito-zuppapp.fun-ff6a13"></a>
+  <a href="CHANGELOG.md"><img alt="Versione" src="https://img.shields.io/github/v/tag/MarinCervinschi/zuppapp?label=versione&color=ff6a13"></a>
+  <a href="LICENSE"><img alt="Codice MIT" src="https://img.shields.io/badge/codice-MIT-ff6a13"></a>
+  <a href="https://opendatacommons.org/licenses/odbl/1-0/"><img alt="Dati ODbL" src="https://img.shields.io/badge/dati-ODbL-ff6a13"></a>
+  <img alt="Node 22 o successivo" src="https://img.shields.io/badge/node-22%2B-16120f">
+  <img alt="TanStack Start" src="https://img.shields.io/badge/TanStack-Start-16120f">
+</p>
+
+Si vota con le stelle, da 1 «Mai più» a 5 «La ricompro», e qualche tag, senza recensioni lunghe.
+Si vota anche senza account. Il catalogo viene da Open Food Facts.
 
 - **Zuppe** (`/`): ricerca che perdona i refusi, filtri per tipo, marca, Nutri-Score e allergeni;
   prima di cercare, quelle «Da assaggiare».
@@ -17,11 +30,12 @@ qualche tag, senza recensioni lunghe. Si vota anche senza account.
 
 ## Documenti
 
-|                        |                                                                     |
-| ---------------------- | ------------------------------------------------------------------- |
-| [SPEC.md](SPEC.md)     | decisioni di prodotto e modello dati                                |
-| [DESIGN.md](DESIGN.md) | design system e regole per ogni schermata; dal vivo sulla `/design` |
-| [CLAUDE.md](CLAUDE.md) | comandi e architettura del codice                                   |
+|                              |                                                                     |
+| ---------------------------- | ------------------------------------------------------------------- |
+| [CHANGELOG.md](CHANGELOG.md) | cosa cambia a ogni versione                                         |
+| [SPEC.md](SPEC.md)           | decisioni di prodotto e modello dati                                |
+| [DESIGN.md](DESIGN.md)       | design system e regole per ogni schermata; dal vivo sulla `/design` |
+| [CLAUDE.md](CLAUDE.md)       | comandi e architettura del codice                                   |
 
 ## Avvio in locale
 
