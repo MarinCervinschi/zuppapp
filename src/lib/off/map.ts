@@ -133,7 +133,15 @@ function allergenName(tag: string) {
 	return ALLERGENS_IT[tag] ?? tag.replace(/^[a-z]{2}:/, "").replace(/-/g, " ");
 }
 
-export function mapOffProduct(off: OffProduct, now = new Date()): MapResult {
+/**
+ * `chosen`: an admin asked for this product by name, so a missing photo or an old edit does not
+ * keep it out. The import script leaves it off and skips both.
+ */
+export function mapOffProduct(
+	off: OffProduct,
+	now = new Date(),
+	{ chosen = false } = {}
+): MapResult {
 	const ean = off.code?.trim() ?? "";
 	if (!/^\d{8,14}$/.test(ean)) return { ok: false, reason: "EAN non valido" };
 	if (isStoreInternalCode(ean))
@@ -142,13 +150,14 @@ export function mapOffProduct(off: OffProduct, now = new Date()): MapResult {
 	const rawName = clean(off.product_name_it) ?? clean(off.product_name);
 	if (!rawName) return { ok: false, reason: "senza nome" };
 	const name = tidyName(rawName);
-	if (!off.image_front_url) return { ok: false, reason: "senza foto" };
+	if (!off.image_front_url && !chosen) return { ok: false, reason: "senza foto" };
 
 	if (!off.last_modified_t) return { ok: false, reason: "senza data di modifica" };
 	const lastModified = new Date(off.last_modified_t * 1000);
 	const cutoff = new Date(now);
 	cutoff.setFullYear(cutoff.getFullYear() - MAX_AGE_YEARS);
-	if (lastModified < cutoff) return { ok: false, reason: "fermo da oltre 5 anni" };
+	if (lastModified < cutoff && !chosen)
+		return { ok: false, reason: "fermo da oltre 5 anni" };
 
 	const nutriments: Record<string, number> = {};
 	for (const key of NUTRIMENT_KEYS) {
@@ -180,7 +189,7 @@ export function mapOffProduct(off: OffProduct, now = new Date()): MapResult {
 					? off.nutriscore_grade!
 					: null,
 				nova: typeof off.nova_group === "number" ? off.nova_group : null,
-				imageUrl: off.image_front_url,
+				imageUrl: off.image_front_url ?? null,
 			},
 		},
 	};

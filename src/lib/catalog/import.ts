@@ -102,10 +102,16 @@ export async function importProduct(
 				.insert(productSnapshots)
 				.values({ productId: existing.id, ...mapped.snapshot, fetchedAt: now });
 		}
+		// A field Open Food Facts leaves empty keeps what we have, such as the size a report gave.
+		const fresh = withOverrides(mapped, existing.overrides);
 		await tx
 			.update(products)
 			.set({
-				...withOverrides(mapped, existing.overrides),
+				...fresh,
+				brand: fresh.brand ?? existing.brand,
+				quantity: fresh.quantity ?? existing.quantity,
+				subtype: fresh.subtype ?? existing.subtype,
+				ingredientsText: fresh.ingredientsText ?? existing.ingredientsText,
 				nutriscore: mapped.snapshot.nutriscore,
 				allergens: mapped.snapshot.allergens,
 				offLastModifiedAt: mapped.offLastModifiedAt,

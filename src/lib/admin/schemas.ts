@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+import { MAX_FULL_BYTES, MAX_SMALL_BYTES } from "@/lib/reports/schemas";
+import { Invalid } from "@/lib/server/errors";
+
 export const ADMIN_PAGE_SIZE = 30;
 
 export const STATUSES = ["draft", "published", "archived"] as const;
@@ -79,3 +82,21 @@ export const resolveReportsSchema = z.discriminatedUnion("action", [
 ]);
 export type ResolveReports = z.infer<typeof resolveReportsSchema>;
 export type ResolveReportsInput = z.input<typeof resolveReportsSchema>;
+
+export const productIdSchema = z.object({ id: z.uuid() });
+
+export type ProductPhotoInput = { id: string; full: File; small: File };
+
+/** The photo travels as FormData: `id`, then `full` (1600 px) and `small` (400 px). */
+export function parseProductPhotoForm(data: unknown): ProductPhotoInput {
+	if (!(data instanceof FormData))
+		throw new Invalid("La foto è arrivata vuota. Riprova.");
+	const id = z.uuid().safeParse(data.get("id"));
+	const full = data.get("full");
+	const small = data.get("small");
+	if (!id.success || !(full instanceof File) || !(small instanceof File))
+		throw new Invalid("La foto è arrivata a metà. Riprova.");
+	if (full.size > MAX_FULL_BYTES || small.size > MAX_SMALL_BYTES)
+		throw new Invalid("La foto è troppo pesante. Riprova a sceglierla.");
+	return { id: id.data, full, small };
+}

@@ -91,7 +91,10 @@ Coolify, con il deploy in Terraform in una repo privata, che gestisce anche il p
   anonimo senza email né sessioni, così i voti restano in classifica; preferiti, segnalazioni e foto se ne vanno.
 - Admin: `/admin` risponde 404 a chiunque non sia admin (`isAdminFn` in `beforeLoad`), e ogni server
   function di `src/lib/admin/` ricontrolla con `adminMiddleware`. Le correzioni di nome, marca e tipo
-  finiscono in `overrides`. Ricerca (testo o inizio dell'EAN) e filtri (`tipo`, `foto`, `voti`, `corretti`,
+  finiscono in `overrides`, e così la foto caricata a mano (`overrides.imageKey`), che `copyProductImage` non
+  sostituisce più. «Importa da Open Food Facts» sulle bozze usa `importFromOff` (`src/lib/catalog/import-off.ts`,
+  come l'azione delle segnalazioni) e accetta anche prodotti senza foto o fermi da anni (`chosen`); un campo che
+  Open Food Facts lascia vuoto non cancella il nostro. Ricerca (testo o inizio dell'EAN) e filtri (`tipo`, `foto`, `voti`, `corretti`,
   `ordine`) stanno nell'URL (`adminListSchema`); i filtri si scelgono in un foglio, il prodotto si corregge nel
   suo foglio (`AdminProductSheet` in `src/components/admin/product-row.tsx`).
 - Foglio della zuppa: `src/components/product/soup-sheet.tsx`. Si apre con `useOpenSoup`/`SoupLink`, che mettono

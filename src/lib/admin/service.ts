@@ -3,15 +3,21 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import { products } from "@/db/schema";
 import { productImageUrl } from "@/lib/catalog/image";
+import { deleteProductImage, storeUploadedImage } from "@/lib/catalog/images";
+import { importFromOff } from "@/lib/catalog/import-off";
+import { jpegBytes } from "@/lib/reports/photos";
 import { openReportsCount } from "@/lib/reports/service";
 import { matchesText } from "@/lib/search/service";
-import { NotFound } from "@/lib/server/errors";
+import { Invalid, NotFound, Unavailable } from "@/lib/server/errors";
+import { log } from "@/lib/server/log";
+import { isStorageConfigured } from "@/lib/storage/s3";
 
 import {
 	ADMIN_PAGE_SIZE,
 	type AdminListParams,
 	NO_SUBTYPE,
 	type ProductCorrection,
+	type ProductPhotoInput,
 } from "./schemas";
 
 type Status = "draft" | "published" | "archived";
@@ -43,6 +49,8 @@ export type AdminPage = {
 	total: number;
 	page: number;
 	pageCount: number;
+	/** Whether a bucket is configured, so a photo can be uploaded. */
+	photosEnabled: boolean;
 };
 
 export async function adminCounts(): Promise<AdminCounts> {
@@ -161,6 +169,7 @@ export async function listForAdmin(params: AdminListParams): Promise<AdminPage> 
 		total,
 		page,
 		pageCount: Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE)),
+		photosEnabled: isStorageConfigured(),
 	};
 }
 
@@ -205,4 +214,60 @@ export async function correctProduct(input: ProductCorrection) {
 			})
 			.where(and(eq(products.id, input.id)));
 	});
+}
+
+async function productById(id: string) {
+	const [product] = await getDb()
+		.select({ ean: products.ean, imageKey: products.imageKey })
+		.from(products)
+		.where(eq(products.id, id));
+	if (!product) throw new NotFound("Prodotto non trovato");
+	return product;
+}
+
+/**
+ * Puts an admin's photo on a product. `overrides.imageKey` marks it, so neither the sync nor
+ * `--images` replaces it with Open Food Facts' photo; the previous photo leaves the bucket.
+ */
+export async function setProductPhoto(input: ProductPhotoInput) {
+	if (!isStorageConfigured())
+		throw new Unavailable("Senza bucket non possiamo salvare foto.");
+	const product = await productById(input.id);
+	const [full, small] = await Promise.all([
+		jpegBytes(input.full),
+		jpegBytes(input.small),
+	]);
+	const db = getDb();
+	const key = await storeUploadedImage(db, product.ean, { full, small });
+	await db
+		.update(products)
+		.set({
+			overrides: sql`${products.overrides} || ${JSON.stringify({ imageKey: key })}::jsonb`,
+			updatedAt: sql`now()`,
+		})
+		.where(eq(products.id, input.id));
+
+	const previous = product.imageKey;
+	if (previous && previous !== key)
+		await deleteProductImage(previous).catch(error =>
+			log.warn("Old photo of {Ean} not deleted", { Ean: product.ean }, error)
+		);
+	log.info("Photo of {Ean} uploaded by an admin", { Ean: product.ean });
+}
+
+/** Asks Open Food Facts for the product now: a draft made from reports gets its full card. */
+export async function importProductFromOff(id: string) {
+	const { ean } = await productById(id);
+	const result = await importFromOff(getDb(), ean);
+	if (!result.ok && result.reason === "unknown")
+		throw new Invalid("Open Food Facts non ha ancora questo prodotto.");
+	if (!result.ok)
+		throw new Invalid(
+			`Open Food Facts ha questo prodotto, ma non si può importare: ${result.detail}.`
+		);
+	log.info("Product {Ean} imported from Open Food Facts by an admin: {Outcome}", {
+		Ean: ean,
+		Outcome: result.outcome,
+	});
+	return { outcome: result.outcome };
 }

@@ -6,10 +6,9 @@ import { categories, productReports, products, users } from "@/db/schema";
 import { soupNameFor } from "@/lib/auth/names";
 import { isValidGtin } from "@/lib/barcode/ean13";
 import { productImageUrl, sizedImage } from "@/lib/catalog/image";
-import { copyProductImage, copyReportPhoto } from "@/lib/catalog/images";
-import { importProduct } from "@/lib/catalog/import";
-import { fetchProduct } from "@/lib/off/client";
-import { isStoreInternalCode, mapOffProduct, subtypeOf } from "@/lib/off/map";
+import { copyReportPhoto } from "@/lib/catalog/images";
+import { importFromOff } from "@/lib/catalog/import-off";
+import { isStoreInternalCode, subtypeOf } from "@/lib/off/map";
 import {
 	Conflict,
 	Invalid,
@@ -21,16 +20,10 @@ import { TooManyRequests, hit } from "@/lib/server/rate-limit";
 import { deleteObject, isStorageConfigured, putObject } from "@/lib/storage/s3";
 
 import type { ResolveReports } from "../admin/schemas";
-import { stripJpegMetadata } from "./photos";
+import { jpegBytes } from "./photos";
 import type { ReportInput, ReportPhoto } from "./schemas";
 
 const REPORTS_PER_HOUR = 10;
-
-async function jpegBytes(file: File) {
-	const bytes = stripJpegMetadata(new Uint8Array(await file.arrayBuffer()));
-	if (!bytes) throw new Invalid("Le foto devono essere JPEG. Riprova a sceglierle.");
-	return bytes.buffer as ArrayBuffer;
-}
 
 /**
  * Each photo at `segnalazioni/<random>/<n>.400.jpg` and `.full.jpg`, named like Open Food
@@ -216,22 +209,16 @@ async function createFromReport(input: Extract<ResolveReports, { action: "create
 	if (input.photoKey) await copyReportPhoto(db, input.ean, input.photoKey);
 }
 
-async function importFromOff(ean: string) {
-	const off = await fetchProduct(ean, { timeoutMs: 10_000, retries: 1 });
-	if (!off)
+async function importReportedFromOff(ean: string) {
+	const result = await importFromOff(getDb(), ean);
+	if (result.ok) return;
+	if (result.reason === "unknown")
 		throw new Invalid(
 			"Open Food Facts non conosce ancora questo prodotto: crea la bozza dalle segnalazioni."
 		);
-	const mapped = mapOffProduct({ ...off, code: ean });
-	if (!mapped.ok)
-		throw new Invalid(
-			`Open Food Facts lo conosce, ma non si può importare (${mapped.reason}): crea la bozza dalle segnalazioni.`
-		);
-	await importProduct(getDb(), mapped.product);
-	if (mapped.product.snapshot.imageUrl)
-		await copyProductImage(getDb(), ean, mapped.product.snapshot.imageUrl).catch(
-			error => log.warn("Photo of {Ean} not copied to the bucket", { Ean: ean }, error)
-		);
+	throw new Invalid(
+		`Open Food Facts lo conosce, ma non si può importare (${result.detail}): crea la bozza dalle segnalazioni.`
+	);
 }
 
 /**
@@ -239,7 +226,7 @@ async function importFromOff(ean: string) {
  * arrives as a draft; the photos of the reports are deleted, since the product keeps its own copy.
  */
 export async function resolveReports(adminId: string, input: ResolveReports) {
-	if (input.action === "off") await importFromOff(input.ean);
+	if (input.action === "off") await importReportedFromOff(input.ean);
 	if (input.action === "create") await createFromReport(input);
 
 	const open = and(

@@ -4,7 +4,13 @@ import { isRefreshableCatalogQuery } from "@/lib/catalog/queries";
 import { PRODOTTI, count } from "@/lib/plural";
 import { toast } from "@/lib/toast";
 
-import { correctProductFn, resolveReportsFn, setProductsStatusFn } from "./api";
+import {
+	correctProductFn,
+	importProductFromOffFn,
+	resolveReportsFn,
+	setProductPhotoFn,
+	setProductsStatusFn,
+} from "./api";
 import type { ProductCorrectionInput, ResolveReportsInput } from "./schemas";
 
 const STATUS_DONE = {
@@ -83,6 +89,36 @@ export function useResolveReports() {
 		onSuccess: (_, { action }) => {
 			refresh();
 			toast.success(RESOLVED[action]);
+		},
+		onError: (error: Error) => toast.error(error.message),
+	});
+}
+
+export function useSetProductPhoto() {
+	const refresh = useRefresh();
+	return useMutation({
+		mutationFn: (form: FormData) => setProductPhotoFn({ data: form }),
+		onSuccess: () => {
+			refresh();
+			toast.success("Foto salvata");
+		},
+		onError: (error: Error) => toast.error(error.message),
+	});
+}
+
+const IMPORTED = {
+	created: "Importato da Open Food Facts",
+	updated: "Aggiornato da Open Food Facts",
+	unchanged: "Open Food Facts non ha niente di nuovo",
+};
+
+export function useImportProductFromOff() {
+	const refresh = useRefresh();
+	return useMutation({
+		mutationFn: (id: string) => importProductFromOffFn({ data: { id } }),
+		onSuccess: ({ outcome }) => {
+			refresh();
+			toast.success(IMPORTED[outcome]);
 		},
 		onError: (error: Error) => toast.error(error.message),
 	});

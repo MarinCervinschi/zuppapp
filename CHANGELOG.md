@@ -5,6 +5,13 @@ il suo tag `v<versione>` su git.
 
 ## Non rilasciato
 
+- **Admin**: nel foglio di un prodotto si carica o si cambia la foto (solo con il bucket). Resta anche quando Open
+  Food Facts ne ha una nuova.
+- **Admin**: le bozze hanno «Importa da Open Food Facts», che completa una bozza nata da una segnalazione con
+  ingredienti, valori e foto. Prende anche prodotti senza foto o non aggiornati da anni.
+- Un aggiornamento da Open Food Facts non cancella più marca, formato, tipo o ingredienti che Open Food Facts non
+  ha.
+
 ## 0.1.0 (2026-11-15)
 
 La prima versione, quella in produzione su zuppapp.fun.

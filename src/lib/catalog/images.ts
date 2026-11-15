@@ -3,7 +3,12 @@ import { createHash } from "node:crypto";
 
 import type { DbOrTx } from "@/db";
 import { products } from "@/db/schema";
-import { getObject, isStorageConfigured, putObject } from "@/lib/storage/s3";
+import {
+	deleteObject,
+	getObject,
+	isStorageConfigured,
+	putObject,
+} from "@/lib/storage/s3";
 
 import { sizedImage } from "./image";
 
@@ -28,6 +33,12 @@ async function download(url: string): Promise<Photo> {
  */
 export async function copyProductImage(db: DbOrTx, ean: string, sourceUrl: string) {
 	if (!isStorageConfigured()) return null;
+	// A photo an admin uploaded stays until an admin changes it.
+	const [product] = await db
+		.select({ imageKey: products.imageKey, overrides: products.overrides })
+		.from(products)
+		.where(eq(products.ean, ean));
+	if (product?.overrides.imageKey) return product.imageKey;
 	return storeProductImage(db, ean, size =>
 		download(sizedImage(sourceUrl, size) ?? sourceUrl)
 	);
@@ -45,6 +56,26 @@ export async function copyReportPhoto(db: DbOrTx, ean: string, photoKey: string)
 		),
 		contentType: "image/jpeg",
 	}));
+}
+
+/**
+ * A photo an admin uploaded, which the browser sent at 1600 and at 400 px. The 400 one stands
+ * in for 100 and 200 too.
+ */
+export async function storeUploadedImage(
+	db: DbOrTx,
+	ean: string,
+	photo: { full: ArrayBuffer; small: ArrayBuffer }
+) {
+	return storeProductImage(db, ean, async size => ({
+		body: size === "full" ? photo.full : photo.small,
+		contentType: "image/jpeg",
+	}));
+}
+
+/** Deletes a product photo in its four sizes. `key` is the 400 px one, as `imageKey` holds it. */
+export async function deleteProductImage(key: string) {
+	await Promise.all(SIZES.map(size => deleteObject(sizedImage(key, size)!)));
 }
 
 async function storeProductImage(

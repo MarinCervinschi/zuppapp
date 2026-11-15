@@ -1,3 +1,5 @@
+import { Invalid } from "@/lib/server/errors";
+
 // The browser re-encodes every photo before sending it (`toJpeg`), which already drops EXIF.
 // The server cannot trust that, so it strips the metadata segments again: GPS position, camera
 // serial, comments. Pure, so it can be tested without a bucket.
@@ -38,4 +40,11 @@ export function stripJpegMetadata(bytes: Uint8Array): Uint8Array | null {
 		offset += part.length;
 	}
 	return out;
+}
+
+/** A photo the browser sent, as JPEG bytes without metadata; anything else is refused. */
+export async function jpegBytes(file: File): Promise<ArrayBuffer> {
+	const bytes = stripJpegMetadata(new Uint8Array(await file.arrayBuffer()));
+	if (!bytes) throw new Invalid("Le foto devono essere JPEG. Riprova a sceglierle.");
+	return bytes.buffer as ArrayBuffer;
 }

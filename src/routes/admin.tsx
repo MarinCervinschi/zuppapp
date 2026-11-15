@@ -199,6 +199,7 @@ function AdminPage() {
 				<AdminProductSheet
 					key={open.id}
 					product={open}
+					photosEnabled={page.photosEnabled}
 					onClosed={() => setOpenId(null)}
 				/>
 			)}

@@ -4,3 +4,5 @@ export { setProductsStatusFn } from "./set-status";
 export { isAdminFn } from "./viewer";
 export { listReportsFn } from "./reports";
 export { resolveReportsFn } from "./resolve-reports";
+export { importProductFromOffFn } from "./import-off";
+export { setProductPhotoFn } from "./photo";

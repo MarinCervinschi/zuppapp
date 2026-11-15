@@ -8,6 +8,7 @@ import {
 	ArchiveIcon,
 	CheckIcon,
 	ChevronRightIcon,
+	DownloadIcon,
 	ExternalIcon,
 	EyeIcon,
 	UndoIcon,
@@ -15,10 +16,16 @@ import {
 import { PackThumb } from "@/components/ds/pack-photo";
 import { rowCard, rowCardGround, rowCardLink } from "@/components/ds/row-card";
 import { Sheet } from "@/components/ds/sheet";
-import { useCorrectProduct, useSetProductsStatus } from "@/lib/admin/mutations";
+import {
+	useCorrectProduct,
+	useImportProductFromOff,
+	useSetProductPhoto,
+	useSetProductsStatus,
+} from "@/lib/admin/mutations";
 import type { AdminProduct } from "@/lib/admin/service";
 import { subtypeLabel } from "@/lib/catalog/labels";
 import { VOTI, count } from "@/lib/plural";
+import { toJpeg } from "@/lib/reports/resize";
 import { cn } from "@/lib/utils";
 
 type Status = AdminProduct["status"];
@@ -53,6 +60,7 @@ const FIELD_NAMES: Record<string, string> = {
 	name: "nome",
 	brand: "marca",
 	subtype: "tipo",
+	imageKey: "foto",
 };
 
 function details(product: AdminProduct) {
@@ -136,13 +144,38 @@ export function ProductRow({
 /** One product, opened from the list: its status and what to do with it, and its correction. */
 export function AdminProductSheet({
 	product,
+	photosEnabled,
 	onClosed,
 }: {
 	product: AdminProduct;
+	photosEnabled: boolean;
 	onClosed: () => void;
 }) {
 	const setStatus = useSetProductsStatus();
 	const correct = useCorrectProduct();
+	const importOff = useImportProductFromOff();
+	const setPhoto = useSetProductPhoto();
+	const [preparing, setPreparing] = useState(false);
+	const photoBusy = preparing || setPhoto.isPending;
+
+	async function uploadPhoto(file: File | undefined) {
+		if (!file) return;
+		setError(null);
+		setPreparing(true);
+		const form = new FormData();
+		form.append("id", product.id);
+		try {
+			const [full, small] = await Promise.all([toJpeg(file, 1600), toJpeg(file, 400)]);
+			form.append("full", full, "full.jpg");
+			form.append("small", small, "small.jpg");
+		} catch {
+			setError("Non riusciamo a leggere questa foto. Riprova con un’altra.");
+			return;
+		} finally {
+			setPreparing(false);
+		}
+		setPhoto.mutate(form);
+	}
 	const [error, setError] = useState<string | null>(null);
 	const [subtype, setSubtype] = useState(product.subtype ?? "");
 	const [label, pill] = STATUS_PILL[product.status];
@@ -210,6 +243,53 @@ export function AdminProductSheet({
 							<ExternalIcon className="size-4" />
 						</a>
 					</div>
+
+					{(product.status === "draft" || photosEnabled) && (
+						<div className="flex flex-wrap gap-2">
+							{product.status === "draft" && (
+								<Button
+									variant="paper"
+									disabled={importOff.isPending}
+									onClick={() => importOff.mutate(product.id)}
+								>
+									<DownloadIcon className="size-5" />
+									{importOff.isPending
+										? "Chiedo a Open Food Facts…"
+										: "Importa da Open Food Facts"}
+								</Button>
+							)}
+							{photosEnabled && (
+								<div>
+									<input
+										id={`photo-${product.id}`}
+										type="file"
+										accept="image/*"
+										disabled={photoBusy}
+										onChange={event => {
+											void uploadPhoto(event.target.files?.[0]);
+											event.target.value = "";
+										}}
+										className="peer sr-only"
+									/>
+									<label
+										htmlFor={`photo-${product.id}`}
+										aria-disabled={photoBusy}
+										className={cn(
+											buttonClass("paper"),
+											"peer-focus-visible:outline-text/50 cursor-pointer peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2",
+											photoBusy && "pointer-events-none opacity-50"
+										)}
+									>
+										{photoBusy
+											? "Carico la foto…"
+											: product.imageUrl
+												? "Cambia la foto"
+												: "Aggiungi la foto"}
+									</label>
+								</div>
+							)}
+						</div>
+					)}
 
 					<form
 						className="flex flex-col gap-4"
@@ -300,8 +380,8 @@ export function AdminProductSheet({
 							</p>
 						)}
 						<p className="text-small text-text-soft">
-							Nome, marca e tipo corretti qui restano tali anche quando Open Food Facts
-							li aggiorna.
+							Nome, marca, tipo e una foto caricata qui restano tali anche quando Open
+							Food Facts li aggiorna.
 							{product.corrected.length > 0 &&
 								` Già corretti a mano: ${product.corrected.map(key => FIELD_NAMES[key] ?? key).join(", ")}.`}
 						</p>

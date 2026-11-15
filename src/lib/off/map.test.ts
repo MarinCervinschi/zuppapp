@@ -65,6 +65,16 @@ describe("mapOffProduct", () => {
 		).toEqual({ ok: false, reason: "fermo da oltre 5 anni" });
 	});
 
+	it("takes a product an admin chose even without a photo or recent edits", () => {
+		const old = {
+			...base,
+			image_front_url: undefined,
+			last_modified_t: Date.parse("2020-01-01") / 1000,
+		};
+		const result = mapOffProduct(old, NOW, { chosen: true });
+		expect(result.ok && result.product.snapshot.imageUrl).toBe(null);
+	});
+
 	it("accepts brands as a list", () => {
 		const result = mapOffProduct({ ...base, brands: ["Esselunga"] }, NOW);
 		expect(result.ok && result.product.brand).toBe("Esselunga");
