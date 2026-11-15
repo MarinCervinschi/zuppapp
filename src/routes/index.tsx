@@ -113,7 +113,10 @@ function Home() {
 						aria-labelledby="filters-heading"
 						className="hidden self-start lg:sticky lg:top-6 lg:flex lg:flex-col lg:gap-6"
 					>
-						<FiltersHeader params={params} />
+						{/* No «Azzera» here: «Togli tutti i filtri» ends the row of active filters beside it. */}
+						<h2 id="filters-heading" className="font-display text-title font-semibold">
+							Filtri
+						</h2>
 						<FilterPanel params={params} facets={facets} />
 					</aside>
 				)}
@@ -157,18 +160,6 @@ function Home() {
 				</main>
 			</div>
 		</>
-	);
-}
-
-/** «Filtri» and, when something is filtered, the way to take it all off. */
-function FiltersHeader({ params }: { params: BrowseParams }) {
-	return (
-		<div className="flex items-center justify-between gap-3">
-			<h2 id="filters-heading" className="font-display text-title font-semibold">
-				Filtri
-			</h2>
-			<ResetFilters params={params} />
-		</div>
 	);
 }
 
