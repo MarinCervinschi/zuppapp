@@ -174,6 +174,7 @@ saturate(180%)`, una luce sul bordo alto, un bordo di luce e un riflesso in alto
   foglio, con un'icona oltre al colore e l'azione come pulsante crema. Si chiamano con `toast` di `lib/toast.ts`,
   mai da `sonner`: con un foglio aperto vanno al toaster dentro il foglio, perché il `<dialog>` modale sta nel top
   layer e la pagina dietro è inerte, così il toast resterebbe sotto e il suo pulsante non si toccherebbe.
+  Chiudendo il foglio, i suoi toast si chiudono con lui. Durano 2,5 secondi, 4 quando hanno un pulsante.
 - **Il piè di pagina c'è solo su desktop**: su telefono un piè da sito sotto ogni pagina è fuori posto. Tema e
   crediti stanno nel profilo e, per chi non ha un account, in fondo a «Prendi la tua tessera».
 - **Il foglio della zuppa e la sua pagina sono lo stesso foglio**: su telefono la pagina ha la maniglia e si
