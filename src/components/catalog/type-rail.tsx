@@ -25,11 +25,15 @@ type Props = {
 export function TypeRail({ route, current, subtypes, total, className }: Props) {
 	const options = [{ value: null, count: total ?? 0 }, ...subtypes];
 
-	// The row scrolls, so it clips what sticks out: py-2 (undone by the nav's -my-2) leaves room
-	// for the focus ring around each disc.
+	// The row scrolls, so it clips what sticks out: py-3 (undone by the nav's -my-3) leaves room
+	// for the chosen ring and the focus rim around each disc. Positioned, so on a wide screen,
+	// where the header ends right on the discs, the ring paints over the header, not under it.
 	return (
-		<nav aria-label="Tipo" className={cn("fade-x -mx-4 -my-2 lg:mx-0", className)}>
-			<ul className="flex snap-x snap-mandatory scroll-px-4 [scrollbar-width:none] gap-3 overflow-x-auto px-4 py-2 lg:flex-wrap lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
+		<nav
+			aria-label="Tipo"
+			className={cn("fade-x relative -mx-4 -my-3 lg:mx-0", className)}
+		>
+			<ul className="flex snap-x snap-mandatory scroll-px-4 [scrollbar-width:none] gap-3 overflow-x-auto px-4 py-3 lg:flex-wrap lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
 				{options.map(({ value, count }) => {
 					const active = (current ?? null) === value;
 					return (
@@ -45,11 +49,13 @@ export function TypeRail({ route, current, subtypes, total, className }: Props) 
 								})}
 								resetScroll={false}
 								aria-current={active ? "true" : undefined}
-								className="group flex w-[4.5rem] flex-col items-center gap-1 no-underline"
+								// The focus rim goes round the disc, not round the link: a square one would
+								// flatten the chosen disc's ring where the two meet.
+								className="group flex w-[4.5rem] flex-col items-center gap-1 no-underline focus-visible:outline-none"
 							>
 								<span
 									className={cn(
-										"grid size-16 place-items-center rounded-full transition-[scale,box-shadow] duration-200 ease-[var(--ease-out-snap)] motion-safe:group-active:scale-[0.92]",
+										"group-focus-visible:outline-text grid size-16 place-items-center rounded-full transition-[scale,box-shadow] duration-200 ease-[var(--ease-out-snap)] group-focus-visible:outline-2 group-focus-visible:outline-offset-[7px] motion-safe:group-active:scale-[0.92]",
 										value === null
 											? active
 												? "bg-text text-ground"
