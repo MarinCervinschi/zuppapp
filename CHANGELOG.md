@@ -3,8 +3,14 @@
 Cosa cambia per chi usa Zuppapp: schermate, voti, dati raccolti e indirizzi. Le versioni seguono semver; ognuna ha
 il suo tag `v<versione>` su git.
 
-## Non rilasciato
+## 0.2.0 (2026-11-17)
 
+- **Anteprime dei link**: ogni pagina ha i meta Open Graph e un'immagine di anteprima (`/og.png`), così un link
+  condiviso mostra titolo, descrizione e la zuppa di Zuppapp. Le schede con una foto usano la foto.
+- **Motori di ricerca**: la home ha un titolo e una descrizione sue e i dati strutturati `WebSite`, perché Google
+  mostri «Zuppapp» al posto del dominio. Una favicon da 192 px per l'icona accanto al risultato.
+- **`/llms.txt`**: cos'è Zuppapp, le sue pagine, i dati scaricabili e le prime 10 della classifica, per i modelli
+  linguistici.
 - **Admin**: nel foglio di un prodotto si carica o si cambia la foto (solo con il bucket). Resta anche quando Open
   Food Facts ne ha una nuova.
 - **Admin**: le bozze hanno «Importa da Open Food Facts», che completa una bozza nata da una segnalazione con
