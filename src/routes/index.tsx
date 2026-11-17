@@ -28,6 +28,9 @@ import {
 	browseSchema,
 } from "@/lib/catalog/schemas";
 import type { Facets } from "@/lib/catalog/types";
+import { scriptJson } from "@/lib/seo/product";
+import { seoQueries } from "@/lib/seo/queries";
+import { HOME_DESCRIPTION, SITE_NAME, websiteJsonLd } from "@/lib/seo/website";
 import { cn } from "@/lib/utils";
 
 // «Zuppe», the first tab: a search first. With text, a filter or «Tutte le zuppe» it lists the
@@ -39,13 +42,29 @@ export const Route = createFileRoute("/")({
 	loader: async ({ context: { queryClient }, deps }) => {
 		const filters = listFilters(deps);
 		const paging = { page: deps.pagina ?? 1, size: deps.mostra };
-		await Promise.all([
+		const [site] = await Promise.all([
+			queryClient.ensureQueryData(seoQueries.siteUrl()),
 			queryClient.ensureQueryData(catalogQueries.facets(filters)),
 			isBrowsing(deps)
 				? queryClient.ensureQueryData(catalogQueries.search(filters, paging))
 				: queryClient.ensureQueryData(catalogQueries.toTaste(filters, paging)),
 		]);
+		return { jsonLd: site ? scriptJson(websiteJsonLd(site)) : null };
 	},
+	head: ({ loaderData }) => ({
+		meta: [
+			{ title: `${SITE_NAME} · La classifica delle zuppe pronte` },
+			{ name: "description", content: HOME_DESCRIPTION },
+			{
+				property: "og:title",
+				content: `${SITE_NAME} · La classifica delle zuppe pronte`,
+			},
+			{ property: "og:description", content: HOME_DESCRIPTION },
+		],
+		scripts: loaderData?.jsonLd
+			? [{ type: "application/ld+json", children: loaderData.jsonLd }]
+			: [],
+	}),
 	component: Home,
 });
 

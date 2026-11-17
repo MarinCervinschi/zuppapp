@@ -18,6 +18,7 @@ import { Route as DatiRouteImport } from './routes/dati'
 import { Route as DesignRouteImport } from './routes/design'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as LeMieZuppeRouteImport } from './routes/le-mie-zuppe'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as PreferitiRouteImport } from './routes/preferiti'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfiloRouteImport } from './routes/profilo'
@@ -73,6 +74,11 @@ const HealthRoute = HealthRouteImport.update({
 const LeMieZuppeRoute = LeMieZuppeRouteImport.update({
   id: '/le-mie-zuppe',
   path: '/le-mie-zuppe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PreferitiRoute = PreferitiRouteImport.update({
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/preferiti': typeof PreferitiRoute
   '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/preferiti': typeof PreferitiRoute
   '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/design': typeof DesignRoute
   '/health': typeof HealthRoute
   '/le-mie-zuppe': typeof LeMieZuppeRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/preferiti': typeof PreferitiRoute
   '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
+    | '/llms.txt'
     | '/preferiti'
     | '/privacy'
     | '/profilo'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
+    | '/llms.txt'
     | '/preferiti'
     | '/privacy'
     | '/profilo'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/design'
     | '/health'
     | '/le-mie-zuppe'
+    | '/llms.txt'
     | '/preferiti'
     | '/privacy'
     | '/profilo'
@@ -277,6 +289,7 @@ export interface RootRouteChildren {
   DesignRoute: typeof DesignRoute
   HealthRoute: typeof HealthRoute
   LeMieZuppeRoute: typeof LeMieZuppeRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
   PreferitiRoute: typeof PreferitiRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfiloRoute: typeof ProfiloRoute
@@ -353,6 +366,13 @@ declare module '@tanstack/react-router' {
       path: '/le-mie-zuppe'
       fullPath: '/le-mie-zuppe'
       preLoaderRoute: typeof LeMieZuppeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/preferiti': {
@@ -445,6 +465,7 @@ const rootRouteChildren: RootRouteChildren = {
   DesignRoute: DesignRoute,
   HealthRoute: HealthRoute,
   LeMieZuppeRoute: LeMieZuppeRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
   PreferitiRoute: PreferitiRoute,
   PrivacyRoute: PrivacyRoute,
   ProfiloRoute: ProfiloRoute,

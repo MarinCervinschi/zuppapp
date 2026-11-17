@@ -1,7 +1,9 @@
 // `pnpm icons`: renders Zuppapp's icons into public/. Drawn for Zuppapp: a pumpkin soup seen from
 // above, with its swirl of cream and a few seeds, on corn yellow. Nothing to credit.
 import { Resvg } from "@resvg/resvg-js";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { inflateSync } from "node:zlib";
 
 const out = new URL("../public", import.meta.url).pathname;
 mkdirSync(out, { recursive: true });
@@ -59,3 +61,65 @@ sizes.forEach((size, i) => {
 	offset += images[i].length;
 });
 writeFileSync(`${out}/favicon.ico`, Buffer.concat([header, ...images]));
+
+// The preview of a shared link and of the home in search results, 1200 × 630. Poppins, not Clash
+// Display: Clash's licence lets us use it from Fontshare, and this has to render offline.
+const poppins = weight => {
+	const woff = readFileSync(
+		new URL(
+			`../node_modules/@fontsource/poppins/files/poppins-latin-${weight}-normal.woff`,
+			import.meta.url
+		)
+	);
+	const path = `${tmpdir()}/zuppapp-poppins-${weight}.ttf`;
+	writeFileSync(path, woffToSfnt(woff));
+	return path;
+};
+
+const og = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="${CORN}"/><g transform="translate(700 75) scale(7.5)">${BOWL}</g><text x="80" y="300" font-family="Poppins" font-weight="700" font-size="112" fill="${INK}">Zuppapp</text><text font-family="Poppins" font-weight="500" font-size="44" fill="${INK}"><tspan x="84" y="385">Le zuppe pronte,</tspan><tspan x="84" y="443">votate con le stelle.</tspan></text></svg>`;
+writeFileSync(
+	`${out}/og.png`,
+	new Resvg(og, {
+		font: { loadSystemFonts: false, fontFiles: [poppins(700), poppins(500)] },
+	})
+		.render()
+		.asPng()
+);
+
+/** WOFF 1.0 to the TrueType it wraps: resvg reads only the latter, @fontsource ships only the former. */
+function woffToSfnt(woff) {
+	const numTables = woff.readUInt16BE(12);
+	const tables = Array.from({ length: numTables }, (_, i) => {
+		const at = 44 + 20 * i;
+		const offset = woff.readUInt32BE(at + 4);
+		const compLength = woff.readUInt32BE(at + 8);
+		const origLength = woff.readUInt32BE(at + 12);
+		const raw = woff.subarray(offset, offset + compLength);
+		return {
+			tag: woff.subarray(at, at + 4),
+			checksum: woff.readUInt32BE(at + 16),
+			data: compLength < origLength ? inflateSync(raw) : raw,
+		};
+	});
+	const pow = 2 ** Math.floor(Math.log2(numTables));
+	const head = Buffer.alloc(12 + 16 * numTables);
+	woff.copy(head, 0, 4, 8);
+	head.writeUInt16BE(numTables, 4);
+	head.writeUInt16BE(pow * 16, 6);
+	head.writeUInt16BE(Math.log2(pow), 8);
+	head.writeUInt16BE((numTables - pow) * 16, 10);
+	const parts = [head];
+	let offset = head.length;
+	tables.forEach(({ tag, checksum, data }, i) => {
+		const at = 12 + 16 * i;
+		tag.copy(head, at);
+		head.writeUInt32BE(checksum, at + 4);
+		head.writeUInt32BE(offset, at + 8);
+		head.writeUInt32BE(data.length, at + 12);
+		const padded = Buffer.alloc((data.length + 3) & ~3);
+		data.copy(padded);
+		parts.push(padded);
+		offset += padded.length;
+	});
+	return Buffer.concat(parts);
+}

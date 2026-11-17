@@ -35,56 +35,80 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 		]);
 		return { umami, site };
 	},
-	head: ({ loaderData, matches }) => ({
-		meta: [
-			{ charSet: "utf-8" },
-			{ name: "viewport", content: "width=device-width, initial-scale=1" },
-			{ title: "Zuppapp" },
-			{
-				name: "description",
-				content: "Quale zuppa pronta è la più buona? Votala con le stelle.",
-			},
-			{ property: "og:site_name", content: "Zuppapp" },
-			{ property: "og:locale", content: "it_IT" },
-		],
-		links: [
-			// The page without its query: a filtered list is the same page to a search engine.
-			...(loaderData?.site
-				? [{ rel: "canonical", href: loaderData.site + matches.at(-1)!.pathname }]
-				: []),
-			// Clash Display comes from Fontshare: its licence lets us use it, not ship its files.
-			{ rel: "preconnect", href: "https://api.fontshare.com" },
-			{
-				rel: "preconnect",
-				href: "https://cdn.fontshare.com",
-				crossOrigin: "anonymous",
-			},
-			{
-				rel: "stylesheet",
-				href: "https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap",
-			},
-			{ rel: "stylesheet", href: globalsCss },
-			// The pumpkin soup on corn yellow; the sizes come from public/, made by `pnpm icons`.
-			{ rel: "icon", href: "/favicon.ico", sizes: "32x32" },
-			{ rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-			{ rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
-			{ rel: "manifest", href: "/site.webmanifest" },
-		],
-		// The theme before the first paint: rendered into <head> on the server, not run by React.
-		scripts: [
-			{ children: THEME_INIT_SCRIPT },
-			{ children: INTRO_INIT_SCRIPT },
-			...(loaderData?.umami
-				? [
-						{
-							src: loaderData.umami.src,
-							defer: true,
-							"data-website-id": loaderData.umami.websiteId,
-						},
-					]
-				: []),
-		],
-	}),
+	head: ({ loaderData, matches }) => {
+		// The page without its query: a filtered list is the same page to a search engine.
+		const url = loaderData?.site ? loaderData.site + matches.at(-1)!.pathname : null;
+		return {
+			// The defaults for every page; a route sets the same name or property to replace one.
+			meta: [
+				{ charSet: "utf-8" },
+				{ name: "viewport", content: "width=device-width, initial-scale=1" },
+				{ title: "Zuppapp" },
+				{
+					name: "description",
+					content: "Quale zuppa pronta è la più buona? Votala con le stelle.",
+				},
+				{ property: "og:site_name", content: "Zuppapp" },
+				{ property: "og:locale", content: "it_IT" },
+				{ property: "og:type", content: "website" },
+				{ property: "og:title", content: "Zuppapp" },
+				{
+					property: "og:description",
+					content: "Quale zuppa pronta è la più buona? Votala con le stelle.",
+				},
+				...(url ? [{ property: "og:url", content: url }] : []),
+				// Made by `pnpm icons` with the other images in public/.
+				...(loaderData?.site
+					? [
+							{ property: "og:image", content: `${loaderData.site}/og.png` },
+							{ property: "og:image:width", content: "1200" },
+							{ property: "og:image:height", content: "630" },
+							{
+								property: "og:image:alt",
+								content: "Zuppapp: le zuppe pronte, votate con le stelle",
+							},
+						]
+					: []),
+				{ name: "twitter:card", content: "summary_large_image" },
+			],
+			links: [
+				...(url ? [{ rel: "canonical", href: url }] : []),
+				// Clash Display comes from Fontshare: its licence lets us use it, not ship its files.
+				{ rel: "preconnect", href: "https://api.fontshare.com" },
+				{
+					rel: "preconnect",
+					href: "https://cdn.fontshare.com",
+					crossOrigin: "anonymous",
+				},
+				{
+					rel: "stylesheet",
+					href: "https://api.fontshare.com/v2/css?f[]=clash-display@500,600&display=swap",
+				},
+				{ rel: "stylesheet", href: globalsCss },
+				// The pumpkin soup on corn yellow; the sizes come from public/, made by `pnpm icons`.
+				{ rel: "icon", href: "/favicon.ico", sizes: "32x32" },
+				{ rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+				// Google wants a multiple of 48 px for the icon beside a search result.
+				{ rel: "icon", href: "/icon-192.png", sizes: "192x192", type: "image/png" },
+				{ rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+				{ rel: "manifest", href: "/site.webmanifest" },
+			],
+			// The theme before the first paint: rendered into <head> on the server, not run by React.
+			scripts: [
+				{ children: THEME_INIT_SCRIPT },
+				{ children: INTRO_INIT_SCRIPT },
+				...(loaderData?.umami
+					? [
+							{
+								src: loaderData.umami.src,
+								defer: true,
+								"data-website-id": loaderData.umami.websiteId,
+							},
+						]
+					: []),
+			],
+		};
+	},
 	shellComponent: RootDocument,
 	component: RootLayout,
 	errorComponent: ErrorPage,
