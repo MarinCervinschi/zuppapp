@@ -4,7 +4,7 @@ import { getDb } from "@/db";
 import { products } from "@/db/schema";
 
 /** The pages anyone can open, besides the soups. */
-const PAGES = ["/", "/classifica", "/dati", "/privacy"];
+const PAGES = ["/", "/classifica", "/presentazione", "/dati", "/privacy"];
 
 /** Every page a search engine should know: the public ones and each soup that is not a draft. */
 export async function getSitemap(site: string) {

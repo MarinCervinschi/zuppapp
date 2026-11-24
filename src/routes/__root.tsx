@@ -6,6 +6,7 @@ import {
 	Outlet,
 	Scripts,
 	createRootRouteWithContext,
+	useMatches,
 } from "@tanstack/react-router";
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 
@@ -135,6 +136,18 @@ function RootLayout() {
 	useEffect(() => {
 		document.documentElement.setAttribute("data-hydrated", "");
 	}, []);
+	// A page that draws the whole screen itself, like the landing, gets no app chrome around it.
+	const bare = useMatches({ select: matches => matches.some(m => m.staticData?.bare) });
+
+	if (bare)
+		return (
+			<LazyMotion features={domAnimation} strict>
+				<MotionConfig reducedMotion="user">
+					<Outlet />
+					<AppToaster />
+				</MotionConfig>
+			</LazyMotion>
+		);
 
 	return (
 		// Motion's features load once for the whole app (the lighter `m` components need them), and

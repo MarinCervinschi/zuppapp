@@ -33,6 +33,10 @@ declare module "@tanstack/react-router" {
 	interface Register {
 		router: ReturnType<typeof getRouter>;
 	}
+	interface StaticDataRouteOption {
+		/** A page that draws the whole screen itself: no tab bar, no footer (the landing). */
+		bare?: boolean;
+	}
 	interface HistoryState {
 		/** The EAN of the soup whose sheet is open over the page: the back button closes it. */
 		zuppa?: string;

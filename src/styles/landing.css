@@ -1,0 +1,370 @@
+/*
+ * /presentazione, the landing. Everything here is scoped to `.landing`, loaded only by that route.
+ * It is always the light paper, whatever the theme: the 3D is printed on the same paper, in the
+ * same soup colours (DESIGN.md, «La presentazione»).
+ */
+
+html.lenis,
+html.lenis body {
+	height: auto;
+}
+.lenis.lenis-smooth {
+	scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+	overflow: clip;
+}
+
+.landing {
+	--l-paper: #ede3d4;
+	--l-sheet: #f8f2ea;
+	--l-ink: #16120f;
+	--l-ink-soft: #6a5f53;
+	--l-ease: cubic-bezier(0.2, 0.9, 0.1, 1);
+	position: relative;
+	background: var(--l-paper);
+	color: var(--l-ink);
+	font-family: var(--font-sans);
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+/* The paper's tooth over the whole page, like the grain on the app's blobs. */
+.landing::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: 5;
+	pointer-events: none;
+	opacity: 0.35;
+	mix-blend-mode: multiply;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .09 0 0 0 0 .07 0 0 0 0 .06 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* The page's length: TOTAL_VH of story.ts (1280vh) plus the last screen. */
+.landing .track {
+	height: calc(1280vh + 100vh);
+}
+
+/* The soup that fills the screen at the end of scene 5 and is the ground of the podium. */
+.landing .fill {
+	position: fixed;
+	inset: -6vh 0 0;
+	z-index: 0;
+	background: var(--soup-tomato);
+	transform: translateY(105%);
+	-webkit-mask:
+		radial-gradient(64px 26px at 64px 0, transparent 98%, #000) -64px 18px / 128px 100%
+			repeat-x,
+		linear-gradient(#000, #000) 0 44px / 100% 100% no-repeat;
+	mask:
+		radial-gradient(64px 26px at 64px 0, transparent 98%, #000) -64px 18px / 128px 100%
+			repeat-x,
+		linear-gradient(#000, #000) 0 44px / 100% 100% no-repeat;
+}
+
+.landing .stage {
+	position: fixed;
+	inset: 0;
+	z-index: 1;
+}
+
+.landing .overlays {
+	position: fixed;
+	inset: 0;
+	z-index: 2;
+	pointer-events: none;
+}
+
+.landing .beat {
+	position: absolute;
+	left: clamp(16px, 6vw, 96px);
+	top: 50%;
+	translate: 0 -50%;
+	max-width: min(40rem, 44vw);
+	visibility: hidden;
+}
+.landing .beat a {
+	pointer-events: auto;
+}
+
+.landing .wordmark {
+	margin-bottom: 1.25rem;
+	font: 600 17px/1 var(--font-display);
+	letter-spacing: 0.04em;
+}
+.landing .title {
+	font-family: var(--font-display);
+	font-weight: 600;
+	font-size: clamp(40px, 5.6vw, 96px);
+	line-height: 0.95;
+	letter-spacing: -0.02em;
+	text-wrap: balance;
+}
+.landing .title.small {
+	font-size: clamp(32px, 3.6vw, 60px);
+}
+.landing .note {
+	margin-top: 1.1rem;
+	max-width: 34ch;
+	color: var(--l-ink-soft);
+	text-wrap: pretty;
+}
+.landing .on-fill .note {
+	color: var(--l-ink);
+}
+
+/* Scene 3: the promises, struck out by the laser, and the facts of a real label. */
+.landing .claims {
+	display: grid;
+	gap: 0.6rem;
+	margin-top: 1.25rem;
+	font-size: 22px;
+}
+.landing .claim {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	column-gap: 0.5rem;
+}
+.landing .claim s {
+	text-decoration-thickness: 4px;
+	text-decoration-color: transparent;
+	transition: text-decoration-color 200ms;
+}
+.landing .claim b {
+	padding: 0 0.3em;
+	border-radius: 6px;
+	background: var(--soup-corn);
+	font-weight: 600;
+	white-space: nowrap;
+	opacity: 0;
+	transition: opacity 300ms 120ms;
+}
+.landing .claim.struck s {
+	text-decoration-color: var(--soup-tomato);
+	color: var(--l-ink-soft);
+}
+.landing .claim.struck b {
+	opacity: 1;
+}
+.landing .laser {
+	position: fixed;
+	top: 0;
+	left: 54vw;
+	right: 8vw;
+	z-index: 3;
+	height: 3px;
+	background: var(--soup-tomato);
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* Scene 4: the black panel of the vote, as in the app. */
+.landing .panel {
+	display: inline-block;
+	margin-top: 1.25rem;
+	padding: 20px 24px;
+	border-radius: 24px;
+	background: var(--l-ink);
+	color: var(--l-sheet);
+}
+.landing .stars {
+	display: flex;
+	gap: 8px;
+	font-size: 48px;
+	line-height: 1;
+}
+.landing .star {
+	color: #3a2f27;
+	transition:
+		color 120ms,
+		transform 260ms cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.landing .star.on {
+	color: var(--star);
+	transform: scale(1.14);
+}
+.landing .star-name {
+	min-height: 1.5em;
+	margin-top: 10px;
+	font-weight: 500;
+}
+.landing .aside {
+	top: calc(50% + 140px);
+	translate: 0 0;
+}
+
+/* Scene 6: the podium as it is today. */
+.landing .podium-list {
+	display: grid;
+	gap: 0.5rem;
+	max-width: 34rem;
+	margin-top: 1.1rem;
+}
+.landing .podium-list li {
+	display: grid;
+	grid-template-columns: 2rem 1fr auto;
+	gap: 0.75rem;
+	align-items: baseline;
+	padding: 10px 14px;
+	border-radius: 16px;
+	background: var(--l-sheet);
+}
+.landing .podium-list .place {
+	font: 600 22px/1 var(--font-display);
+}
+.landing .podium-list .soft {
+	color: var(--l-ink-soft);
+}
+.landing .podium-list .score {
+	font-variant-numeric: tabular-nums;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+/* Scene 7: the soup one vote away from the ranking. */
+.landing .cta {
+	left: 50%;
+	translate: -50% -50%;
+	max-width: 92vw;
+}
+.landing .card {
+	width: min(360px, 88vw);
+	padding: 24px;
+	border-radius: 28px;
+	background: var(--l-sheet);
+	text-align: center;
+	box-shadow:
+		0 1px 0 rgb(22 18 15 / 0.08),
+		0 20px 50px -24px rgb(22 18 15 / 0.45);
+}
+.landing .photo {
+	display: grid;
+	place-items: center;
+	height: 150px;
+	border-radius: 16px;
+	background: #fff;
+}
+.landing .photo svg {
+	height: 110px;
+}
+.landing .photo img {
+	max-width: 80%;
+	max-height: 130px;
+	object-fit: contain;
+}
+.landing .name {
+	margin-top: 14px;
+	font: 600 20px/1.1 var(--font-display);
+	text-wrap: balance;
+}
+.landing .card .note {
+	margin-inline: auto;
+}
+.landing .vote {
+	display: inline-flex;
+	align-items: center;
+	min-height: 48px;
+	margin-top: 16px;
+	padding: 15px 24px;
+	border-radius: 999px;
+	background: var(--l-ink);
+	color: var(--l-sheet);
+	font: 500 16px/1 var(--font-sans);
+	text-decoration: none;
+	transition: scale 160ms var(--l-ease);
+}
+.landing .vote:active {
+	scale: 0.96;
+}
+.landing .vote:focus-visible {
+	outline: 2px solid var(--l-ink);
+	outline-offset: 3px;
+}
+.landing .tiny {
+	margin-top: 8px;
+	color: var(--l-ink-soft);
+	font-size: 13px;
+}
+.landing .credits {
+	top: auto;
+	bottom: 8vh;
+	translate: none;
+	color: var(--l-ink-soft);
+	font-size: 13px;
+}
+
+/* The preloader: corn yellow with a round hole on the bowl's rim, opening like an iris. If the
+   script never runs, it gets out of the way by itself after a few seconds. */
+.landing .iris {
+	--x: 50%;
+	--y: 50%;
+	position: fixed;
+	inset: 0;
+	z-index: 10;
+	background: var(--soup-corn);
+	-webkit-mask: radial-gradient(
+		circle at var(--x) var(--y),
+		transparent var(--r),
+		#000 calc(var(--r) + 0.5px)
+	);
+	mask: radial-gradient(
+		circle at var(--x) var(--y),
+		transparent var(--r),
+		#000 calc(var(--r) + 0.5px)
+	);
+	animation: landing-iris-fallback 0s 8s forwards;
+}
+.landing .iris.open {
+	visibility: hidden;
+	animation: none;
+}
+@keyframes landing-iris-fallback {
+	to {
+		visibility: hidden;
+	}
+}
+
+@media (max-aspect-ratio: 11/10) {
+	.landing .beat {
+		top: auto;
+		bottom: 9svh;
+		left: 16px;
+		translate: none;
+		max-width: calc(100vw - 32px);
+	}
+	.landing .title {
+		font-size: clamp(34px, 9.5vw, 60px);
+	}
+	.landing .title.small {
+		font-size: clamp(28px, 8vw, 44px);
+	}
+	.landing .claims {
+		font-size: 17px;
+	}
+	.landing .laser {
+		left: 8vw;
+		right: 8vw;
+	}
+	.landing .cta {
+		top: 50%;
+		bottom: auto;
+		left: 50%;
+		translate: -50% -50%;
+	}
+	.landing .credits {
+		bottom: 6svh;
+	}
+	.landing .aside {
+		top: auto;
+		bottom: calc(9svh + 170px);
+	}
+	.landing .podium-list li {
+		grid-template-columns: 1.5rem 1fr;
+		font-size: 14px;
+	}
+	.landing .podium-list .score {
+		grid-column: 2;
+	}
+}

@@ -24,6 +24,8 @@ Si vota anche senza account. Il catalogo viene da Open Food Facts.
   ha anche la sua pagina, `/prodotti/<ean>`, quella che indicizza Google.
 - **Scansione** (`/scansiona`): il codice a barre dalla fotocamera porta alla scheda; una zuppa
   che manca si segnala, con le foto.
+- **Presentazione** (`/presentazione`): la pagina per chi arriva da un link, un film guidato dallo scroll con i
+  dati veri del catalogo.
 - **Con un account Google**: i voti fatti in anonimo passano all'account, profilo con avatar,
   «Le mie zuppe» e i preferiti.
 - **Admin** (`/admin`): bozze da pubblicare, correzioni ai prodotti, segnalazioni.

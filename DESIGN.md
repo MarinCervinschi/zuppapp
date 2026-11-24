@@ -404,6 +404,32 @@ Uno strumento di lavoro, nella stessa direzione delle altre pagine ma più fitto
   l'azione principale in giallo, le altre come icone su telefono, e la × per annullare. Ogni cambio di stato si
   annulla dal toast.
 
+### La presentazione (`/presentazione`)
+
+La pagina per chi arriva da un link condiviso: un breve film guidato dallo scroll, «Presentazione ufficiale», che
+presenta una zuppa pronta con la serietà di un lancio di prodotto. È l'unica pagina con un'eccezione dichiarata
+alle regole di movimento: qui lo scroll muove la camera e la storia.
+
+- **Otto scene su 1280vh** (`src/components/landing/story.ts`): la ciotola dell'icona e la spirale che il
+  cucchiaio sbava, la giostra di quattro confezioni, il laser dello scanner che barra le promesse di un'etichetta,
+  il voto, il versamento, il podio, la zuppa a cui manca un voto, i titoli di coda. Un solo orologio, `G`.
+- **I dati sono veri**: quante zuppe ci sono, gli ingredienti e il Nutri-Score della prima in classifica, il podio
+  di oggi (le confezioni salgono solo sui gradini occupati, con una frase per 0, 1, 2 e 3 zuppe) e la zuppa più
+  vicina alla classifica, che il pulsante apre. Calcoli in `src/lib/landing/facts.ts`, testati.
+- **Il 3D è un poster che prende volume**, non cibo fotorealistico: due toni per materiale, l'ombra puntinata
+  con la stessa `hash` delle macchie (`SoupField`), contorni d'inchiostro che tremano otto volte al secondo, la
+  grana della carta. Niente tone mapping, così i colori del canvas sono i token.
+- **Le confezioni sono inventate** (Sincera, Orto Promesso, Contadino Ipotetico, Nonna Generica), disegnate in
+  canvas, con un codice a barre che inizia per 2. Nessun marchio vero e nessuna foto di una confezione nel 3D: le
+  foto vere stanno solo, piccole, nella scheda finale.
+- **Le parole sono HTML** reso dal server; il 3D (three.js) è un pezzo a parte caricato dopo la pagina, solo qui.
+  Il testo dentro WebGL non usa Clash Display: si disegna col motore del browser su un canvas 2D (etichette,
+  timbri), mai convertito.
+- **Sempre la carta chiara**, anche col tema scuro: il 3D è stampato sulla stessa carta.
+- **Senza tab bar né piè di pagina** (`staticData: { bare: true }`, letto da `__root`).
+- **Con `prefers-reduced-motion`** niente preloader, scroll nativo, niente coriandoli, contorni fermi e timbri che
+  compaiono senza colpo; la storia segue lo scroll e basta.
+
 ## Comportamenti
 
 - **Il voto si salva dopo 600 ms di quiete** (`useVote`): scorrere le stelle con le frecce manda un voto solo.
