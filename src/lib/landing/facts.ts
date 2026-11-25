@@ -75,7 +75,14 @@ export function labelFacts(p: {
 		name: p.name,
 		brand: p.brand,
 		ingredients: ingredients.length,
-		veg: veg ? veg.replace(/\s+/g, " ").toLowerCase() : null,
+		// «verdure fresche 16% (carote, sedano…)» → «verdure fresche 16%»: it has to fit a line.
+		veg: veg
+			? veg
+					.replace(/\([^)]*\)|\[[^\]]*\]/g, "")
+					.replace(/\s+/g, " ")
+					.trim()
+					.toLowerCase()
+			: null,
 		nutriscore: p.nutriscore ? p.nutriscore.toUpperCase() : null,
 	};
 }
@@ -98,7 +105,7 @@ export function landingData(sources: {
 			mean: p.mean ?? 0,
 			votes: p.votesCount,
 		})),
-		label: sources.card ? labelFacts(sources.card) : null,
+		label: sources.card?.ingredientsText?.trim() ? labelFacts(sources.card) : null,
 		toTaste: taste && {
 			ean: taste.ean,
 			name: taste.name,

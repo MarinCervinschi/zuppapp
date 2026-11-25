@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { labelFacts, podiumLine } from "./facts";
+import { labelFacts, landingData, podiumLine } from "./facts";
 
 const label = (ingredientsText: string | null, nutriscore: string | null = "b") =>
 	labelFacts({
@@ -23,6 +23,9 @@ describe("labelFacts", () => {
 	it("picks the first vegetable that declares its share", () => {
 		expect(label("Acqua, castagne 10%, Zucca 7%, cipolla").veg).toBe("zucca 7%");
 		expect(label("acqua, cipolla, sale").veg).toBeNull();
+		expect(
+			label("acqua, verdure fresche 16% (carote, sedano, cipolle), sale").veg
+		).toBe("verdure fresche 16%");
 	});
 
 	it("writes the Nutri-Score in capitals, and copes with a label that has nothing", () => {
@@ -37,5 +40,23 @@ describe("podiumLine", () => {
 		expect(podiumLine(0, 3)).toBe("Nessuna zuppa ha ancora 3 voti. Comincia tu.");
 		expect(podiumLine(2, 3)).toBe("Il terzo posto è libero.");
 		expect(podiumLine(3, 3)).toBe("Il podio è pieno. Per ora.");
+	});
+});
+
+describe("landingData", () => {
+	it("has no label facts for a card whose label lists no ingredients", () => {
+		const data = landingData({
+			total: 1,
+			ranking: { podium: [], rows: [], total: 0, page: 1, pageSize: 10, pageCount: 0 },
+			toTaste: [],
+			card: {
+				ean: "8000000000001",
+				name: "Zuppa",
+				brand: null,
+				ingredientsText: " ",
+				nutriscore: "a",
+			} as never,
+		});
+		expect(data.label).toBeNull();
 	});
 });

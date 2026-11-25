@@ -117,6 +117,7 @@ html.lenis body {
 /* Scene 3: the promises, struck out by the laser, and the facts of a real label. */
 .landing .claims {
 	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	gap: 0.6rem;
 	margin-top: 1.25rem;
 	font-size: 22px;
@@ -423,12 +424,40 @@ html.lenis body {
 		top: auto;
 		bottom: calc(9svh + 170px);
 	}
+	/* One line per soup, so a full podium leaves the steps above it uncovered. */
+	.landing .podium-list {
+		gap: 0.35rem;
+	}
 	.landing .podium-list li {
-		grid-template-columns: 1.5rem 1fr;
+		grid-template-columns: 1.25rem minmax(0, 1fr) auto;
+		gap: 0.5rem;
+		padding: 8px 12px;
+		border-radius: 12px;
 		font-size: 14px;
 	}
-	.landing .podium-list .score {
-		grid-column: 2;
+	.landing .podium-list li > span:nth-child(2) {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.landing .podium-list .place {
+		font-size: 18px;
+	}
+}
+
+/* A short phone (iPhone SE): smaller words, so each promise fits one line under the brick. */
+@media (max-aspect-ratio: 11/10) and (max-height: 720px) {
+	.landing .title.small {
+		font-size: 26px;
+	}
+	.landing .claims {
+		gap: 0.35rem;
+		margin-top: 0.75rem;
+		font-size: 15px;
+	}
+	.landing .note {
+		margin-top: 0.75rem;
+		font-size: 14px;
 	}
 }
 
