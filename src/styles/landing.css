@@ -228,6 +228,10 @@ html.lenis body {
 	left: 50%;
 	translate: -50% -50%;
 	max-width: 92vw;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
 }
 .landing .card {
 	width: min(360px, 88vw);
@@ -282,6 +286,52 @@ html.lenis body {
 	outline: 2px solid var(--l-ink);
 	outline-offset: 3px;
 }
+.landing .vote:hover {
+	background: #000;
+}
+/* Under the card: the whole app, for whoever does not want to vote that one soup. */
+.landing .browse {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	margin-top: 12px;
+	padding: 0 12px;
+	color: var(--l-ink);
+	font-weight: 500;
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 4px;
+}
+.landing .browse:hover {
+	text-decoration-color: var(--soup-tomato);
+}
+
+/* Always there, top right: out of the story and into the app. */
+.landing .enter {
+	position: fixed;
+	top: 16px;
+	right: clamp(16px, 3vw, 40px);
+	z-index: 4;
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	padding: 0 18px;
+	border-radius: 999px;
+	background: var(--l-ink);
+	color: var(--l-sheet);
+	font: 500 15px/1 var(--font-sans);
+	text-decoration: none;
+	transition: scale 160ms var(--l-ease);
+}
+.landing .enter:active {
+	scale: 0.96;
+}
+.landing .enter:focus-visible,
+.landing .browse:focus-visible {
+	outline: 2px solid var(--l-ink);
+	outline-offset: 3px;
+}
+
 .landing .tiny {
 	margin-top: 8px;
 	color: var(--l-ink-soft);
@@ -347,6 +397,18 @@ html.lenis body {
 		left: 8vw;
 		right: 8vw;
 	}
+	.landing .card {
+		padding: 20px;
+	}
+	.landing .photo {
+		height: 96px;
+	}
+	.landing .photo svg {
+		height: 72px;
+	}
+	.landing .photo img {
+		max-height: 84px;
+	}
 	.landing .cta {
 		top: 50%;
 		bottom: auto;
@@ -354,7 +416,8 @@ html.lenis body {
 		translate: -50% -50%;
 	}
 	.landing .credits {
-		bottom: 6svh;
+		bottom: 3svh;
+		font-size: 12px;
 	}
 	.landing .aside {
 		top: auto;

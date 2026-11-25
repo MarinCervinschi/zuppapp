@@ -203,8 +203,8 @@ export function Landing({ data }: { data: LandingData }) {
 		return () => ctx.revert();
 	}, [ready]);
 
-	// The button: the iris closes on it, then the soup's page opens, where the vote is.
-	const vote = (e: React.MouseEvent<HTMLAnchorElement>) => {
+	// Every way out (the vote, the app): the iris closes on the link, then its page opens.
+	const leave = (e: React.MouseEvent<HTMLAnchorElement>) => {
 		if (reduced || e.metaKey || e.ctrlKey || e.shiftKey) return;
 		e.preventDefault();
 		const href = e.currentTarget.href;
@@ -354,12 +354,18 @@ export function Landing({ data }: { data: LandingData }) {
 									: `Le mancano ${count(missing, VOTI)}`}{" "}
 								per entrare in classifica.
 							</p>
-							<a className="vote" href={`/prodotti/${taste.ean}`} onClick={vote}>
+							<a className="vote" href={`/prodotti/${taste.ean}`} onClick={leave}>
 								Vota questa zuppa
 							</a>
 							<p className="tiny">Senza account. Un tocco.</p>
 						</div>
 					)}
+					{!taste && <h2 className="title small">Adesso tocca a te.</h2>}
+					<a className={taste ? "browse" : "vote"} href="/" onClick={leave}>
+						{taste
+							? `Oppure guarda tutte le ${data.total.toLocaleString("it-IT")} zuppe`
+							: "Entra in Zuppapp"}
+					</a>
 				</Beat>
 
 				<Beat from={8.0} to={9.1} className="credits">
@@ -370,6 +376,11 @@ export function Landing({ data }: { data: LandingData }) {
 					<p>Nessun minestrone è stato maltrattato durante le riprese.</p>
 				</Beat>
 			</main>
+
+			{/* Out of the story at any point, straight into the app. */}
+			<a className="enter" href="/" onClick={leave}>
+				Apri Zuppapp
+			</a>
 
 			<div className="laser" aria-hidden />
 			<div ref={iris} className="iris" aria-hidden />

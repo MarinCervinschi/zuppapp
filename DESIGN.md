@@ -423,6 +423,9 @@ alle regole di movimento: qui lo scroll muove la camera e la storia.
   canvas, con un codice a barre che inizia per 2. Nessun marchio vero e nessuna foto di una confezione nel 3D: le
   foto vere stanno solo, piccole, nella scheda finale.
 - **Le parole sono HTML** reso dal server; il 3D (three.js) è un pezzo a parte caricato dopo la pagina, solo qui.
+- **Si esce sempre verso l'app**: «Apri Zuppapp» resta in alto a destra per tutta la storia, e sotto la scheda
+  finale c'è «Oppure guarda tutte le N zuppe» (o «Entra in Zuppapp», se non c'è una zuppa da proporre). Ogni
+  uscita chiude l'iride sul link prima di aprire la pagina.
   Il testo dentro WebGL non usa Clash Display: si disegna col motore del browser su un canvas 2D (etichette,
   timbri), mai convertito.
 - **Sempre la carta chiara**, anche col tema scuro: il 3D è stampato sulla stessa carta.
