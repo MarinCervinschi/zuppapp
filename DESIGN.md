@@ -406,7 +406,7 @@ Uno strumento di lavoro, nella stessa direzione delle altre pagine ma più fitto
 
 ### La presentazione (`/presentazione`)
 
-La pagina per chi arriva da un link condiviso: un breve film guidato dallo scroll, «Presentazione ufficiale», che
+La pagina per chi arriva la prima volta: un breve film guidato dallo scroll, «Presentazione ufficiale», che
 presenta una zuppa pronta con la serietà di un lancio di prodotto. È l'unica pagina con un'eccezione dichiarata
 alle regole di movimento: qui lo scroll muove la camera e la storia.
 
@@ -426,6 +426,12 @@ alle regole di movimento: qui lo scroll muove la camera e la storia.
 - **Si esce sempre verso l'app**: «Apri Zuppapp» resta in alto a destra per tutta la storia, e sotto la scheda
   finale c'è «Oppure guarda tutte le N zuppe» (o «Entra in Zuppapp», se non c'è una zuppa da proporre). Ogni
   uscita chiude l'iride sul link prima di aprire la pagina.
+- **La prima visita apre qui**: chi arriva per la prima volta sulla home nuda (senza filtri né ricerca) vede la
+  presentazione al posto della home, una volta sola. Lo decide `FIRST_VISIT_SCRIPT`
+  (`src/lib/landing/first-visit.ts`) nel `<head>`, prima che la pagina si disegni, e il server lo mette solo a
+  chi non ha una sessione: chi ha votato o è entrato non lo riceve. Il segno resta nel browser (`localStorage`,
+  nessun cookie) e lo mette la prima pagina in assoluto, qualunque sia: chi arriva da una zuppa condivisa non viene
+  spostato dopo. Motori di ricerca, anteprime dei link e browser di test restano sulla home.
   Il testo dentro WebGL non usa Clash Display: si disegna col motore del browser su un canvas 2D (etichette,
   timbri), mai convertito.
 - **Sempre la carta chiara**, anche col tema scuro: il 3D è stampato sulla stessa carta.
