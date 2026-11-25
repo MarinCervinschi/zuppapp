@@ -3,6 +3,17 @@
 Cosa cambia per chi usa Zuppapp: schermate, voti, dati raccolti e indirizzi. Le versioni seguono semver; ognuna ha
 il suo tag `v<versione>` su git.
 
+## Da rilasciare
+
+- **Presentazione** (`/presentazione`): una pagina per chi arriva la prima volta, un breve film guidato dallo
+  scroll. La ciotola dell'icona, quattro confezioni inventate, il laser dello scanner che barra le promesse di
+  un'etichetta, il voto con i timbri da «Mai più» a «La ricompro», il podio di oggi e la zuppa a cui manca un voto
+  per entrare in classifica. I numeri e le zuppe sono quelli veri del catalogo. «Apri Zuppapp» porta all'app in
+  ogni momento, e la fine propone anche tutto il catalogo. Chi apre la home per la prima volta la vede al posto
+  della home, una volta sola; chi ha già votato no. Dall'app ci si torna con il tasto «i» in cima alla home, e con
+  «Cos’è Zuppapp» nel piè di pagina, in «Accedi» e nel profilo. Il 3D si scarica solo su questa pagina; con «riduci
+  movimento» la storia resta, ferma.
+
 ## 0.2.0 (2026-11-17)
 
 - **Anteprime dei link**: ogni pagina ha i meta Open Graph e un'immagine di anteprima (`/og.png`), così un link

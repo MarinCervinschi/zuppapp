@@ -20,6 +20,7 @@ import { Route as HealthRouteImport } from './routes/health'
 import { Route as LeMieZuppeRouteImport } from './routes/le-mie-zuppe'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as PreferitiRouteImport } from './routes/preferiti'
+import { Route as PresentazioneRouteImport } from './routes/presentazione'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfiloRouteImport } from './routes/profilo'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
@@ -86,6 +87,11 @@ const PreferitiRoute = PreferitiRouteImport.update({
   path: '/preferiti',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PresentazioneRoute = PresentazioneRouteImport.update({
+  id: '/presentazione',
+  path: '/presentazione',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/le-mie-zuppe': typeof LeMieZuppeRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/preferiti': typeof PreferitiRoute
+  '/presentazione': typeof PresentazioneRoute
   '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/le-mie-zuppe': typeof LeMieZuppeRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/preferiti': typeof PreferitiRoute
+  '/presentazione': typeof PresentazioneRoute
   '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/le-mie-zuppe': typeof LeMieZuppeRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/preferiti': typeof PreferitiRoute
+  '/presentazione': typeof PresentazioneRoute
   '/privacy': typeof PrivacyRoute
   '/profilo': typeof ProfiloRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
     | '/le-mie-zuppe'
     | '/llms.txt'
     | '/preferiti'
+    | '/presentazione'
     | '/privacy'
     | '/profilo'
     | '/robots.txt'
@@ -244,6 +254,7 @@ export interface FileRouteTypes {
     | '/le-mie-zuppe'
     | '/llms.txt'
     | '/preferiti'
+    | '/presentazione'
     | '/privacy'
     | '/profilo'
     | '/robots.txt'
@@ -267,6 +278,7 @@ export interface FileRouteTypes {
     | '/le-mie-zuppe'
     | '/llms.txt'
     | '/preferiti'
+    | '/presentazione'
     | '/privacy'
     | '/profilo'
     | '/robots.txt'
@@ -291,6 +303,7 @@ export interface RootRouteChildren {
   LeMieZuppeRoute: typeof LeMieZuppeRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   PreferitiRoute: typeof PreferitiRoute
+  PresentazioneRoute: typeof PresentazioneRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfiloRoute: typeof ProfiloRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -382,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PreferitiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/presentazione': {
+      id: '/presentazione'
+      path: '/presentazione'
+      fullPath: '/presentazione'
+      preLoaderRoute: typeof PresentazioneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -467,6 +487,7 @@ const rootRouteChildren: RootRouteChildren = {
   LeMieZuppeRoute: LeMieZuppeRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   PreferitiRoute: PreferitiRoute,
+  PresentazioneRoute: PresentazioneRoute,
   PrivacyRoute: PrivacyRoute,
   ProfiloRoute: ProfiloRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,

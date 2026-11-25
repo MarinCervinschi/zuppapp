@@ -6,6 +6,7 @@ import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-ro
 import { Button, buttonClass } from "@/components/ds/button";
 import { CREDITS, CreditsList } from "@/components/ds/credits";
 import {
+	BowlIcon,
 	ChevronRightIcon,
 	GitHubIcon,
 	HEART_PATH,
@@ -184,6 +185,11 @@ function Profile() {
 								<ChevronRightIcon className="text-text-soft size-5" />
 							</Link>
 						)}
+						<Link to="/presentazione" reloadDocument className={row}>
+							<BowlIcon className="size-5" />
+							<span className="flex-1">Cos’è Zuppapp</span>
+							<ChevronRightIcon className="text-text-soft size-5" />
+						</Link>
 						<button type="button" onClick={() => setSheet("credits")} className={row}>
 							<InfoIcon className="size-5" />
 							<span className="flex-1">Crediti e open source</span>

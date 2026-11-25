@@ -6,6 +6,7 @@ import {
 	Outlet,
 	Scripts,
 	createRootRouteWithContext,
+	useMatches,
 } from "@tanstack/react-router";
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 
@@ -18,6 +19,7 @@ import { ErrorPage, NotFoundPage } from "@/components/error/error-pages";
 import { SoupSheetHost } from "@/components/product/soup-sheet";
 import { analyticsQueries } from "@/lib/analytics/queries";
 import { favoriteQueries } from "@/lib/favorites/queries";
+import { FIRST_VISIT_SCRIPT } from "@/lib/landing/first-visit";
 import { seoQueries } from "@/lib/seo/queries";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { userQueries } from "@/lib/user/queries";
@@ -27,13 +29,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 	// Who is looking, their hearts (so a card never lights its heart late) and the Umami script
 	// where it is set up; fetched on the server before render. Declared before head, which reads it.
 	loader: async ({ context }) => {
-		const [, , umami, site] = await Promise.all([
+		const [{ viewer }, , umami, site] = await Promise.all([
 			context.queryClient.ensureQueryData(userQueries.viewer()),
 			context.queryClient.ensureQueryData(favoriteQueries.ids()),
 			context.queryClient.ensureQueryData(analyticsQueries.umami()),
 			context.queryClient.ensureQueryData(seoQueries.siteUrl()),
 		]);
-		return { umami, site };
+		return { umami, site, known: viewer !== null };
 	},
 	head: ({ loaderData, matches }) => {
 		// The page without its query: a filtered list is the same page to a search engine.
@@ -95,6 +97,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 			],
 			// The theme before the first paint: rendered into <head> on the server, not run by React.
 			scripts: [
+				// First, so the presentation replaces the home before anything else runs.
+				...(loaderData && !loaderData.known ? [{ children: FIRST_VISIT_SCRIPT }] : []),
 				{ children: THEME_INIT_SCRIPT },
 				{ children: INTRO_INIT_SCRIPT },
 				...(loaderData?.umami
@@ -135,6 +139,18 @@ function RootLayout() {
 	useEffect(() => {
 		document.documentElement.setAttribute("data-hydrated", "");
 	}, []);
+	// A page that draws the whole screen itself, like the landing, gets no app chrome around it.
+	const bare = useMatches({ select: matches => matches.some(m => m.staticData?.bare) });
+
+	if (bare)
+		return (
+			<LazyMotion features={domAnimation} strict>
+				<MotionConfig reducedMotion="user">
+					<Outlet />
+					<AppToaster />
+				</MotionConfig>
+			</LazyMotion>
+		);
 
 	return (
 		// Motion's features load once for the whole app (the lighter `m` components need them), and

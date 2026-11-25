@@ -13,7 +13,7 @@ import { SearchBox } from "@/components/catalog/search-box";
 import { TasteTile } from "@/components/catalog/taste-tile";
 import { TypeRail } from "@/components/catalog/type-rail";
 import { buttonClass } from "@/components/ds/button";
-import { SettingsIcon } from "@/components/ds/icons";
+import { InfoIcon, SettingsIcon } from "@/components/ds/icons";
 import { Intro } from "@/components/ds/intro";
 import { PageHead } from "@/components/ds/page-head";
 import { segment, segmentedBar } from "@/components/ds/segmented";
@@ -85,7 +85,22 @@ function Home() {
 	return (
 		<>
 			<Intro />
-			<PageHead blob="corn" shape="onda" title="Che zuppa stai cercando?" />
+			<PageHead
+				blob="corn"
+				shape="onda"
+				title="Che zuppa stai cercando?"
+				action={
+					// What Zuppapp is: the presentation, from its own preloader (a full load).
+					<Link
+						to="/presentazione"
+						reloadDocument
+						className="glass grid size-11 place-items-center rounded-full transition-[scale] duration-150 ease-out motion-safe:active:scale-[0.94]"
+					>
+						<InfoIcon className="size-6" />
+						<span className="sr-only">Cos’è Zuppapp</span>
+					</Link>
+				}
+			/>
 
 			{/* Positioned, so its focus rim paints over the header it touches, not under it. On a phone the
 			    filters open from the button beside the field; on a wide screen they stand in a column. */}

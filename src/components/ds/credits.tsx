@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { ExternalIcon, GitHubIcon } from "./icons";
 
-// Where the data, the privacy notice and the code are: in the footer, on «Accedi» (a phone has no
+// Where the presentation, the data, the privacy notice and the code are: in the footer, on «Accedi» (a phone has no
 // footer) and in the profile's «Crediti». Open Food Facts' ODbL credit lives on `/dati` and on
 // every soup, so the footer only links there.
 
@@ -15,13 +15,19 @@ export const CREDITS = {
 	code: { href: "https://github.com/MarinCervinschi/zuppapp", label: "Open source" },
 } as const;
 
-/** Three small links: the data, the privacy notice, the code on GitHub. */
+/** Four small links: the presentation, the data, the privacy notice, the code on GitHub. */
 export function SiteLinks({ className }: { className?: string }) {
 	const link =
 		"text-text-soft hover:text-text inline-flex min-h-11 items-center gap-2 no-underline transition-colors duration-150";
 	return (
 		<nav aria-label="Informazioni sul sito" className={className}>
 			<ul className="text-small flex flex-wrap items-center gap-x-6">
+				<li>
+					{/* A full load: the presentation starts from its own preloader, like on a first visit. */}
+					<Link to="/presentazione" reloadDocument className={link}>
+						Cos’è Zuppapp
+					</Link>
+				</li>
 				<li>
 					<Link to="/dati" className={link}>
 						Dati delle zuppe
