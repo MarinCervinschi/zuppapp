@@ -17,6 +17,12 @@ export type LabelFacts = {
 	name: string;
 	brand: string | null;
 	ingredients: number;
+	/** The first ingredient, the one there is most of, without its share: «acqua». */
+	first: string | null;
+	/** Whether the list has yeast extract, which nobody adds at home. */
+	yeast: boolean;
+	/** An ingredient no traditional recipe has: «olio di girasole», «amido», «aromi». */
+	modern: string | null;
 	veg: string | null;
 	nutriscore: string | null;
 };
@@ -70,11 +76,30 @@ export function labelFacts(p: {
 	const ingredients = parts.filter(Boolean);
 	const veg =
 		ingredients.find(x => VEGETABLE.test(x) && /\d+([,.]\d+)?\s*%/.test(x)) ?? null;
+	const lower = text.toLowerCase();
+	const first = ingredients[0]
+		? ingredients[0]
+				.replace(/\([^)]*\)|\[[^\]]*\]/g, "")
+				.replace(/\d+([,.]\d+)?\s*%/g, "")
+				.replace(/\s+/g, " ")
+				.trim()
+				.toLowerCase() || null
+		: null;
+	const modern = /girasole/.test(lower)
+		? "olio di girasole"
+		: /\bamid/.test(lower)
+			? "amido"
+			: /\baromi\b/.test(lower)
+				? "aromi"
+				: null;
 	return {
 		ean: p.ean,
 		name: p.name,
 		brand: p.brand,
 		ingredients: ingredients.length,
+		first,
+		yeast: /estratto di lievito/.test(lower),
+		modern,
 		// «verdure fresche 16% (carote, sedano…)» → «verdure fresche 16%»: it has to fit a line.
 		veg: veg
 			? veg
@@ -117,10 +142,22 @@ export function landingData(sources: {
 	};
 }
 
-/** The line under the podium, for 0 to 3 soups on it. */
-export function podiumLine(n: number, minVotes: number) {
-	if (n === 0) return `Nessuna zuppa ha ancora ${count(minVotes, VOTI)}. Comincia tu.`;
-	if (n === 1) return "Per ora sul podio ce n’è una sola.";
-	if (n === 2) return "Il terzo posto è libero.";
-	return "Il podio è pieno. Per ora.";
+/**
+ * The line over the podium, for 0 to 3 soups on it: how the ranking really stands today, with its
+ * real numbers, rather than suspense.
+ */
+export function podiumLine(
+	podium: { votes: number }[],
+	minVotes: number,
+	catalogue: number
+) {
+	const n = podium.length;
+	if (n === 0)
+		return `Nessuna zuppa ha ancora ${count(minVotes, VOTI)}. Il podio è vuoto.`;
+	if (n === 1) return "Sul podio c’è una zuppa sola.";
+	if (n === 2) {
+		const votes = podium.reduce((sum, p) => sum + p.votes, 0);
+		return `Due zuppe sul podio, ${count(votes, VOTI)} in tutto.`;
+	}
+	return `Tre zuppe sul podio, su ${catalogue.toLocaleString("it-IT")}.`;
 }

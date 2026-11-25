@@ -16,6 +16,9 @@ il suo tag `v<versione>` su git.
 - **Presentazione, la prima schermata**: la zuppa è calda e viva. Il giallo del preloader diventa l'aurora della
   home, dalla quale cadono gocce gialle che lasciano una macchia nella zuppa; il vapore sale dalla ciotola; il
   mouse mescola la crema e su telefono un tocco lascia un puntino. Tutto segue la fisica di una vellutata vera.
+- **Presentazione, i testi**: frasi più concrete e vere. Le promesse barrate prendono il fatto dall'etichetta vera
+  (per esempio «Come fatta in casa → primo ingrediente: acqua») e il podio dice com'è oggi, con i suoi numeri
+  («Due zuppe sul podio, 6 voti in tutto»).
 
 ## 0.2.0 (2026-11-17)
 
