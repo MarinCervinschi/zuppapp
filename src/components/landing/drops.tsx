@@ -3,7 +3,15 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-import { auroraBand, auroraClock, calmHem, dripA, dripB, dripCalm } from "./aurora";
+import {
+	auroraBand,
+	auroraClock,
+	calmHem,
+	dripA,
+	dripB,
+	dripCalm,
+	dripFreeze,
+} from "./aurora";
 import { LIGHT, flatMat } from "./packs/materials";
 import { C } from "./palette";
 import { soupState } from "./soup-bowl";
@@ -31,9 +39,11 @@ const NECK = 0.65;
 const RECOIL = 0.05;
 const SPREAD = 0.07;
 const CALM_IN = 1.2;
-const CALM_OUT = 1.6;
-/** The drop's diameter on screen, as a share of the bowl's width, kept between 16 and 22 px. */
-const SIZE = 0.04;
+const CALM_OUT = 3;
+/** How fast the hem goes on rolling where a drop hangs: slowly, so it has little to catch up. */
+const HELD_RATE = 0.3;
+/** The drop's diameter on screen, as a share of the bowl's width, kept between 16 and 34 px. */
+const SIZE = 0.05;
 /** How far the bulb's centre ends up below the hem, in drop diameters: bulb, thread 1.5 D. */
 const REACH = 2.2;
 
@@ -54,6 +64,8 @@ type Drop = {
 	calm: number;
 	/** The calm's own clock, 0..1, before easing. */
 	calmT: number;
+	/** The curtain's time at which the hem holds still around it. */
+	freeze: number;
 };
 
 export function Drops() {
@@ -77,6 +89,7 @@ export function Drops() {
 				since: 0,
 				calm: 0,
 				calmT: 0,
+				freeze: 0,
 			})),
 			next: 2,
 			v: new THREE.Vector3(),
@@ -99,10 +112,11 @@ export function Drops() {
 			const n = st.v.copy(p).project(cam);
 			return [(n.x * 0.5 + 0.5) * W * dpr, (n.y * 0.5 + 0.5) * H * dpr] as const;
 		};
-		// The calm hem's height on screen above a given x, exactly as the shader draws it.
-		const hemPx = (x: number) => {
+		// The calm hem's height on screen above a given x, exactly as the shader draws it, at the
+		// curtain's time t (a drop's own held time, where it hangs).
+		const hemPx = (x: number, t = auroraClock.t) => {
 			const xb = ((x / (W * dpr) - 0.5) * (W / H)) / band;
-			return (1 - band + band * calmHem(xb, auroraClock.t, director.speed)) * H * dpr;
+			return (1 - band + band * calmHem(xb, t, director.speedSoft)) * H * dpr;
 		};
 		// The point over a spot of soup that sits at a given height on the screen.
 		const above = (base: THREE.Vector3, y: number, out: THREE.Vector3) => {
@@ -129,7 +143,7 @@ export function Drops() {
 		const right = screen(
 			st.w.set(soupState.at.x + BOWL.rim, soupState.at.y + BOWL.rimY, soupState.at.z)
 		)[0];
-		const D = THREE.MathUtils.clamp(SIZE * Math.abs(right - left), 16 * dpr, 22 * dpr);
+		const D = THREE.MathUtils.clamp(SIZE * Math.abs(right - left), 16 * dpr, 34 * dpr);
 
 		const G = director.G;
 		const may =
@@ -164,6 +178,12 @@ export function Drops() {
 			d.calm = d.calmT * d.calmT * (3 - 2 * d.calmT);
 			if (i === 0) dripCalm.x = d.calm;
 			else dripCalm.y = d.calm;
+			// Once the drop hangs, the hem under it keeps rolling, slowly: when it lets go there is
+			// little left to catch up, and the curtain never snaps.
+			if (d.phase !== "idle" && d.phase !== "settle")
+				d.freeze += Math.min(frameDt, 0.1) * 0.5 * HELD_RATE;
+			if (i === 0) dripFreeze.x = d.freeze;
+			else dripFreeze.y = d.freeze;
 
 			if (d.phase === "idle") {
 				g.visible = false;
@@ -187,20 +207,52 @@ export function Drops() {
 					}
 					return y;
 				};
-				let x = -1;
-				for (let tries = 0; tries < 14 && x < 0; tries++) {
-					const ang = Math.random() * Math.PI * 2;
-					const rad = 0.06 + Math.random() * 0.3;
-					d.uv.set(0.5 + rad * Math.cos(ang), 0.5 + rad * Math.sin(ang));
-					const spot = spotOf(d.uv, st.spot);
-					const p = above(
-						spot,
-						hemPx(screen(spot)[0]) - D * REACH,
-						new THREE.Vector3()
-					);
-					const cx = screen(p)[0];
-					if (hemPx(cx) - D * (REACH + 1.6) > rimAt(cx)) x = cx;
+				// A drop forms where the liquid runs to and stays: a low point of the hem, or a stretch
+				// of it that is nearly flat. The hem will hold still once the calm is complete (in
+				// CALM_IN), so look at the hem it will have then.
+				const freeze = auroraClock.t + CALM_IN * 0.5;
+				const step = 3 * dpr;
+				const lows: number[] = [];
+				const x0 = Math.min(left, right);
+				const x1 = Math.max(left, right);
+				for (let xx = x0 + step; xx < x1 - step; xx += step) {
+					const h = hemPx(xx, freeze);
+					const hl = hemPx(xx - step, freeze);
+					const hr = hemPx(xx + step, freeze);
+					const slope = (hr - hl) / (2 * step);
+					// Not on a hump: from a crest the liquid runs off on both sides.
+					const bend = (hl + hr - 2 * h) / (step * step);
+					if (
+						Math.abs(slope) < 0.3 &&
+						bend > -0.0015 &&
+						h - D * (REACH + 1.6) > rimAt(xx)
+					)
+						lows.push(xx);
 				}
+				let x = -1;
+				if (lows.length) {
+					const xm = lows[Math.floor(Math.random() * lows.length)];
+					// The spot of soup straight under it: along the bowl's width as the camera sees it.
+					const right3 = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 0);
+					right3.y = 0;
+					right3.normalize();
+					let best = Infinity;
+					const centre = new THREE.Vector3(soupState.at.x, soupY, soupState.at.z);
+					for (let k = -0.85; k <= 0.85; k += 0.05) {
+						const spot = centre.clone().addScaledVector(right3, k * R);
+						const p = above(spot, hemPx(xm, freeze) - D * REACH, new THREE.Vector3());
+						const err = Math.abs(screen(p)[0] - xm);
+						if (err < best) {
+							best = err;
+							d.uv.set(
+								(spot.x - soupState.at.x) / (2 * R) + 0.5,
+								-(spot.z - soupState.at.z) / (2 * R) + 0.5
+							);
+						}
+					}
+					if (best < 8 * dpr) x = xm;
+				}
+				d.freeze = freeze;
 				st.next = 0.5;
 				if (x < 0) return;
 				st.next = 2.4 + Math.random() * 1.6;
@@ -250,7 +302,7 @@ export function Drops() {
 					neck = 0.24 * d.D * Math.pow(1 - k, 0.6) + 0.75 * dpr;
 					if (k >= 1) {
 						// The break: the drop is on its own in the scene; the stub springs back.
-						const centre = hemPx(d.x) - d.c;
+						const centre = hemPx(d.x, d.freeze) - d.c;
 						above(spotOf(d.uv, st.spot), centre, d.pos);
 						const depth = d.pos.distanceTo(cam.position);
 						d.size =

@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { PRINT } from "./glsl";
 import { C } from "./palette";
 import { director, reduced, smooth } from "./story";
+import { themed } from "./theme";
 
 // The aurora of the app's home (SoupField, shape «onda») drawn inside the 3D scene: a curtain of
 // flat soup hanging from the top, its hem rolling, its edge stippled with the same grain. It is
@@ -32,6 +33,8 @@ export const dripA = [new THREE.Vector4(), new THREE.Vector4()];
 export const dripB = [new THREE.Vector4(), new THREE.Vector4()];
 /** How calm the hem is around each drop, 0..1: it eases in before a drop and out after it. */
 export const dripCalm = new THREE.Vector2();
+/** The curtain's clock where each drop hangs: there the hem holds still, as a wet edge does. */
+export const dripFreeze = new THREE.Vector2();
 
 /**
  * The hem's height inside the band (0 at its foot, 1 at the top) where a drop hangs. There the
@@ -68,6 +71,11 @@ uniform vec3 uRim;
 uniform vec4 uDripA[2];
 uniform vec4 uDripB[2];
 uniform vec2 uCalm;
+uniform vec2 uFreeze;
+uniform float uScale;
+uniform float uStrength;  // 1 by day; 0.8 by night, as the app's blobs
+uniform vec3 uGround;
+uniform vec3 uIrisColor;  // the preloader: corn by day, the paper by night   // 1 on screen; 2 in the steam's half-resolution mask
 ${PRINT}
 
 // Distance functions for the drop: a cone with round ends (the thread, the shoulders, the stub) and
@@ -106,27 +114,34 @@ float fbm(vec2 p) {
 }
 
 void main() {
-	vec2 px = gl_FragCoord.xy;
+	vec2 px = gl_FragCoord.xy * uScale;
 	vec2 uv = px / uSize;
 	float aspect = uSize.x / uSize.y;
 	// The curtain lives in a band at the top of the screen, as the app's lives in its header.
 	vec2 p = vec2((uv.x - 0.5) * aspect / uBand, (uv.y - (1.0 - uBand)) / uBand);
 	float t = uTime;
 
-	// Where a drop gathers, the hem calms down: the liquid there hangs from a smooth edge.
+	// Where a drop gathers, the hem calms down and holds still: the liquid there hangs from a
+	// smooth, wet edge that stops rolling while the drop forms.
 	float calm = 0.0;
+	float held = t;
 	for (int i = 0; i < 2; i++) {
 		float strength = i == 0 ? uCalm.x : uCalm.y;
-		if (strength > 0.0) calm = max(calm, strength * exp(-pow((px.x - uDripA[i].x) / uDripB[i].w, 2.0)));
+		float c = strength * exp(-pow((px.x - uDripA[i].x) / uDripB[i].w, 2.0));
+		if (c > calm) {
+			calm = c;
+			held = i == 0 ? uFreeze.x : uFreeze.y;
+		}
 	}
+	float tl = mix(t, held, calm);
 	vec2 bend = vec2(fbm(p * 1.7 + vec2(t * 0.06, 3.1)), fbm(p * 1.7 + vec2(7.4, t * 0.05))) - 0.5;
 	vec2 q = p + bend * 0.32 * (1.0 - calm);
 
 	float hem = 0.62
-		+ 0.12 * sin(q.x * 2.4 + t * 0.6)
-		+ 0.06 * sin(q.x * 5.3 - t * 0.45 + 1.3)
+		+ 0.12 * sin(q.x * 2.4 + tl * 0.6)
+		+ 0.06 * sin(q.x * 5.3 - tl * 0.45 + 1.3)
 		+ 0.1 * (fbm(vec2(q.x * 0.9 + t * 0.08, t * 0.05)) - 0.5) * (1.0 - calm)
-		+ uSpeed * 0.05 * sin(q.x * 3.1 + t * 2.0);
+		+ uSpeed * 0.05 * sin(q.x * 3.1 + tl * 2.0);
 	// From the preloader: the hem starts below the screen and climbs; at the end of scene 1 it
 	// climbs on, off the top.
 	hem = mix(-2.6, hem, uMorph) + uOut * 0.75;
@@ -152,15 +167,19 @@ void main() {
 		// The calm hem, at this pixel's x and at the drop's: near a drop the curtain follows it.
 		float xp = (px.x / uSize.x - 0.5) * aspect / uBand;
 		float xb = (a.x / uSize.x - 0.5) * aspect / uBand;
-		float hemP = uOut * 0.75 + 0.62 + 0.12 * sin(xp * 2.4 + t * 0.6) + 0.06 * sin(xp * 5.3 - t * 0.45 + 1.3)
-			+ uSpeed * 0.05 * sin(xp * 3.1 + t * 2.0);
-		float hemB = uOut * 0.75 + 0.62 + 0.12 * sin(xb * 2.4 + t * 0.6) + 0.06 * sin(xb * 5.3 - t * 0.45 + 1.3)
-			+ uSpeed * 0.05 * sin(xb * 3.1 + t * 2.0);
+		float tb = mix(t, i == 0 ? uFreeze.x : uFreeze.y, strength);
+		float hemP = uOut * 0.75 + 0.62 + 0.12 * sin(xp * 2.4 + tl * 0.6) + 0.06 * sin(xp * 5.3 - tl * 0.45 + 1.3)
+			+ uSpeed * 0.05 * sin(xp * 3.1 + tl * 2.0);
+		// Its slope, so the meniscus measures the distance across the hem, not straight down.
+		float slope = 0.12 * 2.4 * cos(xp * 2.4 + tl * 0.6) + 0.06 * 5.3 * cos(xp * 5.3 - tl * 0.45 + 1.3)
+			+ uSpeed * 0.05 * 3.1 * cos(xp * 3.1 + tl * 2.0);
+		float hemB = uOut * 0.75 + 0.62 + 0.12 * sin(xb * 2.4 + tb * 0.6) + 0.06 * sin(xb * 5.3 - tb * 0.45 + 1.3)
+			+ uSpeed * 0.05 * sin(xb * 3.1 + tb * 2.0);
 		float edgeY = (1.0 - uBand + uBand * hemP) * uSize.y;
 		float top = (1.0 - uBand + uBand * hemB) * uSize.y;
 		if (b.y < 0.5) continue;
 		// The curtain as a distance: negative above its hem.
-		float d = edgeY - px.y;
+		float d = (edgeY - px.y) / sqrt(1.0 + slope * slope);
 		if (b.y < 1.5) {
 			float R = b.z;
 			float c = a.z;
@@ -197,8 +216,18 @@ void main() {
 	float core = max(smoothstep(0.75, 1.35, field), 1.0 - uMorph);
 	// Where a drop gathers, the corn of the top runs down through the hem and into it.
 	vec3 colour = mix(uRim, uCore, max(core, dropOnly));
+	colour = mix(uIrisColor, colour, smoothstep(0.0, 0.5, uMorph));
+	colour = mix(uGround, colour, uStrength);
+#ifdef MASK
+	// Only where the curtain is, in alpha: the steam reads this to know its ground.
+	gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+#else
 	gl_FragColor = vec4(tooth(colour), 1.0);
+#endif
 }`;
+
+/** The curtain as a mask, for the steam: same uniforms, alpha only (steam.tsx). */
+export const auroraMask = { material: null as THREE.ShaderMaterial | null };
 
 export function Aurora() {
 	const material = useMemo(
@@ -222,10 +251,33 @@ export function Aurora() {
 					uDripA: { value: dripA },
 					uDripB: { value: dripB },
 					uCalm: { value: dripCalm },
+					uFreeze: { value: dripFreeze },
+					uScale: { value: 1 },
+					uStrength: themed.strength,
+					uGround: themed.ground,
+					uIrisColor: themed.iris,
 				},
 			}),
 		[]
 	);
+	useMemo(() => {
+		// The same curtain, written into alpha only and leaving the colour channels alone.
+		auroraMask.material = new THREE.ShaderMaterial({
+			vertexShader: VERT,
+			fragmentShader: FRAG,
+			defines: { MASK: 1 },
+			depthTest: false,
+			depthWrite: false,
+			transparent: true,
+			blending: THREE.CustomBlending,
+			blendEquation: THREE.AddEquation,
+			blendSrc: THREE.ZeroFactor,
+			blendDst: THREE.OneFactor,
+			blendSrcAlpha: THREE.OneFactor,
+			blendDstAlpha: THREE.ZeroFactor,
+			uniforms: { ...material.uniforms, uScale: { value: 2 } },
+		});
+	}, [material]);
 
 	const mesh = useMemo(() => {
 		const m = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
@@ -245,7 +297,7 @@ export function Aurora() {
 		u.uBand.value = auroraBand(W / H > 1.1);
 		u.uMorph.value = director.morph;
 		u.uOut.value = auroraOut(G);
-		u.uSpeed.value = director.speed;
+		u.uSpeed.value = director.speedSoft;
 		u.uIris.value.set((W / 2) * dpr, (H / 2) * dpr, director.iris * dpr);
 		mesh.visible = G < 1.96;
 	});

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { OUTLINE_FRAG, OUTLINE_VERT, PRINT, TOON_FRAG, TOON_VERT } from "../glsl";
-import { C } from "../palette";
+import { themed } from "../theme";
 
 // The brand material, now with a printed label: the label's own colour is the lit tone, the same
 // colour dimmed and warmed is the shade, the terminator is stippled, the shine is a flat patch.
@@ -84,7 +84,8 @@ export function outlineMat(thick = 0.016) {
 		vertexShader: OUTLINE_VERT,
 		fragmentShader: OUTLINE_FRAG,
 		side: THREE.BackSide,
-		uniforms: { uThick: { value: thick }, uBoil: boil, uInk: { value: v3(C.ink) } },
+		// The ink follows the theme: cream by night, like the text (theme.ts).
+		uniforms: { uThick: { value: thick }, uBoil: boil, uInk: themed.line },
 	});
 }
 
@@ -109,7 +110,7 @@ export function shadowMat() {
 		transparent: true,
 		depthWrite: false,
 		uniforms: {
-			uColor: { value: v3(C.paper.map((p, i) => p * 0.8 + C.ink[i] * 0.2)) },
+			uColor: themed.shadow,
 			uSize: { value: new THREE.Vector2(1, 1) },
 		},
 	});

@@ -455,7 +455,11 @@ alle regole di movimento: qui lo scroll muove la camera e la storia.
   - Gli eventi brevi (goccia, rottura del filo) li fa partire lo scroll ma li esegue l'orologio, così la gravità
     non segue il pollice. Il canvas non ha un ciclo suo: lo fa avanzare il tick della pagina, così 3D e parole non
     slittano.
-- **Sempre la carta chiara**, anche col tema scuro: il 3D è stampato sulla stessa carta.
+- **Segue il tema dell'app** (`theme.ts`, `landing.css`): di notte è la carta a lume di lampada di `globals.css`.
+  Nel 3D i contorni d'inchiostro diventano color crema come il testo, le ombre puntinate più scure della carta,
+  l'aurora all'80% come le macchie, il preloader è la carta scura invece del giallo, e il vapore si legge anche
+  sulla carta, come quello vero su un fondo scuro. Le confezioni restano chiare (sono prodotti stampati) e le
+  parole sopra una zuppa restano inchiostro scuro in entrambi i temi.
 - **Senza tab bar né piè di pagina** (`staticData: { bare: true }`, letto da `__root`).
 - **Con `prefers-reduced-motion`** niente preloader, scroll nativo, niente coriandoli, contorni fermi e timbri che
   compaiono senza colpo; la storia segue lo scroll e basta.

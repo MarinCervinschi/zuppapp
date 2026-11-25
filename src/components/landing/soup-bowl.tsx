@@ -16,6 +16,7 @@ import { C, GLAZE_LIT, SPOON_SHADE } from "./palette";
 import { SIM_SIZE, STEP_DT, SoupSim, makeSpiral } from "./soup-sim";
 import { clamp, director, lerp, reduced, smooth } from "./story";
 import { BOWL } from "./story";
+import { themed } from "./theme";
 
 // The bowl of the icon, full of soup and driven by the story: the swirl draws in
 // the preloader, the spoon stirs in scene 1, and in scene 5 the bowl comes back empty and the
@@ -109,7 +110,7 @@ export function SoupBowl() {
 			transparent: true,
 			depthWrite: false,
 			uniforms: {
-				uColor: { value: v3(C.paper.map((p, i) => p * 0.82 + C.ink[i] * 0.18)) },
+				uColor: themed.shadow,
 				uCentre: { value: new THREE.Vector2(0.38, 0.32) },
 			},
 		});
