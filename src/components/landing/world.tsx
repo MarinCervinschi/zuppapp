@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
+import { Aurora } from "./aurora";
+import { Drops } from "./drops";
 import { BRICK } from "./packs/geometry";
 import { type Labels, makeLabels } from "./packs/labels";
 import { LIGHT, flatMat, labelMat, outlineMat } from "./packs/materials";
@@ -10,6 +12,7 @@ import { BrickPack, JarPack, PouchPack, TrayPack } from "./packs/packs";
 import { C } from "./palette";
 import { SoupBowl, pour } from "./soup-bowl";
 import { Stamp } from "./stamp";
+import { Steam } from "./steam";
 import { clamp, director, easeInOut, lerp, reduced, smooth } from "./story";
 
 // Everything in 3D: the bowl, the packs, the brick, the podium. G is the story clock (story.ts);
@@ -208,6 +211,14 @@ export function World({
 	onReady: () => void;
 }) {
 	const gl = useThree(s => s.gl);
+	const advance = useThree(s => s.advance);
+	// The canvas has no loop of its own (frameloop "never"): the page's tick drives it.
+	useEffect(() => {
+		director.advance = advance;
+		return () => {
+			director.advance = null;
+		};
+	}, [advance]);
 	const [labels, setLabels] = useState<Labels | null>(null);
 	useEffect(() => {
 		makeLabels(gl).then(setLabels);
@@ -281,7 +292,8 @@ export function World({
 			W,
 			H,
 			wide ? -0.22 * W * settle : 0,
-			wide ? 0 : 0.2 * H * settle,
+			// The bowl sits a little low, so there is air between it and the aurora for drops to fall.
+			wide ? -0.04 * H * settle : 0.12 * H * settle,
 			W,
 			H
 		);
@@ -405,9 +417,12 @@ export function World({
 
 	return (
 		<>
+			<Aurora />
+			<Drops />
 			<group ref={r.bowl}>
 				<SoupBowl />
 			</group>
+			<Steam />
 
 			{labels && (
 				<>

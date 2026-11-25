@@ -30,6 +30,9 @@ uniform vec3 uCream;
 uniform vec3 uCreamShade;
 uniform vec3 uHigh;
 uniform vec3 uLight;
+uniform vec4 uDropShadow;
+uniform vec3 uCorn;
+uniform vec3 uCornShade;
 varying vec2 vUv;
 varying vec3 vView;
 ${PRINT}
@@ -48,6 +51,16 @@ void main() {
 	float lit = stipple(smoothstep(0.42, 0.66, dot(N, uLight)));
 	float cream = stipple(smoothstep(0.3, 0.62, texture2D(uSim, vUv).b));
 	vec3 col = mix(mix(uSoupShade, uSoup, lit), mix(uCreamShade, uCream, lit), cream);
+	// The corn the drops left lies on top of whatever was there, cream included: a drop lands on
+	// the surface. Over the cream the thin yellow film reads paler, as a thin layer would.
+	float dye = texture2D(uSim, vUv).a;
+	float corn = stipple(smoothstep(0.3, 0.62, dye));
+	// A fuller rim and a thinner, paler centre, two flat tones as the posters would print it.
+	float rim = stipple(smoothstep(0.82, 0.92, dye));
+	vec3 cornCol = mix(uCornShade, uCorn, lit);
+	cornCol = mix(mix(cornCol, uCream, 0.3), cornCol, rim);
+	cornCol = mix(cornCol, mix(cornCol, uCream, 0.35), cream);
+	col = mix(col, cornCol, corn);
 
 	// The wall of the bowl throws a crescent of shade on the side the light comes from.
 	vec2 toLight = normalize(vec2(uLight.x, -uLight.z));
@@ -57,6 +70,10 @@ void main() {
 	// One flat patch of light, as a poster draws a shine.
 	float spec = dot(reflect(-uLight, N), normalize(vView));
 	col = mix(col, uHigh, stipple(smoothstep(0.975, 0.99, spec)));
+
+	// The shadow of a drop falling into it, stippled like every other shadow.
+	float ds = smoothstep(uDropShadow.z, uDropShadow.z * 0.45, length(vUv - uDropShadow.xy));
+	col = mix(col, uSoupShade * 0.82, stipple(ds * uDropShadow.w));
 
 	gl_FragColor = vec4(tooth(col), 1.0);
 }`;
