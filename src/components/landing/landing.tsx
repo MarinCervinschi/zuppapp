@@ -106,10 +106,18 @@ export function Landing({ data }: { data: LandingData }) {
 		const starName = el.querySelector<HTMLElement>(".star-name")!;
 		const fill = el.querySelector<HTMLElement>(".fill")!;
 
-		const tick = (time: number) => {
+		let speed = 0;
+		let canvasStart: number | null = null;
+		const tick = (time: number, deltaMs: number) => {
 			lenis.raf(time * 1000);
 			const G = gFromScroll(lenis.scroll, innerHeight);
 			director.G = G;
+			// How fast the page moves: quick to rise, half a second to settle.
+			const dt = Math.min(deltaMs / 1000, 0.1);
+			const target = Math.min(Math.abs(lenis.velocity) / 40, 1);
+			speed += (target - speed) * (1 - Math.exp(-dt / (target > speed ? 0.06 : 0.5)));
+			director.speed = reduced ? 0 : speed;
+			if (lenis.velocity) director.dir = Math.sign(lenis.velocity);
 
 			for (const b of beats) {
 				const from = +b.dataset.from!;
@@ -133,18 +141,58 @@ export function Landing({ data }: { data: LandingData }) {
 			const given = starsAt(G);
 			stars.forEach((s, i) => s.classList.toggle("on", given >= i + 1));
 			const n = Math.floor(given);
-			starName.textContent = n > 0 ? STAR_NAMES[n - 1] : "Tocca una stella";
+			starName.textContent = n > 0 ? STAR_NAMES[n - 1] : "";
 
 			// Scenes 5 and 6: the soup fills the screen and is the ground of the podium.
 			const up = smooth(5.8, 5.98, G);
 			const away = smooth(6.9, 7.0, G);
 			fill.style.transform = `translateY(${(1 - up) * 105 + away * 105}%)`;
+
+			// The canvas draws now, from the same scroll: words and 3D never slip apart. Its clock is in
+			// seconds from its first frame, as R3F reads it.
+			if (director.advance) {
+				const now = performance.now() / 1000;
+				canvasStart ??= now - 1 / 60;
+				director.advance(now - canvasStart);
+			}
 		};
+
+		// The visitor's hand: the mouse stirs the soup; on a phone a tap drops cream in it.
+		const pointer = director.pointer;
+		const toNdc = (e: PointerEvent) => {
+			pointer.x = (e.clientX / innerWidth) * 2 - 1;
+			pointer.y = -(e.clientY / innerHeight) * 2 + 1;
+		};
+		const onMove = (e: PointerEvent) => {
+			if (e.pointerType !== "mouse") return;
+			toNdc(e);
+			pointer.on = true;
+		};
+		const onLeave = () => void (pointer.on = false);
+		let down = { t: 0, x: 0, y: 0 };
+		const onDown = (e: PointerEvent) => {
+			down = { t: performance.now(), x: e.clientX, y: e.clientY };
+		};
+		const onUp = (e: PointerEvent) => {
+			const still = Math.hypot(e.clientX - down.x, e.clientY - down.y) < 12;
+			if (e.pointerType === "mouse" || !still || performance.now() - down.t > 350)
+				return;
+			toNdc(e);
+			pointer.tap = true;
+		};
+		addEventListener("pointermove", onMove, { passive: true });
+		document.documentElement.addEventListener("pointerleave", onLeave);
+		addEventListener("pointerdown", onDown, { passive: true });
+		addEventListener("pointerup", onUp, { passive: true });
 		gsap.ticker.add(tick);
 		gsap.ticker.lagSmoothing(0);
 		return () => {
 			gsap.ticker.remove(tick);
 			lenis.destroy();
+			removeEventListener("pointermove", onMove);
+			document.documentElement.removeEventListener("pointerleave", onLeave);
+			removeEventListener("pointerdown", onDown);
+			removeEventListener("pointerup", onUp);
 		};
 	}, []);
 
@@ -156,6 +204,8 @@ export function Landing({ data }: { data: LandingData }) {
 		if (reduced) {
 			director.swirl = 1;
 			director.settle = 1;
+			director.morph = 1;
+			director.iris = 0;
 			el.classList.add("open");
 			return;
 		}
@@ -165,8 +215,12 @@ export function Landing({ data }: { data: LandingData }) {
 		}
 		const rim = rimRadiusPx(innerWidth, innerHeight) - 1;
 		setHole(rim);
+		// The canvas draws the same yellow with the same hole underneath (aurora.tsx): when the iris
+		// opens, the CSS one steps aside and the yellow climbs back into the aurora's curtain.
+		director.iris = rim;
+		director.morph = 0;
 		const ctx = gsap.context(() => {
-			const s = { swirl: 0, r: rim, settle: 0 };
+			const s = { swirl: 0, r: rim, settle: 0, morph: 0 };
 			gsap
 				.timeline({ delay: 0.2 })
 				.to(s, {
@@ -181,13 +235,24 @@ export function Landing({ data }: { data: LandingData }) {
 						r: Math.hypot(innerWidth, innerHeight),
 						duration: 0.9,
 						ease: "power3.in",
-						onUpdate: () => setHole(s.r),
+						onStart: () => el.classList.add("open"),
+						onUpdate: () => void (director.iris = s.r),
 						onComplete: () => {
-							el.classList.add("open");
+							director.iris = 0;
 							lenisRef.current?.start();
 						},
 					},
 					"+=0.2"
+				)
+				.to(
+					s,
+					{
+						morph: 1,
+						duration: 1.6,
+						ease: "power2.inOut",
+						onUpdate: () => void (director.morph = s.morph),
+					},
+					"<0.1"
 				)
 				.to(
 					s,
@@ -197,7 +262,8 @@ export function Landing({ data }: { data: LandingData }) {
 						ease: "power3.inOut",
 						onUpdate: () => void (director.settle = s.settle),
 					},
-					"-=0.3"
+					// As before: 0.6 s after the iris starts opening, while the yellow climbs.
+					"<0.5"
 				);
 		});
 		return () => ctx.revert();

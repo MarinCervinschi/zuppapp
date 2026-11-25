@@ -29,6 +29,18 @@ export const director = {
 	swirl: 0,
 	/** 0..1 as the iris opens and the bowl steps aside. */
 	settle: 0,
+	/** The preloader's hole in CSS px, once the canvas draws the yellow itself (aurora.tsx). */
+	iris: 0,
+	/** 0..1 as the yellow of the preloader climbs back and becomes the curtain of the aurora. */
+	morph: 0,
+	/** How fast the page scrolls, 0..1: quick to rise, slow to settle. Changes sizes, never G. */
+	speed: 0,
+	/** -1 up, 1 down. */
+	dir: 1,
+	/** The mouse or finger: NDC position, whether it is over the page, a tap waiting to land. */
+	pointer: { x: 0, y: 0, on: false, tap: false },
+	/** Runs the canvas from the page's own loop (set by the world), so 3D and words never slip. */
+	advance: null as null | ((timestamp: number) => void),
 };
 
 /** G from the scroll position, in px. */

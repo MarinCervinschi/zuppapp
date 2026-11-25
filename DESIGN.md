@@ -437,6 +437,24 @@ alle regole di movimento: qui lo scroll muove la camera e la storia.
   profilo. Apre la pagina da capo (`reloadDocument`), col suo preloader.
   Il testo dentro WebGL non usa Clash Display: si disegna col motore del browser su un canvas 2D (etichette,
   timbri), mai convertito.
+- **La prima schermata è calda e viva, con la fisica di una vellutata vera**, studiata su numeri e riprese al
+  rallentatore prima di scriverla:
+  - **l'aurora della home** (`aurora.tsx`, lo shader di `SoupField` dentro la scena): il giallo del preloader non
+    sparisce, risale e diventa la tenda;
+  - **la superficie** (`soup-sim.ts`) è un'equazione d'onda a passo fisso (640 passi al secondo): le onde vanno a
+    circa 23 cm/s come quelle vere, le increspature corte muoiono subito per la viscosità, il cucchiaio spinge la
+    zuppa davanti e lascia un avvallamento dietro, tutta la superficie oscilla a 2,4 Hz due o tre volte e si
+    ferma; il mouse mescola, un tocco su telefono lascia un puntino di crema;
+  - **le gocce** (`drops.tsx`): l'orlo dell'aurora si calma, la zuppa si raccoglie in una pera col menisco, tira
+    un filo, si stacca in un fotogramma, cade a gravità vera (con l'ombra sulla zuppa) e lascia una conca e una
+    macchia gialla irregolare che resta, finché il cucchiaio la stira in filamenti con la crema;
+  - **il vapore** (`steam.tsx`): lingue che salgono piano e poi accelerano, convergono al centro, si arricciano e
+    si consumano; è una sovrastampa color carta in due toni piatti, senza contorno, che si legge sul nero della
+    ciotola e quasi per niente sull'arancione, come il vapore vero. Dall'alto è discreto, scendendo con la camera
+    si vede di profilo. Il cursore lo piega come un soffio, il cucchiaio lo taglia.
+  - Gli eventi brevi (goccia, rottura del filo) li fa partire lo scroll ma li esegue l'orologio, così la gravità
+    non segue il pollice. Il canvas non ha un ciclo suo: lo fa avanzare il tick della pagina, così 3D e parole non
+    slittano.
 - **Sempre la carta chiara**, anche col tema scuro: il 3D è stampato sulla stessa carta.
 - **Senza tab bar né piè di pagina** (`staticData: { bare: true }`, letto da `__root`).
 - **Con `prefers-reduced-motion`** niente preloader, scroll nativo, niente coriandoli, contorni fermi e timbri che

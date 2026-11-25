@@ -13,6 +13,9 @@ il suo tag `v<versione>` su git.
   della home, una volta sola; chi ha già votato no. Dall'app ci si torna con il tasto «i» in cima alla home, e con
   «Cos’è Zuppapp» nel piè di pagina, in «Accedi» e nel profilo. Il 3D si scarica solo su questa pagina; con «riduci
   movimento» la storia resta, ferma.
+- **Presentazione, la prima schermata**: la zuppa è calda e viva. Il giallo del preloader diventa l'aurora della
+  home, dalla quale cadono gocce gialle che lasciano una macchia nella zuppa; il vapore sale dalla ciotola; il
+  mouse mescola la crema e su telefono un tocco lascia un puntino. Tutto segue la fisica di una vellutata vera.
 
 ## 0.2.0 (2026-11-17)
 
