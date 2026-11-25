@@ -432,8 +432,9 @@ alle regole di movimento: qui lo scroll muove la camera e la storia.
   chi non ha una sessione: chi ha votato o è entrato non lo riceve. Il segno resta nel browser (`localStorage`,
   nessun cookie) e lo mette la prima pagina in assoluto, qualunque sia: chi arriva da una zuppa condivisa non viene
   spostato dopo. Motori di ricerca, anteprime dei link e browser di test restano sulla home.
-- **Dall'app ci si torna con «Cos’è Zuppapp»**: è il primo dei link del sito (`SiteLinks`: piè di pagina su
-  desktop e «Accedi») e una riga del profilo. Apre la pagina da capo (`reloadDocument`), col suo preloader.
+- **Dall'app ci si torna con «Cos’è Zuppapp»**: il tasto tondo «i» in alto a destra della home (lo stesso della
+  classifica), il primo dei link del sito (`SiteLinks`: piè di pagina su desktop e «Accedi») e una riga del
+  profilo. Apre la pagina da capo (`reloadDocument`), col suo preloader.
   Il testo dentro WebGL non usa Clash Display: si disegna col motore del browser su un canvas 2D (etichette,
   timbri), mai convertito.
 - **Sempre la carta chiara**, anche col tema scuro: il 3D è stampato sulla stessa carta.
