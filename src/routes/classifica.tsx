@@ -18,6 +18,9 @@ import { cn } from "@/lib/utils";
 // «Classifica», the second tab: the soups with enough votes, by the Bayesian mean of their
 // stars. Page 1 opens on the podium; «per pagina» counts places, podium included.
 
+const RANKING_DESCRIPTION =
+	"Le zuppe pronte del supermercato in ordine di stelle, votate da chi le mangia: minestroni, vellutate, zuppe di legumi e di cereali.";
+
 export const Route = createFileRoute("/classifica")({
 	validateSearch: browseSchema,
 	loaderDeps: ({ search }) => ({
@@ -36,7 +39,14 @@ export const Route = createFileRoute("/classifica")({
 			),
 		]);
 	},
-	head: () => ({ meta: [{ title: "Classifica · Zuppapp" }] }),
+	head: () => ({
+		meta: [
+			{ title: "Classifica delle zuppe pronte · Zuppapp" },
+			{ name: "description", content: RANKING_DESCRIPTION },
+			{ property: "og:title", content: "La classifica delle zuppe pronte" },
+			{ property: "og:description", content: RANKING_DESCRIPTION },
+		],
+	}),
 	component: Ranking,
 });
 

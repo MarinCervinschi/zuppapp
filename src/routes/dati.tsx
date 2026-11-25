@@ -9,8 +9,18 @@ import { PageHead } from "@/components/ds/page-head";
 // The ODbL dump of SPEC decision 11: the catalogue comes from Open Food Facts' ODbL database,
 // so it is shared under the same licence. The file is `dati_.catalogo[.]json.ts`.
 
+const DATA_DESCRIPTION =
+	"Il catalogo delle zuppe pronte di Zuppapp in un file JSON: nomi, marche, ingredienti, allergeni e valori nutrizionali, sotto licenza ODbL.";
+
 export const Route = createFileRoute("/dati")({
-	head: () => ({ meta: [{ title: "I dati delle zuppe · Zuppapp" }] }),
+	head: () => ({
+		meta: [
+			{ title: "I dati delle zuppe · Zuppapp" },
+			{ name: "description", content: DATA_DESCRIPTION },
+			{ property: "og:title", content: "I dati delle zuppe" },
+			{ property: "og:description", content: DATA_DESCRIPTION },
+		],
+	}),
 	component: Data,
 });
 
