@@ -431,3 +431,13 @@ html.lenis body {
 		grid-column: 2;
 	}
 }
+
+/* As in the app: under reduced motion the star only changes colour, without the bounce. */
+@media (prefers-reduced-motion: reduce) {
+	.landing .star {
+		transition: color 120ms;
+	}
+	.landing .star.on {
+		transform: none;
+	}
+}
