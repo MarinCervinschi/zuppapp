@@ -27,21 +27,29 @@ const STAR_NAMES = ["Mai più", "Si mangia", "Niente male", "Buona", "La ricompr
 const STRIKES = [3.46, 3.58, 3.7];
 const INGREDIENTI = { one: "ingrediente", other: "ingredienti" };
 
-/** The three promises on the brick, and what a real label says next to them. */
+/**
+ * The promises on the brick, each next to the fact of a real label that gives it the lie: water as
+ * the first ingredient, yeast extract, sunflower oil. A promise with nothing on the label to answer
+ * it is left out: two strong pairs are better than a weak third.
+ */
 function claimsOf(label: LandingData["label"]) {
-	return [
-		{
-			claim: "Come fatta in casa",
-			fact: label ? count(label.ingredients, INGREDIENTI) : "ingredienti in etichetta",
-		},
+	const homemade =
+		label?.first === "acqua"
+			? "primo ingrediente: acqua"
+			: label?.yeast
+				? "estratto di lievito"
+				: label
+					? count(label.ingredients, INGREDIENTI)
+					: "ingredienti in etichetta";
+	const claims = [
+		{ claim: "Come fatta in casa", fact: homemade },
 		{ claim: "Ricca di verdure", fact: label?.veg ?? "verdure senza percentuale" },
-		{
-			claim: "Ricetta tradizionale",
-			fact: label?.nutriscore
-				? `Nutri-Score ${label.nutriscore}`
-				: "Nutri-Score assente",
-		},
 	];
+	const traditional =
+		label?.modern ??
+		(label?.yeast && label.first === "acqua" ? "estratto di lievito" : null);
+	if (traditional) claims.push({ claim: "Tradizionale", fact: traditional });
+	return claims;
 }
 
 /** A block of copy on screen between two values of G. */
@@ -305,21 +313,24 @@ export function Landing({ data }: { data: LandingData }) {
 				<Beat from={1.0} to={1.42}>
 					<p className="wordmark">ZUPPAPP</p>
 					<h1 className="title">Presentiamo la zuppa pronta.*</h1>
-					<p className="note">*Esisteva già. Adesso però si vota.</p>
+					<p className="note">
+						*Era già nel banco frigo, vicino alle insalate in busta. Adesso si vota.
+					</p>
 				</Beat>
 				<Beat from={1.48} to={1.9}>
-					<h2 className="title">Mescolarla non la rende migliore.*</h2>
-					<p className="note">*Votarla, invece, aiuta chi la compra dopo di te.</p>
+					<h2 className="title">Puoi mescolarla per tutta la pagina.</h2>
+					<p className="note">Il sapore resta quello. Almeno puoi dire com’era.</p>
 				</Beat>
 
 				<Beat from={2.04} to={2.5}>
 					<h2 className="title">{count(data.total, ZUPPE)} pronte.</h2>
 					<p className="note">
-						Brick, buste, vaschette, vasetti. Tutte con una bella foto davanti.
+						Brick, buste, vaschette, vasetti. Davanti, tutte con la foto della zuppa e
+						il prezzemolo.
 					</p>
 				</Beat>
 				<Beat from={2.5} to={2.92}>
-					<h2 className="title">Nessuna ti dice se è buona.</h2>
+					<h2 className="title">Per sapere se è buona, finora, dovevi comprarla.</h2>
 				</Beat>
 
 				<Beat from={3.04} to={3.34}>
@@ -327,7 +338,9 @@ export function Landing({ data }: { data: LandingData }) {
 					<p className="note">*Quella dietro, scritta piccola.</p>
 				</Beat>
 				<Beat from={3.36} to={3.96}>
-					<h2 className="title small">Cosa promette. Cosa c’è.</h2>
+					<h2 className="title small">
+						Davanti c’è la promessa, dietro gli ingredienti.
+					</h2>
 					<ul className="claims">
 						{claims.map(c => (
 							<li className="claim" key={c.claim}>
@@ -336,9 +349,9 @@ export function Landing({ data }: { data: LandingData }) {
 						))}
 					</ul>
 					<p className="note">
-						Inquadri il codice a barre, il resto lo leggiamo noi.
+						Inquadri il codice a barre, l’etichetta la leggiamo noi.
 						{data.label &&
-							` I dati sono veri: ${data.label.name}${data.label.brand ? ` (${data.label.brand})` : ""}, da Open Food Facts.`}
+							` Questa è vera: ${data.label.name}${data.label.brand ? ` (${data.label.brand})` : ""}, da Open Food Facts.`}
 					</p>
 				</Beat>
 
@@ -360,28 +373,33 @@ export function Landing({ data }: { data: LandingData }) {
 					</div>
 				</Beat>
 				<Beat from={4.16} to={4.5} className="aside">
-					<p className="note">Una stella. Se lo merita.</p>
+					<p className="note">Una stella, e sul brick resta «Mai più».</p>
 				</Beat>
 				<Beat from={4.52} to={4.96} className="aside">
-					<p className="note">
-						Cinque stelle e torna in vetrina. Un tocco e hai votato.
-					</p>
+					<p className="note">Con cinque torna in prima fila. Basta un tocco.</p>
 				</Beat>
 
 				<Beat from={5.04} to={5.5}>
-					<h2 className="title">Senza account.*</h2>
-					<p className="note">*Non ti chiediamo nemmeno come ti chiami.</p>
+					<h2 className="title">Per votare non serve l’account.</h2>
+					<p className="note">
+						Né l’email né la tessera punti. Quella tienila per la cassa.
+					</p>
 				</Beat>
 				<Beat from={5.5} to={5.96}>
-					<h2 className="title">Ogni voto finisce in classifica.</h2>
+					<h2 className="title">Ogni voto sposta la media di quella zuppa.</h2>
 				</Beat>
 
 				<Beat from={6.04} to={6.5} className="on-fill">
-					<h2 className="title">La classifica la fanno i voti.</h2>
-					<p className="note">Un 5 da due voti non batte un 4,7 da quaranta.</p>
+					<h2 className="title">Un 5 da due voti non batte un 4,7 da quaranta.</h2>
+					<p className="note">
+						Le stelle contano, e conta quanti le hanno date. Si entra da{" "}
+						{count(data.minVotes, VOTI)}.
+					</p>
 				</Beat>
 				<Beat from={6.5} to={6.96} className="on-fill">
-					<h2 className="title">{podiumLine(data.podium.length, data.minVotes)}</h2>
+					<h2 className="title">
+						{podiumLine(data.podium, data.minVotes, data.total)}
+					</h2>
 					{data.podium.length > 0 ? (
 						<ol className="podium-list">
 							{data.podium.map((p, i) => (
@@ -423,10 +441,10 @@ export function Landing({ data }: { data: LandingData }) {
 							<a className="vote" href={`/prodotti/${taste.ean}`} onClick={leave}>
 								Vota questa zuppa
 							</a>
-							<p className="tiny">Senza account. Un tocco.</p>
+							<p className="tiny">Non serve l’account.</p>
 						</div>
 					)}
-					{!taste && <h2 className="title small">Adesso tocca a te.</h2>}
+					{!taste && <h2 className="title small">Scegli una zuppa e votala.</h2>}
 					<a className={taste ? "browse" : "vote"} href="/" onClick={leave}>
 						{taste
 							? `Oppure guarda tutte le ${data.total.toLocaleString("it-IT")} zuppe`
@@ -439,7 +457,7 @@ export function Landing({ data }: { data: LandingData }) {
 						Dati delle zuppe: Open Food Facts, licenza ODbL. Foto delle confezioni: CC
 						BY-SA.
 					</p>
-					<p>Nessun minestrone è stato maltrattato durante le riprese.</p>
+					<p>Il cucchiaio è in 3D. Le {data.total.toLocaleString("it-IT")} zuppe no.</p>
 				</Beat>
 			</main>
 

@@ -420,9 +420,13 @@ html.lenis body {
 		bottom: 3svh;
 		font-size: 12px;
 	}
+	/* Under the stars' panel, where nothing in 3D comes down: above the title it met the plinth. */
 	.landing .aside {
 		top: auto;
-		bottom: calc(9svh + 170px);
+		bottom: 1.5svh;
+	}
+	.landing .aside .note {
+		font-size: 13px;
 	}
 	/* One line per soup, so a full podium leaves the steps above it uncovered. */
 	.landing .podium-list {

@@ -28,6 +28,17 @@ describe("labelFacts", () => {
 		).toBe("verdure fresche 16%");
 	});
 
+	it("finds what no kitchen at home would put in", () => {
+		const facts = label(
+			"Acqua, carote 12%, patate, olio di semi di girasole, amido modificato, sale, estratto di lievito, aromi"
+		);
+		expect(facts.first).toBe("acqua");
+		expect(facts.yeast).toBe(true);
+		expect(facts.modern).toBe("olio di girasole");
+		expect(label("Zucca 40% (zucca, acqua), cipolla, aromi").first).toBe("zucca");
+		expect(label("acqua, cipolla, erbe aromatiche").modern).toBeNull();
+	});
+
 	it("writes the Nutri-Score in capitals, and copes with a label that has nothing", () => {
 		expect(label("acqua", "c").nutriscore).toBe("C");
 		const empty = label(null, null);
@@ -36,10 +47,18 @@ describe("labelFacts", () => {
 });
 
 describe("podiumLine", () => {
-	it("has a line for every podium from empty to full", () => {
-		expect(podiumLine(0, 3)).toBe("Nessuna zuppa ha ancora 3 voti. Comincia tu.");
-		expect(podiumLine(2, 3)).toBe("Il terzo posto è libero.");
-		expect(podiumLine(3, 3)).toBe("Il podio è pieno. Per ora.");
+	it("says how the podium stands, with its real numbers", () => {
+		const soup = (votes: number) => ({ votes });
+		expect(podiumLine([], 3, 486)).toBe(
+			"Nessuna zuppa ha ancora 3 voti. Il podio è vuoto."
+		);
+		expect(podiumLine([soup(3)], 3, 486)).toBe("Sul podio c’è una zuppa sola.");
+		expect(podiumLine([soup(3), soup(3)], 3, 486)).toBe(
+			"Due zuppe sul podio, 6 voti in tutto."
+		);
+		expect(podiumLine([soup(5), soup(4), soup(3)], 3, 12000)).toBe(
+			"Tre zuppe sul podio, su 12.000."
+		);
 	});
 });
 
