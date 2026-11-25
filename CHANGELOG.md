@@ -19,6 +19,8 @@ il suo tag `v<versione>` su git.
 - **Presentazione, i testi**: frasi più concrete e vere. Le promesse barrate prendono il fatto dall'etichetta vera
   (per esempio «Come fatta in casa → primo ingrediente: acqua») e il podio dice com'è oggi, con i suoi numeri
   («Due zuppe sul podio, 6 voti in tutto»).
+- **Presentazione, tema scuro**: la pagina segue il tema scelto nell'app o quello del sistema. Di notte è la stessa
+  carta a lume di lampada dell'app, con i contorni color crema e il vapore che si vede meglio.
 
 ## 0.2.0 (2026-11-17)
 

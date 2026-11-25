@@ -35,6 +35,8 @@ export const director = {
 	morph: 0,
 	/** How fast the page scrolls, 0..1: quick to rise, slow to settle. Changes sizes, never G. */
 	speed: 0,
+	/** The same, eased over about half a second: for the aurora's hem, which must never snap. */
+	speedSoft: 0,
 	/** -1 up, 1 down. */
 	dir: 1,
 	/** The mouse or finger: NDC position, whether it is over the page, a tap waiting to land. */

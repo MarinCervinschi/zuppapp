@@ -16,6 +16,7 @@ import { type LandingData, podiumLine } from "@/lib/landing/facts";
 import { VOTI, ZUPPE, count } from "@/lib/plural";
 
 import { director, gFromScroll, reduced, rimRadiusPx, smooth, starsAt } from "./story";
+import { watchTheme } from "./theme";
 
 // «Presentazione ufficiale»: the landing. The words are plain HTML, rendered on the server and
 // read by everyone; the 3D (three.js, in its own chunk) loads after the page and only decorates.
@@ -99,6 +100,8 @@ export function Landing({ data }: { data: LandingData }) {
 	const [ready, setReady] = useState(false);
 
 	useEffect(() => setMounted(true), []);
+	// The 3D follows the app's theme (theme.ts); the words follow it in landing.css.
+	useLayoutEffect(() => watchTheme(() => undefined), []);
 
 	// Scroll → G → every overlay, once per frame.
 	useEffect(() => {
@@ -125,6 +128,9 @@ export function Landing({ data }: { data: LandingData }) {
 			const target = Math.min(Math.abs(lenis.velocity) / 40, 1);
 			speed += (target - speed) * (1 - Math.exp(-dt / (target > speed ? 0.06 : 0.5)));
 			director.speed = reduced ? 0 : speed;
+			director.speedSoft +=
+				(director.speed - director.speedSoft) *
+				(1 - Math.exp(-dt / (director.speed > director.speedSoft ? 0.35 : 0.8)));
 			if (lenis.velocity) director.dir = Math.sign(lenis.velocity);
 
 			for (const b of beats) {

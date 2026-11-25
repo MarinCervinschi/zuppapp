@@ -3,10 +3,12 @@ import { useEffect, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
+import { auroraMask } from "./aurora";
 import { bowlGeometry } from "./bowl-parts";
 import { C } from "./palette";
 import { soupState } from "./soup-bowl";
 import { director, reduced } from "./story";
+import { themed } from "./theme";
 
 // The steam over the soup, after footage of steam over cups and bowls (ricerca/15) and the
 // measurements over an espresso (ricerca/13): indoor steam is tongues and folds, not round puffs
@@ -18,10 +20,11 @@ import { director, reduced } from "./story";
 //
 // How it is drawn: no outline and no tremble. Steam adds light to what is behind it, so it is an
 // overprint towards the paper colour in two flat levels, veil and fold, as strong as the ground
-// allows: on the black glaze it reads, on the bright soup it barely does (the real change there is
-// under 3%), on the paper it ends. Seen from above (66°) that leaves the crescent of the far wall
-// and the tongues that climb over the far rim; as the camera comes down to 32° the steam shows its
-// profile. The shapes are drawn 12 times a second; the motion is computed every frame; a threshold
+// allows: on the black glaze it reads, on the bright soup it is left out (the real change there is
+// under 3%, and drawn it only made blotches). Beyond the bowl it goes on, as a declared licence, so
+// a tongue is never cut by the bowl's outline: a paler sheet on the paper, a light overprint on
+// the aurora. Seen from above (66°) that leaves the crescent of the far wall and the tongues that
+// climb over the far rim; as the camera comes down to 32° the steam shows its profile. The shapes are drawn 12 times a second; the motion is computed every frame; a threshold
 // with hysteresis keeps a pixel from flickering, and thin parts wear through on the brand's
 // stipple grid as they die.
 
@@ -31,6 +34,8 @@ const EMIT_EVERY = 1 / 30;
 /** How fast a bit of steam thins out: between a dry room (0.7 s) and a humid one (1.3 s) the
  * footage shows tongues reaching 8-10 cm, which at the measured rise takes about 2 s. */
 const DECAY = 1.5;
+/** The longest link between two puffs of one tongue: about a centimetre. */
+const MAX_LINK = 0.15;
 
 type Particle = {
 	pos: THREE.Vector3;
@@ -139,14 +144,15 @@ void main() {
 	gl_FragColor = vec4(veil, fold * veil, 0.0, 1.0);
 }`;
 
-// The overprint on the scene: paper over whatever is behind, at a cover set by that ground. The
-// edge is decided here, at full resolution, from the smooth density, so it never steps; the
-// half-resolution levels only say which side of the hysteresis each part was on last time.
-// On the paper and on the aurora the steam ends, as it does in life against a light ground.
+// The overprint on the scene: a lighter sheet over whatever is behind, at a cover set by that
+// ground. The edge is decided here, at full resolution, from the smooth density, so it never
+// steps; the half-resolution levels only say which side of the hysteresis each part was on.
 const OVER_FRAG = /* glsl */ `
 uniform sampler2D uLevel;
 uniform sampler2D uGround;
-uniform vec3 uPaper;
+uniform vec3 uSheet;
+uniform vec3 uPaperColor;   // the steam on the paper: a lighter sheet by day, cream by night
+uniform vec2 uPaperCover;
 uniform vec2 uSize;
 float hash(vec2 p) {
 	p = fract(p * vec2(234.34, 435.345));
@@ -163,13 +169,18 @@ void main() {
 	float veil = lv.r > 0.5 ? step(s - 0.04, d) : step(s + 0.04, d);
 	float fold = veil * (lv.g > 0.5 ? step(1.6 * s - 0.04, d) : step(1.6 * s + 0.04, d));
 	if (veil < 0.5) discard;
-	float glaze = step(0.5, g.g);
-	float soup = step(0.5, g.b);
-	float a = 0.0;
-	if (soup > 0.5) a = fold > 0.5 ? 0.15 : 0.0;
-	else if (glaze > 0.5) a = fold > 0.5 ? 0.45 : 0.22;
-	if (a <= 0.0) discard;
-	gl_FragColor = vec4(uPaper, a);
+	// The ground: glaze (green), soup (blue), aurora (alpha), else the paper.
+	if (g.b > 0.5) discard;
+	vec3 colour = uSheet;
+	float a;
+	if (g.g > 0.5) a = fold > 0.5 ? 0.45 : 0.22;
+	else if (g.a > 0.5) a = fold > 0.5 ? 0.35 : 0.18;
+	else {
+		// On the paper: a lighter sheet by day, cream by night (theme.ts), lighter still in the fold.
+		colour = fold > 0.5 ? mix(uPaperColor, vec3(1.0), 0.4) : uPaperColor;
+		a = fold > 0.5 ? uPaperCover.y : uPaperCover.x;
+	}
+	gl_FragColor = vec4(colour, a);
 }`;
 
 export function Steam() {
@@ -208,13 +219,18 @@ export function Steam() {
 		const scene = new THREE.Scene();
 		// What is behind the steam: the black glaze in green, the bright soup in blue. Both write
 		// depth, so the near rim hides the foot of the steam behind it.
+		// Each writes only its own channel, and alpha 0: alpha is the aurora's.
+		const flat = (rgba: string) =>
+			new THREE.ShaderMaterial({
+				vertexShader:
+					"void main() { gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+				fragmentShader: `void main() { gl_FragColor = vec4(${rgba}); }`,
+			});
 		const ground = new THREE.Group();
-		ground.add(
-			new THREE.Mesh(bowlGeometry(), new THREE.MeshBasicMaterial({ color: 0x00ff00 }))
-		);
+		ground.add(new THREE.Mesh(bowlGeometry(), flat("0.0, 1.0, 0.0, 0.0")));
 		const disc = new THREE.Mesh(
 			new THREE.CircleGeometry(1, 48),
-			new THREE.MeshBasicMaterial({ color: 0x0000ff })
+			flat("0.0, 0.0, 1.0, 0.0")
 		);
 		disc.rotation.x = -Math.PI / 2;
 		ground.add(disc);
@@ -255,6 +271,12 @@ export function Steam() {
 		segs.frustumCulled = false;
 		segs.renderOrder = 1;
 		scene.add(segs);
+		// The aurora, into alpha only, from the curtain's own shader (aurora.tsx).
+		const aurora = new THREE.Mesh(new THREE.PlaneGeometry(2, 2));
+		aurora.frustumCulled = false;
+		aurora.renderOrder = 2;
+		aurora.visible = false;
+		scene.add(aurora);
 
 		const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 		const levelMat = new THREE.ShaderMaterial({
@@ -280,7 +302,9 @@ export function Steam() {
 				uniforms: {
 					uLevel: { value: null },
 					uGround: { value: targets.density.texture },
-					uPaper: { value: new THREE.Vector3(...C.sheet) },
+					uSheet: { value: new THREE.Vector3(...C.sheet) },
+					uPaperColor: themed.steamPaper,
+					uPaperCover: themed.steamPaperCover,
 					uSize: { value: new THREE.Vector2(1, 1) },
 				},
 				transparent: true,
@@ -294,6 +318,7 @@ export function Steam() {
 			scene,
 			ground,
 			disc,
+			aurora,
 			geo,
 			aA,
 			aB,
@@ -369,13 +394,25 @@ export function Steam() {
 		const bowlSpeed = soupState.at.distanceTo(sim.lastBowl) / Math.max(dt, 1e-3);
 		sim.lastBowl.copy(soupState.at);
 
+		// The direction away from the camera, on the table: the far side of the bowl.
+		const away = Math.atan2(axis.z - cam.position.z, axis.x - cam.position.x);
+
 		const step = (dt: number, t: number) => {
 			// Births: about two tongues a second on this bowl, in clusters and pauses; half again as
 			// many while the spoon brings hotter soup up.
 			sim.nextBirth -= dt;
-			while (hot > 0.05 && sim.nextBirth <= 0) {
-				const r = Math.sqrt(Math.random()) * R * 0.9;
-				const a = Math.random() * Math.PI * 2;
+			// No new tongues while the bowl itself is sliding: the hot surface is moving out from
+			// under the air above it.
+			while (hot > 0.05 && bowlSpeed < 0.5 && sim.nextBirth <= 0) {
+				// Half of them on the far side, where a tongue climbs over the rim and reads against the
+				// glaze: from above that is all of the steam one sees.
+				const far = Math.random() < 0.5;
+				const r = far
+					? R * (0.5 + 0.4 * Math.random())
+					: Math.sqrt(Math.random()) * R * 0.9;
+				const a = far
+					? away + (Math.random() - 0.5) * (Math.PI / 1.5)
+					: Math.random() * Math.PI * 2;
 				sim.emitters.push({
 					at: new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r),
 					on: 0.4 + 0.6 * Math.pow(Math.random(), 2),
@@ -392,6 +429,8 @@ export function Steam() {
 
 			for (const e of sim.emitters) {
 				// While on, a particle every 33 ms from the same spot of the surface.
+				// A spot of the surface that has slid away no longer feeds this tongue.
+				if (bowlSpeed > 0.5) e.on = 0;
 				if (e.on > 0) {
 					e.on -= dt;
 					e.next -= dt;
@@ -426,7 +465,8 @@ export function Steam() {
 					e.curl.centre.y += rise(e.curl.centre.y - axis.y) * dt;
 				}
 				for (const p of e.particles) {
-					p.age += dt * (torn || bowlSpeed > 0.5 ? 2 : 1);
+					// Torn by the breath, or left behind by a bowl sliding away: it thins out fast.
+					p.age += dt * (torn ? 2 : bowlSpeed > 0.5 ? 4 : 1);
 					const h = Math.max(p.pos.y - axis.y, 0);
 					const dx = p.pos.x - axis.x;
 					const dz = p.pos.z - axis.z;
@@ -471,10 +511,20 @@ export function Steam() {
 				sim.drawClock = 1;
 			}
 		} else {
+			// Steam is already rising when the page opens: two seconds of it, run at once the first
+			// time the soup is hot, so the first view is never empty.
+			if (!sim.warmed && hot > 0.5) {
+				sim.warmed = true;
+				for (let i = 0; i < 120; i++)
+					step(1 / 60, state.clock.elapsedTime - 2 + i / 60);
+			}
 			step(dt, state.clock.elapsedTime);
 			sim.drawClock += dt;
 		}
 
+		// The steam belongs to the bowl's scene: past it (a quick scroll can get there before the
+		// last tongues have worn out) whatever is left goes.
+		if (director.G > 2) sim.emitters = [];
 		const live = sim.emitters.length > 0;
 		parts.over.visible = live;
 		const overMat = parts.over.material as THREE.ShaderMaterial;
@@ -487,7 +537,13 @@ export function Steam() {
 		let n = 0;
 		for (const e of sim.emitters) {
 			const ps = e.particles;
+			// Two puffs born far apart (the bowl ran from under them) are not one tongue: the chain
+			// breaks there instead of drawing a long straight bar between them.
+			const linked = ps.map(
+				(p, i) => i < ps.length - 1 && p.pos.distanceTo(ps[i + 1].pos) < MAX_LINK
+			);
 			for (let i = 0; i < ps.length - 1 && n < MAX_SEGMENTS; i++) {
+				if (!linked[i]) continue;
 				const p = ps[i];
 				const q = ps[i + 1];
 				parts.aA.setXYZW(n, p.pos.x, p.pos.y, p.pos.z, 0.07 + 0.078 * p.age);
@@ -496,8 +552,8 @@ export function Steam() {
 					n,
 					Math.exp(-p.age / DECAY),
 					Math.exp(-q.age / DECAY),
-					i === 0 ? 1 : 0,
-					i === ps.length - 2 ? 1 : 0
+					i === 0 || !linked[i - 1] ? 1 : 0,
+					i === ps.length - 2 || !linked[i + 1] ? 1 : 0
 				);
 				n++;
 			}
@@ -506,6 +562,10 @@ export function Steam() {
 		parts.aA.needsUpdate = parts.aB.needsUpdate = parts.aD.needsUpdate = true;
 		parts.segMat.uniforms.uAspect.value = W / H;
 		parts.ground.position.copy(soupState.at);
+		if (auroraMask.material) {
+			parts.aurora.material = auroraMask.material;
+			parts.aurora.visible = director.G < 1.96;
+		}
 		parts.disc.position.y = soupState.level + 0.005;
 		parts.disc.scale.setScalar(R);
 
